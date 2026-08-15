@@ -45,6 +45,9 @@
 <button id="run" type="button">各ページの実測を開始</button>
 <pre id="out">上のボタンを押すと、4ページとフォントを実際に取得して1つずつ時間を測ります。</pre>
 
+<button id="runpaint" type="button">描画テストを開始（15秒ほど）</button>
+<pre id="paint">ホームで使っているぼかし効果が、この端末でどれくらい重いかを実際に描画して測ります。</pre>
+
 <button id="copy" class="sec" type="button">結果を全部コピー</button>
 <p class="hint">コピーして貼り付けるか、スクリーンショットを送ってください。</p>
 
@@ -158,8 +161,113 @@
     next();
   });
 
+  // --- 描画コストの実測 ---
+  // ホームの CSS と同じ値で、ぼかし要素を実際に描いてフレーム時間を測る。
+  // ネットワークが速いのに表示が遅い場合、ここに時間が消えている。
+  var paintOut = document.getElementById("paint");
+  var runPaint = document.getElementById("runpaint");
+
+  function measureFrames(frames) {
+    // 何もしない状態で rAF を回し、1フレームにかかる時間を測る
+    return new Promise(function (resolve) {
+      var times = [];
+      var last = performance.now();
+      var n = 0;
+      // 実際に合成が走るように、毎フレーム微小に動かす
+      var probe = document.createElement("div");
+      probe.style.cssText = "position:fixed;top:0;left:0;width:8px;height:8px;opacity:0.01;pointer-events:none;z-index:9999";
+      document.body.appendChild(probe);
+      function tick(now) {
+        times.push(now - last);
+        last = now;
+        probe.style.transform = "translateX(" + (n % 20) + "px)";
+        if (++n < frames) requestAnimationFrame(tick);
+        else {
+          probe.remove();
+          times.sort(function (a, b) { return a - b; });
+          var sum = 0;
+          for (var i = 0; i < times.length; i++) sum += times[i];
+          resolve({
+            avg: sum / times.length,
+            median: times[Math.floor(times.length / 2)],
+            worst: times[times.length - 1],
+          });
+        }
+      }
+      requestAnimationFrame(function (t) { last = t; requestAnimationFrame(tick); });
+    });
+  }
+
+  function makeBlurLayer() {
+    // ホームの実際の値をそのまま使う
+    var wrap = document.createElement("div");
+    wrap.id = "__blurtest";
+    wrap.innerHTML =
+      '<div style="position:fixed;z-index:0;border-radius:999px;pointer-events:none;filter:blur(150px);' +
+      'top:-128px;right:-96px;width:416px;height:416px;background:#2f56ff;opacity:0.45"></div>' +
+      '<div style="position:fixed;z-index:0;border-radius:999px;pointer-events:none;filter:blur(150px);' +
+      'bottom:-160px;left:-128px;width:448px;height:448px;background:#0a1580;opacity:0.60"></div>' +
+      '<div style="position:fixed;top:0;left:0;right:0;height:56px;z-index:20;' +
+      'border-bottom:1px solid rgba(255,255,255,0.15);background:rgba(11,28,174,0.92);' +
+      '-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)"></div>';
+    return wrap;
+  }
+
+  runPaint.addEventListener("click", function () {
+    runPaint.disabled = true;
+    runPaint.textContent = "測定中…";
+    var lines = ["== 描画コストの実測 ==", ""];
+    var before, after, insertMs;
+    paintOut.textContent = "① ぼかし無しの状態を測定中…";
+
+    measureFrames(70).then(function (b) {
+      before = b;
+      paintOut.textContent = "② ぼかしを表示して測定中…";
+      var layer = makeBlurLayer();
+      var t0 = performance.now();
+      document.body.appendChild(layer);
+      // 最初の1フレームが出るまで＝初回描画のコスト
+      return new Promise(function (res) {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            insertMs = performance.now() - t0;
+            res();
+          });
+        });
+      });
+    }).then(function () {
+      return measureFrames(70);
+    }).then(function (a) {
+      after = a;
+      var layer = document.getElementById("__blurtest");
+      if (layer) layer.remove();
+
+      var f = function (v) { return v.toFixed(1) + "ms"; };
+      lines.push("ぼかし無し : 平均 " + f(before.avg) + " / 中央 " + f(before.median) + " / 最悪 " + f(before.worst));
+      lines.push("ぼかし有り : 平均 " + f(after.avg) + " / 中央 " + f(after.median) + " / 最悪 " + f(after.worst));
+      lines.push("ぼかしを出してから最初の描画まで: " + f(insertMs));
+      lines.push("");
+      var ratio = before.avg > 0 ? after.avg / before.avg : 0;
+      lines.push("倍率: " + ratio.toFixed(1) + "倍   ← 1.0 に近ければぼかしは無罪");
+      lines.push("(60fps なら 16.7ms が1フレーム。数値が大きいほど描画が詰まっている)");
+      var verdict;
+      if (ratio >= 3 || after.avg > 60) verdict = "判定: ぼかしが極端に重い ← これが原因の可能性が高い";
+      else if (ratio >= 1.6 || after.avg > 33) verdict = "判定: ぼかしはそれなりに重い";
+      else verdict = "判定: ぼかしは重くない ← 別の原因を探す必要がある";
+      lines.push(verdict);
+
+      paintOut.textContent = lines.join("\n");
+      runPaint.textContent = "もう一度測る";
+      runPaint.disabled = false;
+    }).catch(function (e) {
+      paintOut.textContent = "測定失敗: " + (e && e.message || e);
+      runPaint.textContent = "もう一度測る";
+      runPaint.disabled = false;
+    });
+  });
+
   document.getElementById("copy").addEventListener("click", function () {
-    var text = document.getElementById("self").textContent + "\n\n" + out.textContent;
+    var text = document.getElementById("self").textContent + "\n\n" + out.textContent + "\n\n" + document.getElementById("paint").textContent;
     var btn = this;
     function done() { btn.textContent = "コピーした"; setTimeout(function () { btn.textContent = "結果を全部コピー"; }, 1800); }
     if (navigator.clipboard) {
