@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Strudelの全関数を日本語で逆引き。検索・コード例付きの非公式リファレンス。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="narucode/ref – Strudel 関数リファレンス（日本語）">
+<meta property="og:description" content="Strudelの全関数を日本語で逆引き。検索・コード例付きの非公式リファレンス。">
+<meta property="og:url" content="https://narucode.pages.dev/ref/">
+<link rel="canonical" href="https://narucode.pages.dev/ref/">
+<title>narucode/ref – Strudel 関数リファレンス（日本語）</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --sjp-bg: #0B1CAE;
+    --sjp-accent: #ff7a1a;
+    --sjp-text: #ffffff;
+    --sjp-text-body: rgba(255,255,255,0.75);
+    --sjp-text-muted: rgba(255,255,255,0.55);
+    --sjp-border: rgba(255,255,255,0.25);
+    --sjp-border-subtle: rgba(255,255,255,0.12);
+    --sjp-code-bg: rgba(0,0,0,0.30);
+    --sjp-panel-bg: rgba(0,0,0,0.20);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--sjp-bg); color: var(--sjp-text); }
+  .brand { font-family: 'Space Grotesk', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .fn-row { border-left: 2px solid transparent; }
+  .fn-row:hover { border-left-color: var(--sjp-accent); background: rgba(255,255,255,0.08); }
+  .fn-row:hover .fn-code-block { border-left-color: var(--sjp-border); }
+  .tier-toggle { border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.55); }
+  .tier-toggle[aria-pressed="true"] { background: #ffffff; color: #0B1CAE; border-color: #ffffff; }
+  .tier-toggle:focus-visible, .category-link:focus-visible, .copy-btn:focus-visible {
+    outline: 2px solid var(--sjp-accent);
+    outline-offset: 2px;
+  }
+  .badge { border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.75); }
+  .badge-accent { border-color: var(--sjp-accent); color: #ffffff; }
+  /* SNS導線はトップバーではなくフッターに常設する（幅に関係なく必ず到達できる） */
+  .footer-sns { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .footer-sns a { font-size: 10px; color: rgba(255,255,255,0.55); text-decoration: none; white-space: nowrap; }
+  .footer-sns a:hover { color: var(--sjp-accent); }
+
+  /* --- モバイル（〜859px）: サイドバーをドロワー化し、本文を1カラムにする --- */
+  #nav-toggle { display: none; }
+  #nav-scrim { display: none; }
+  @media (max-width: 859px) {
+    #nav-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.25); background: rgba(0,0,0,0.25);
+      color: #fff; cursor: pointer;
+    }
+    #nav-toggle:focus-visible { outline: 2px solid var(--sjp-accent); outline-offset: 2px; }
+    #category-pane {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 40;
+      width: 78vw; max-width: 300px; min-width: 0;
+      transform: translateX(-100%);
+      transition: transform 0.22s ease;
+      box-shadow: 0 0 40px rgba(0,0,0,0.45);
+      background: #0a1795;
+    }
+    body.nav-open #category-pane { transform: translateX(0); }
+    body.nav-open #nav-scrim {
+      display: block; position: fixed; inset: 0; z-index: 30;
+      background: rgba(0,0,0,0.5);
+    }
+    #topbar-pane {
+      padding-left: 14px; padding-right: 14px; gap: 10px;
+      flex-wrap: wrap; row-gap: 10px;
+    }
+    /* 検索は単独行にして幅を確保する */
+    #topbar-pane > .flex-1 { order: 10; flex-basis: 100%; min-width: 0; }
+    #tier-toggle { order: 11; }
+    #count { order: 12; width: auto; }
+    /* 共通ナビはモバイルでもトップバーに出す。左の仕切り罫は不要なので落とす */
+    #topbar-pane > .desktop-site-nav { border-left: none; padding-left: 0; }
+    main#content { padding-left: 14px; padding-right: 14px; }
+    /* JS がインラインで 2 カラムを指定するので上書きする */
+    .fn-row { grid-template-columns: 1fr !important; gap: 12px !important; }
+    footer { flex-wrap: wrap; row-gap: 6px; padding: 10px 14px !important; }
+  }
+</style>
+</head>
+<body class="bg-[#0B1CAE] text-white flex overflow-hidden" style="height:100vh">
+
+<div id="nav-scrim" aria-hidden="true"></div>
+
+<!-- PANE 1: SIDEBAR -->
+<aside id="category-pane" class="w-48 min-w-[192px] bg-[rgba(0,0,0,0.20)] border-r border-white/15 flex flex-col overflow-y-auto shrink-0">
+  <div class="px-5 pt-5 pb-4 border-b border-white/15">
+    <div class="brand text-[11px] font-bold tracking-[0.25em] text-white/55 uppercase">カテゴリ</div>
+  </div>
+  <nav id="sidebar-nav" class="py-3 flex-1" aria-label="カテゴリ"></nav>
+</aside>
+
+<div class="flex-1 flex flex-col overflow-hidden min-w-0">
+  <!-- PANE 2: TOPBAR -->
+  <header id="topbar-pane" class="border-b border-white/15 px-8 py-4 flex items-center gap-5 shrink-0 bg-[#0B1CAE]">
+    <button id="nav-toggle" type="button" aria-label="カテゴリを開く" aria-expanded="false" aria-controls="category-pane">
+      <i data-lucide="menu" aria-hidden="true" style="width:16px;height:16px"></i>
+    </button>
+    <div class="brand whitespace-nowrap" style="font-size:15px; font-weight:700; letter-spacing:0.03em; font-family:'JetBrains Mono',monospace;">
+      <span style="color:#ffffff;">narucode</span><span style="color:#ff7a1a;">/ref</span>
+    </div>
+    <div class="flex-1 relative min-w-[180px]">
+      <label for="search" class="sr-only">関数を検索</label>
+      <input id="search" type="search" placeholder="関数名・説明・コードで検索..." autocomplete="off"
+        class="w-full bg-[rgba(0,0,0,0.30)] border border-white/20 text-white placeholder-white/35 text-sm px-4 py-2 outline-none transition-all"
+        style="font-family:'Inter',sans-serif"
+        onfocus="this.style.borderColor='#ff7a1a'" onblur="this.style.borderColor='rgba(255,255,255,0.20)'">
+    </div>
+    <div id="tier-toggle" class="flex items-stretch shrink-0" aria-label="表示範囲">
+      <button id="tier-core" class="tier-toggle mono text-[11px] px-3 py-2 transition-colors" type="button" aria-pressed="true"></button>
+      <button id="tier-all" class="tier-toggle mono text-[11px] px-3 py-2 -ml-px transition-colors" type="button" aria-pressed="false"></button>
+    </div>
+    <div id="count" class="mono text-xs text-white/40 w-14 text-right tabular-nums" aria-live="polite"></div>
+    <nav class="desktop-site-nav flex items-center gap-4 shrink-0 border-l border-white/15 pl-5" aria-label="narucode 内部ナビ">
+      <a href="../" class="text-[11px] text-white/55 transition-colors tracking-wide" onmouseover="this.style.color='#ff7a1a'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">ホーム</a>
+      <a href="../guide/" class="text-[11px] text-white/55 transition-colors tracking-wide" onmouseover="this.style.color='#ff7a1a'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">ガイド</a>
+      <span class="text-[11px] text-[#ff8a33] tracking-wide" aria-current="page">リファレンス</span>
+      <a href="../scale/" class="text-[11px] text-white/55 transition-colors tracking-wide" onmouseover="this.style.color='#ff7a1a'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">スケール</a>
+      <span class="text-[11px] text-white/20 select-none" aria-hidden="true">·</span>
+      <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/55 transition-colors tracking-wide" onmouseover="this.style.color='#ff7a1a'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">strudel.cc ↗</a>
+    </nav>
+  </header>
+
+  <!-- PANE 3: CONTENT -->
+  <main id="content" class="flex-1 overflow-y-auto px-8 py-6 bg-[rgba(0,0,0,0.18)]" tabindex="-1"></main>
+
+  <footer style="border-top:1px solid rgba(255,255,255,0.12); padding:10px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-shrink:0; background:rgba(0,0,0,0.15);">
+    <p style="font-family:'Inter',sans-serif; font-size:10px; color:rgba(255,255,255,0.35); margin:0; line-height:1.6;">
+      Strudel © TidalCycles contributors (AGPL-3.0-or-later) · 本サイトも AGPL-3.0 ·
+      <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.55); text-decoration:none;">strudel.cc</a> ·
+      <a href="https://codeberg.org/uzu/strudel" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.55); text-decoration:none;">Codeberg</a> ·
+      <a href="https://github.com/sakunova/narucode" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,0.55); text-decoration:none;">ソース</a> ·
+      CDN: @strudel/repl@1.3.0 · 非公式 · 無保証 ·
+      <span id="translation-rate"></span> · <span id="source-version"></span>
+    </p>
+    <nav class="footer-sns" aria-label="sakunova の発信">
+      <a href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer">TikTok ↗</a>
+      <a href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer">YouTube ↗</a>
+      <a href="https://note.com/dj_sakunova" target="_blank" rel="noopener noreferrer">note ↗</a>
+      <a href="https://x.com/sakuNovaDJ" target="_blank" rel="noopener noreferrer">X ↗</a>
+      <a href="https://www.instagram.com/dj_sakunova/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+    </nav>
+    <span style="font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; color:rgba(255,255,255,0.35); white-space:nowrap;">by sakunova</span>
+  </footer>
+</div>
+
+<script src="strudel-ref-data.js"></script>
+<script>
+const REF_DATA_SOURCE = {"kind":"external"};
+const STORAGE_KEY = 'narucode-ref-tier';
+const state = {
+  mode: localStorage.getItem(STORAGE_KEY) === 'all' ? 'all' : 'core',
+  query: '',
+  data: null,
+};
+
+function loadData() {
+  if (REF_DATA_SOURCE.kind === 'inline') return REF_DATA_SOURCE.payload;
+  if (REF_DATA_SOURCE.kind === 'external' && typeof window.REF_DATA !== 'undefined') {
+    return window.REF_DATA;
+  }
+  throw new Error('REFデータを読み込めませんでした。strudel-ref-data.js がHTMLと同じフォルダにあるか確認してください');
+}
+
+function setMode(mode, persist = true) {
+  state.mode = mode === 'all' ? 'all' : 'core';
+  if (persist) localStorage.setItem(STORAGE_KEY, state.mode);
+  render();
+}
+
+function matchingEntries() {
+  const query = state.query.toLocaleLowerCase('ja');
+  if (query) return state.data.entries.filter((entry) => entry.searchText.includes(query));
+  if (state.mode === 'core') return state.data.entries.filter((entry) => entry.tier === 'core');
+  return state.data.entries;
+}
+
+function render() {
+  if (!state.data) return;
+  const entries = matchingEntries();
+  renderToggles();
+  renderSidebar(entries);
+  renderContent(entries);
+  document.getElementById('count').textContent = state.query ? `${entries.length} 件` : '';
+  if (window.lucide) lucide.createIcons();
+}
+
+function renderToggles() {
+  const { core, official } = state.data.counts;
+  const coreButton = document.getElementById('tier-core');
+  const allButton = document.getElementById('tier-all');
+  coreButton.textContent = `よく使う ${core}`;
+  allButton.textContent = `全部 ${official}`;
+  coreButton.setAttribute('aria-pressed', String(state.mode === 'core'));
+  allButton.setAttribute('aria-pressed', String(state.mode === 'all'));
+}
+
+function renderSidebar(entries) {
+  const nav = document.getElementById('sidebar-nav');
+  nav.replaceChildren();
+  const visibleCategories = new Set(entries.map((entry) => entry.category));
+  state.data.categories.forEach((category) => {
+    if (!visibleCategories.has(category.id)) return;
+    const link = document.createElement('a');
+    link.href = `#sec-${category.id}`;
+    link.textContent = category.label;
+    link.dataset.target = category.id;
+    link.className = 'block px-5 py-2 text-[12px] text-white/55 hover:text-[#ff7a1a] transition-colors cursor-pointer leading-snug';
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      openCategory(category.id);
+    });
+    nav.appendChild(link);
+  });
+}
+
+function setNavOpen(open) {
+  document.body.classList.toggle('nav-open', open);
+  document.getElementById('nav-toggle')?.setAttribute('aria-expanded', String(open));
+}
+
+function openCategory(categoryId) {
+  setNavOpen(false); // モバイルではカテゴリを選んだらドロワーを閉じる
+  if (state.mode === 'core' && state.query) {
+    state.mode = 'all';
+    state.query = '';
+    localStorage.setItem(STORAGE_KEY, 'all');
+    document.getElementById('search').value = '';
+    render();
+  } else if (categoryId === 'advanced' && state.mode !== 'all') {
+    state.mode = 'all';
+    localStorage.setItem(STORAGE_KEY, 'all');
+    render();
+  }
+  requestAnimationFrame(() => {
+    document.getElementById(`sec-${categoryId}`)?.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+function renderContent(entries) {
+  const content = document.getElementById('content');
+  content.replaceChildren();
+  if (!entries.length) {
+    const empty = document.createElement('p');
+    empty.className = 'text-[13px] text-white/55';
+    empty.textContent = '該当する項目はありません。';
+    content.appendChild(empty);
+    return;
+  }
+
+  state.data.categories.forEach((category) => {
+    const categoryEntries = entries
+      .filter((entry) => entry.category === category.id)
+      .sort((a, b) => a.name.localeCompare(b.name, 'en'));
+    if (!categoryEntries.length) return;
+
+    const section = document.createElement('section');
+    section.id = `sec-${category.id}`;
+    section.className = 'mb-12';
+    section.innerHTML = `
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-0.5 h-5 bg-[#ff7a1a] shrink-0"></div>
+        <h2 class="brand text-[10px] font-bold tracking-[0.2em] text-[#ff7a1a] uppercase">${escapeHtml(category.label)}</h2>
+        <div class="flex-1 border-t border-white/15"></div>
+        <div class="mono text-[11px] text-white/55">${categoryEntries.length} fn</div>
+      </div>`;
+    categoryEntries.forEach((entry) => section.appendChild(createEntryRow(entry, category)));
+    content.appendChild(section);
+  });
+  observeSections();
+}
+
+function createEntryRow(entry, category) {
+  const row = document.createElement('article');
+  row.className = 'fn-row group border-b border-white/10 py-4 grid gap-6 px-4 -mx-4 transition-all';
+  row.style.gridTemplateColumns = entry.examples.length ? 'minmax(0,1fr) 300px' : '1fr';
+  row.dataset.name = entry.name;
+  row.dataset.tier = entry.tier;
+
+  const aliases = entry.synonyms.length
+    ? `<div class="mono text-[10px] text-white/55 mt-1">別名: ${escapeHtml(entry.synonyms.join(' / '))}</div>`
+    : '';
+  const badges = [
+    !entry.translated ? '<span class="badge badge-accent mono text-[9px] px-1.5 py-0.5">未訳</span>' : '',
+    state.mode === 'core' && state.query && entry.tier !== 'core' ? '<span class="badge mono text-[9px] px-1.5 py-0.5">全部モードの項目</span>' : '',
+    entry.deprecated ? '<span class="badge badge-accent mono text-[9px] px-1.5 py-0.5">非推奨</span>' : '',
+  ].filter(Boolean).join('');
+  const docLink = entry.docUrl
+    ? `<a href="${escapeAttribute(entry.docUrl)}" target="_blank" rel="noopener noreferrer" class="mono text-[10px] text-white/55 hover:text-white transition-colors">公式ドキュメント ↗</a>`
+    : '';
+  const note = entry.note
+    ? `<div class="text-[11px] text-white/55 mt-2 pl-3 border-l border-white/20 leading-relaxed">${escapeHtml(entry.note)}</div>`
+    : '';
+
+  const info = document.createElement('div');
+  info.innerHTML = `
+    <div class="flex items-start justify-between gap-4 mb-2">
+      <div class="min-w-0">
+        <div class="flex items-baseline gap-3 flex-wrap">
+          <h3 class="mono text-[16px] font-semibold text-white/90 leading-snug">${escapeHtml(entry.name)}</h3>
+          ${entry.params ? `<div class="mono text-[11px] text-white/55 leading-snug">${escapeHtml(entry.params)}</div>` : ''}
+        </div>
+        ${aliases}
+      </div>
+      <div class="flex items-center justify-end gap-1.5 flex-wrap shrink-0">${badges}</div>
+    </div>
+    <div class="text-[13px] text-white/75 leading-relaxed">${escapeHtml(entry.desc)}</div>
+    ${note}
+    <div class="flex items-center gap-3 mt-2">
+      <button type="button" class="category-link mono text-[10px] text-white/55 hover:text-[#ff7a1a] transition-colors" data-category="${escapeAttribute(category.id)}">${escapeHtml(category.label)} →</button>
+      ${docLink}
+    </div>`;
+  info.querySelector('.category-link').addEventListener('click', () => openCategory(category.id));
+  row.appendChild(info);
+
+  if (entry.examples.length) {
+    const code = entry.examples[0];
+    const codePanel = document.createElement('div');
+    codePanel.className = 'fn-code-block border-l border-white/15 pl-4 transition-colors self-start min-w-0';
+    codePanel.innerHTML = `
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <span class="mono text-[9px] text-white/55">${entry.examples.length > 1 ? `例 1/${entry.examples.length}` : 'コード例'}</span>
+        <button class="copy-btn flex items-center gap-1 text-[11px] text-white/55 hover:text-[#ff7a1a] transition-colors opacity-0 group-hover:opacity-100 px-1.5 py-0.5 border border-transparent hover:border-white/25" type="button">
+          <i data-lucide="copy" style="width:11px;height:11px;stroke-width:1.5"></i><span>コピー</span>
+        </button>
+      </div>
+      <pre class="mono text-[12px] text-white/90 leading-relaxed whitespace-pre overflow-x-auto bg-[rgba(0,0,0,0.30)] border border-white/15 p-3">${escapeHtml(code)}</pre>`;
+    codePanel.querySelector('.copy-btn').addEventListener('click', (event) => copyCode(event.currentTarget, code));
+    row.appendChild(codePanel);
+  }
+  return row;
+}
+
+async function copyCode(button, code) {
+  await navigator.clipboard.writeText(code);
+  button.innerHTML = '<i data-lucide="check" style="width:11px;height:11px;stroke-width:1.5"></i><span>コピー済み</span>';
+  button.style.color = '#ff7a1a';
+  if (window.lucide) lucide.createIcons();
+  setTimeout(() => {
+    button.innerHTML = '<i data-lucide="copy" style="width:11px;height:11px;stroke-width:1.5"></i><span>コピー</span>';
+    button.style.color = '';
+    if (window.lucide) lucide.createIcons();
+  }, 1500);
+}
+
+let sectionObserver;
+function observeSections() {
+  sectionObserver?.disconnect();
+  sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const id = entry.target.id.replace('sec-', '');
+      document.querySelectorAll('#sidebar-nav a').forEach((link) => {
+        link.style.color = link.dataset.target === id ? '#ff7a1a' : '';
+      });
+    });
+  }, { root: document.getElementById('content'), rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('#content [id^="sec-"]').forEach((section) => sectionObserver.observe(section));
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replace(/`/g, '&#096;');
+}
+
+function init() {
+  try {
+    state.data = loadData();
+    document.getElementById('translation-rate').textContent = `日本語訳: ${state.data.counts.translated}/${state.data.counts.official}件`;
+    document.getElementById('source-version').textContent = `公式データ: ${state.data.source.date} / ${state.data.source.commit}`;
+    document.getElementById('nav-toggle').addEventListener('click', () => {
+      setNavOpen(!document.body.classList.contains('nav-open'));
+    });
+    document.getElementById('nav-scrim').addEventListener('click', () => setNavOpen(false));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setNavOpen(false);
+    });
+    document.getElementById('tier-core').addEventListener('click', () => setMode('core'));
+    document.getElementById('tier-all').addEventListener('click', () => setMode('all'));
+    document.getElementById('search').addEventListener('input', (event) => {
+      state.query = event.target.value.trim();
+      render();
+    });
+    render();
+  } catch (error) {
+    const content = document.getElementById('content');
+    content.innerHTML = `<p class="text-[13px] text-white/75">${escapeHtml(error.message)}</p>`;
+    console.error(error);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

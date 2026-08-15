@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>はじめてガイド | narucode – Strudel 日本語ハブ</title>
+  <meta name="description" content="Strudelとは何か、どうやって音を鳴らすか。ブラウザだけで動くライブコーディング環境を日本語でかいつまんで解説します。">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="はじめてガイド | narucode – Strudel 日本語ハブ">
+  <meta property="og:description" content="Strudelとは何か、どうやって音を鳴らすか。ブラウザだけで動くライブコーディング環境を日本語でかいつまんで解説します。">
+  <meta property="og:url" content="https://narucode.pages.dev/guide/">
+  <link rel="canonical" href="https://narucode.pages.dev/guide/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B1CAE;
+      --bg-deep: #0a1580;
+      --bg-glow: #2f56ff;
+      --surface: rgba(255,255,255,0.10);
+      --surface-hover: #ffffff;
+      --panel: rgba(0,0,0,0.24);
+      --panel-soft: rgba(0,0,0,0.18);
+      --border: rgba(255,255,255,0.25);
+      --border-subtle: rgba(255,255,255,0.12);
+      --border-active: rgba(255,255,255,0.60);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.75);
+      --text-muted: rgba(255,255,255,0.55);
+      --text-soft: rgba(255,255,255,0.45);
+      --text-disabled: rgba(255,255,255,0.35);
+      --accent-orange: #ff7a1a;
+      --code-ink: rgba(255,255,255,0.90);
+      --blue-ink: #0B1CAE;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: "Inter", sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page-frame {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .bg-glow {
+      position: fixed;
+      z-index: 0;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(150px);
+    }
+
+    .bg-glow-top {
+      top: -128px;
+      right: -96px;
+      width: 416px;
+      height: 416px;
+      background: var(--bg-glow);
+      opacity: 0.45;
+    }
+
+    .bg-glow-bottom {
+      bottom: -160px;
+      left: -128px;
+      width: 448px;
+      height: 448px;
+      background: var(--bg-deep);
+      opacity: 0.60;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      background: rgba(11,28,174,0.92);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 56px;
+      gap: 24px;
+    }
+
+    .nc-brand-hub {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .nc-wordmark,
+    .nc-suffix {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .nc-wordmark {
+      color: #ffffff;
+    }
+
+    .nc-suffix {
+      color: var(--accent-orange);
+    }
+
+    .nc-sub {
+      display: block;
+      color: rgba(255,255,255,0.50);
+      font-family: "Inter", sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    .topbar-link {
+      color: var(--text-secondary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-decoration: none;
+      transition: color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .topbar-link:hover,
+    .topbar-link:focus-visible {
+      color: var(--text-primary);
+    }
+
+    .narucode-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+    }
+
+    .topbar-current {
+      /* 小さい文字なのでブランドの #ff7a1a より一段明るく。
+         #0B1CAE 上で 4.99:1（#ff7a1a は 4.49:1 で WCAG AA に届かない） */
+      color: #ff8a33;
+    }
+
+    .nav-separator {
+      color: rgba(255,255,255,0.20);
+      font-size: 11px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 24px;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent-orange);
+      color: var(--text-primary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      line-height: 1;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--text-primary);
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      color: var(--text-primary);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: min(7.5vw, 64px);
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 0.95;
+      white-space: nowrap;
+    }
+
+    .hero-copy {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.75;
+    }
+
+    .guide-hero {
+      max-width: 680px;
+      padding: 72px 0 56px;
+    }
+
+    .guide-section {
+      max-width: 680px;
+      padding: 0 0 56px;
+    }
+
+    .guide-section + .guide-section {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 48px;
+    }
+
+    .guide-h2 {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin: 0 0 20px;
+      color: var(--text-primary);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .guide-num {
+      flex-shrink: 0;
+      color: var(--accent-orange);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+    }
+
+    .guide-h3 {
+      margin: 36px 0 10px;
+      color: var(--text-primary);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .guide-p {
+      margin: 0 0 16px;
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.80;
+    }
+
+    .guide-p a,
+    .guide-steps a {
+      color: var(--text-primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.15s ease;
+    }
+
+    .guide-p a:hover,
+    .guide-steps a:hover {
+      color: var(--accent-orange);
+    }
+
+    code.guide-code {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.12);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+    }
+
+    .guide-steps {
+      margin: 0 0 16px;
+      padding: 0 0 0 20px;
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .guide-steps li + li {
+      margin-top: 6px;
+    }
+
+    .guide-note {
+      margin: 12px 0 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .work-code {
+      overflow-x: auto;
+      margin: 0 0 18px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.30);
+      color: var(--code-ink);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      line-height: 1.75;
+      white-space: pre;
+    }
+
+    .guide-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 0 0 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .guide-links a {
+      color: var(--text-primary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .guide-links a:hover {
+      color: var(--accent-orange);
+    }
+
+    .guide-link-note {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 767px) {
+      .shell {
+        padding: 0 24px;
+      }
+
+      .topbar {
+        flex-wrap: wrap;
+        gap: 16px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      .narucode-nav {
+        flex-basis: 100%;
+        justify-content: flex-start;
+      }
+
+      .guide-hero {
+        padding: 48px 0 40px;
+      }
+
+      .guide-section {
+        padding-bottom: 40px;
+      }
+
+      .guide-section + .guide-section {
+        padding-top: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-frame">
+    <div aria-hidden="true" class="bg-glow bg-glow-top"></div>
+    <div aria-hidden="true" class="bg-glow bg-glow-bottom"></div>
+
+    <header class="site-header">
+      <div class="shell topbar">
+        <span class="nc-brand-hub">
+          <span><span class="nc-wordmark">narucode</span><span class="nc-suffix">/guide</span></span>
+          <span class="nc-sub">Strudel 日本語ハブ · 非公式</span>
+        </span>
+        <nav class="narucode-nav" aria-label="narucode 内部ナビ">
+          <a class="topbar-link" href="../">ホーム</a>
+          <span class="topbar-link topbar-current" aria-current="page">ガイド</span>
+          <a class="topbar-link" href="../ref/">リファレンス</a>
+          <a class="topbar-link" href="../scale/">スケール</a>
+          <span class="nav-separator" aria-hidden="true">·</span>
+          <a class="topbar-link" href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="guide-hero" aria-labelledby="guide-title">
+        <p class="eyebrow">はじめてガイド / 日本語</p>
+        <h1 id="guide-title">Strudelをはじめよう</h1>
+        <p class="hero-copy">ブラウザだけで動くライブコーディング環境「Strudel」を、
+          かいつまんで日本語で解説します。インストール不要・無料。</p>
+      </section>
+
+      <section class="guide-section" aria-labelledby="guide-what">
+        <h2 class="guide-h2" id="guide-what"><span class="guide-num">01</span> Strudelとは</h2>
+        <p class="guide-p">Strudel（ストルーデル）は、ブラウザだけで動く音楽プログラミング環境です。<code class="guide-code">strudel.cc</code> を開けばすぐ使えます。ダウンロード不要・無料。</p>
+        <p class="guide-p">TidalCycles の JavaScript 版として開発が続いています。コードを書いて実行すると、その場で音が鳴ります。コードを変えると音もリアルタイムで変わります。</p>
+        <p class="guide-p">「プログラミングをやったことがない」でも、音楽の言葉（BPM・音名・コード）が通じる人なら違和感なく始められます。書くのはDTMのパラメータに近い感覚です。</p>
+      </section>
+
+      <section class="guide-section" aria-labelledby="guide-one-minute">
+        <h2 class="guide-h2" id="guide-one-minute"><span class="guide-num">02</span> 1分で音を鳴らす</h2>
+        <ol class="guide-steps">
+          <li>ブラウザで <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc</a> を開く</li>
+          <li>画面中央のエディタに以下を入力（既存コードは全部消してOK）</li>
+          <li>Ctrl + Enter（Mac: opt + Enter）で実行</li>
+          <li>音が鳴ったら成功。コードを変えて再度 Ctrl + Enter で即座に切り替わる</li>
+        </ol>
+        <pre class="work-code"><code>$: note("c e g").s("sine")</code></pre>
+        <p class="guide-note">止めるときは Ctrl + .（ピリオド）。音が出ない場合はブラウザのスピーカーアイコンを確認してください。</p>
+      </section>
+
+      <section class="guide-section" aria-labelledby="guide-basics">
+        <h2 class="guide-h2" id="guide-basics"><span class="guide-num">03</span> 基本概念（かいつまみ）</h2>
+        <p class="guide-p">深掘りは <a href="../ref/">関数リファレンス（REF）</a> と公式 <a href="https://strudel.cc/learn/getting-started/" target="_blank" rel="noopener noreferrer">strudel.cc/learn/getting-started</a> へ。ここでは4つのトピックを1コードずつ紹介します。</p>
+
+        <h3 class="guide-h3">03-a ミニノーテーション — リズムを書く</h3>
+        <p class="guide-p">クォートの中の文字列でリズムを表現します。スペース区切りで均等に配置。角括弧 <code class="guide-code">[]</code> で入れ子にすると密になり、山括弧 <code class="guide-code">&lt;&gt;</code> でサイクルごとに交互に切り替わります。</p>
+        <pre class="work-code"><code>$: note("c d e f").s("sine")
+// → 1サイクルに c d e f が均等に並ぶ
+
+$: note("c [d e] f").s("sine")
+// → [d e] の中に2音が詰まり密になる
+
+$: note("&lt;c e&gt; g").s("sine")
+// → 1サイクル目は c g、2サイクル目は e g と交互</code></pre>
+
+        <h3 class="guide-h3">03-b 音を選ぶ・作る</h3>
+        <p class="guide-p"><code class="guide-code">note()</code> でピッチを指定し、<code class="guide-code">s()</code> で波形（音色）を指定します。波形は <code class="guide-code">sine</code> / <code class="guide-code">sawtooth</code> / <code class="guide-code">square</code> / <code class="guide-code">triangle</code> などが使えます。</p>
+        <pre class="work-code"><code>$: note("c3 e3 g3").s("sawtooth")
+// ノコギリ波シンセでCメジャーコードを鳴らす</code></pre>
+
+        <h3 class="guide-h3">03-c エフェクト — 音を削る・空間に置く</h3>
+        <p class="guide-p">関数をチェーンでつなぐだけでエフェクトが掛かります。<code class="guide-code">lpf()</code> はローパスフィルター（数値を下げると音が丸くなる）、<code class="guide-code">room()</code> はリバーブ（0〜1）です。</p>
+        <pre class="work-code"><code>$: note("c3 e3 g3").s("sawtooth").lpf(600).room(0.4)
+// フィルターをかけてリバーブを足す</code></pre>
+
+        <h3 class="guide-h3">03-d パターン変形 — 速さを変える・逆にする</h3>
+        <p class="guide-p"><code class="guide-code">fast()</code> で速く、<code class="guide-code">slow()</code> で遅く。<code class="guide-code">rev()</code> でパターンを逆順に再生します。これらを組み合わせるとすぐにバリエーションが生まれます。</p>
+        <pre class="work-code"><code>$: note("c d e f").s("sine").fast(2)
+// 2倍速で再生</code></pre>
+      </section>
+
+      <section class="guide-section" aria-labelledby="guide-next">
+        <h2 class="guide-h2" id="guide-next"><span class="guide-num">04</span> 次の一歩</h2>
+        <ul class="guide-links">
+          <li>
+            <a href="https://strudel.cc/learn/getting-started/" target="_blank" rel="noopener noreferrer">strudel.cc/learn/getting-started ↗</a>
+            <span class="guide-link-note">公式チュートリアル（英語）</span>
+          </li>
+          <li>
+            <a href="https://codeberg.org/uzu/strudel" target="_blank" rel="noopener noreferrer">codeberg.org/uzu/strudel ↗</a>
+            <span class="guide-link-note">ソースコード・Issue</span>
+          </li>
+          <li>
+            <a href="../ref/">関数リファレンス（REF）</a>
+            <span class="guide-link-note">当サイト。日本語で関数を逆引き</span>
+          </li>
+          <li>
+            <a href="../scale/">スケールツール</a>
+            <span class="guide-link-note">当サイト。Strudelの度数を音名と鍵盤で確認</span>
+          </li>
+          <li>
+            <a href="https://note.com/dj_sakunova" target="_blank" rel="noopener noreferrer">note.com/dj_sakunova ↗</a>
+            <span class="guide-link-note">Strudel関連の日本語記事</span>
+          </li>
+        </ul>
+        <p class="guide-note">このガイドは非公式の日本語まとめです。内容の正確性は公式ドキュメントでご確認ください。</p>
+      </section>
+    </main>
+
+    <footer style="border-top:1px solid rgba(255,255,255,0.12);padding:10px 24px;
+      display:flex;align-items:center;justify-content:space-between;
+      flex-shrink:0;background:rgba(0,0,0,0.15);">
+      <p style="font-family:'Inter',sans-serif;font-size:10px;
+        color:rgba(255,255,255,0.28);margin:0;line-height:1.6;">
+        Strudel © TidalCycles contributors (AGPL-3.0-or-later) · 本サイトも AGPL-3.0 ·
+        <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer"
+           style="color:rgba(255,255,255,0.28);text-decoration:none;">strudel.cc</a> ·
+        <a href="https://codeberg.org/uzu/strudel" target="_blank" rel="noopener noreferrer"
+           style="color:rgba(255,255,255,0.28);text-decoration:none;">Codeberg</a> ·
+        CDN: @strudel/repl@1.3.0 · 非公式 · 無保証
+      </p>
+      <span style="font-family:'Inter',sans-serif;font-size:10px;
+        color:rgba(255,255,255,0.28);">by sakunova</span>
+    </footer>
+  </div>
+</body>
+</html>

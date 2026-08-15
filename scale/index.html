@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Strudelのscale()で使う度数を音名に変換。85種類のスケール、鍵盤表示、コード生成に対応した非公式ツール。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="narucode/scale – Strudel スケールツール">
+  <meta property="og:description" content="Strudelのscale()で使う度数を音名に変換。85種類のスケール、鍵盤表示、コード生成に対応。">
+  <meta property="og:url" content="https://narucode.pages.dev/scale/">
+  <link rel="canonical" href="https://narucode.pages.dev/scale/">
+  <title>narucode/scale – Strudel スケールツール</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #0B1CAE;
+      --orange: #ff7a1a;
+      --orange-readable: #ff8a33;
+      --white: #ffffff;
+      --surface: rgba(255,255,255,0.10);
+      --surface-strong: rgba(255,255,255,0.18);
+      --border: rgba(255,255,255,0.25);
+      --border-soft: rgba(255,255,255,0.12);
+      --body: rgba(255,255,255,0.78);
+      --muted: rgba(255,255,255,0.58);
+      --panel: rgba(0,0,0,0.20);
+      --code: rgba(0,0,0,0.30);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--blue); color-scheme: dark; }
+    body {
+      margin: 0;
+      min-width: 0;
+      overflow-x: hidden;
+      background: var(--blue);
+      color: var(--white);
+      font-family: Inter, sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button, a, input, select { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid var(--white);
+      outline-offset: 3px;
+    }
+    a { color: inherit; }
+    .mono { font-family: "JetBrains Mono", monospace; }
+    .shell { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      background: rgba(11,28,174,0.96);
+      backdrop-filter: blur(12px);
+    }
+    .topbar { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; flex-direction: column; text-decoration: none; }
+    .brand-main { font: 700 17px/1 "Space Grotesk", sans-serif; }
+    .brand-main span { color: var(--orange); }
+    .brand-sub { margin-top: 5px; color: var(--muted); font: 500 9px/1.2 "JetBrains Mono", monospace; letter-spacing: .12em; }
+    .site-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px 14px; }
+    .site-nav a, .site-nav span { font: 500 11px/1.4 "JetBrains Mono", monospace; text-decoration: none; white-space: nowrap; }
+    .site-nav a { color: var(--muted); }
+    .site-nav a:hover { color: var(--white); }
+    .site-nav [aria-current="page"] { color: var(--orange-readable); }
+    .nav-sep { color: rgba(255,255,255,0.20); }
+
+    .intro { padding: 40px 0 18px; }
+    h1, h2, h3 { font-family: "Space Grotesk", sans-serif; }
+    .intro-copy { margin: 0; color: var(--body); font-size: clamp(15px, 2vw, 18px); line-height: 1.8; }
+    .fact-strip { display: flex; flex-wrap: wrap; margin-bottom: 20px; border-block: 1px solid var(--border-soft); }
+    .fact-strip span { flex: 1 1 190px; padding: 11px 14px; color: var(--muted); font: 500 10px/1.5 "JetBrains Mono", monospace; text-align: center; }
+    .fact-strip span + span { border-left: 1px solid var(--border-soft); }
+    .layout { padding-bottom: 64px; }
+    .main-stack { min-width: 0; display: grid; gap: 20px; }
+    .panel { min-width: 0; padding: 24px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+    .panel-primary { background: rgba(0,0,0,0.17); }
+    .panel-head { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    .section-kicker { margin: 0 0 5px; color: var(--orange-readable); font: 500 10px/1.3 "JetBrains Mono", monospace; letter-spacing: .14em; }
+    h2 { margin: 0; font-size: 24px; line-height: 1.15; }
+    h3 { margin: 0; font-size: 16px; }
+    .help { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .control-row { display: grid; grid-template-columns: 100px 110px; gap: 10px; }
+    label { color: var(--body); font-size: 12px; }
+    .field-label { display: block; margin-bottom: 7px; font: 500 10px/1.3 "JetBrains Mono", monospace; letter-spacing: .08em; }
+    input[type="search"], select {
+      width: 100%;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--code);
+      color: var(--white);
+    }
+    input::placeholder { color: rgba(255,255,255,0.55); }
+    fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+    .scale-builder { display: grid; grid-template-columns: minmax(210px, .8fr) minmax(0, 2fr); gap: 18px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border-soft); }
+    .step-label { display: block; margin: 0 0 9px; color: var(--orange-readable); font: 500 10px/1.3 "JetBrains Mono", monospace; letter-spacing: .12em; }
+    .type-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .type-option { min-height: 44px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--white); font: 500 10px/1.3 "JetBrains Mono", monospace; cursor: pointer; }
+    .type-option[aria-pressed="true"] { border-color: var(--white); background: var(--white); color: var(--blue); font-weight: 700; }
+    .type-option:disabled { border-style: dashed; color: var(--muted); cursor: not-allowed; opacity: .72; }
+    .type-option:disabled::after { content: "選択不可"; display: block; margin-top: 3px; font-size: 8px; }
+    .browse-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; margin-top: 18px; }
+    .all-scales-btn[aria-expanded="true"] { border-color: var(--white); background: var(--white); color: var(--blue); }
+    .scale-current { margin: 18px 0 10px; color: var(--white); font: 700 20px/1.3 "JetBrains Mono", monospace; overflow-wrap: anywhere; }
+    .scale-meta { color: var(--muted); font: 400 11px/1.6 "JetBrains Mono", monospace; overflow-wrap: anywhere; }
+    .results {
+      max-height: 310px;
+      margin-top: 14px;
+      overflow-y: auto;
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .result-group + .result-group { border-top: 1px solid var(--border-soft); }
+    .result-heading { margin: 0; padding: 10px 12px 6px; color: var(--orange-readable); font: 500 10px/1.2 "JetBrains Mono", monospace; letter-spacing: .1em; }
+    .scale-option {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      width: 100%;
+      padding: 9px 12px;
+      border: 0;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      background: transparent;
+      color: var(--body);
+      text-align: left;
+      cursor: pointer;
+    }
+    .scale-option:hover, .scale-option[aria-selected="true"] { background: var(--surface-strong); color: var(--white); }
+    .scale-option[aria-selected="true"]::before { content: "選択中"; grid-column: 2; grid-row: 1; color: var(--orange-readable); font: 500 9px/1.4 "JetBrains Mono", monospace; }
+    .scale-option-name { min-width: 0; grid-column: 1; grid-row: 1; font: 500 12px/1.4 "JetBrains Mono", monospace; overflow-wrap: anywhere; }
+    .scale-option-meta { grid-column: 1 / -1; color: var(--muted); font-size: 10px; overflow-wrap: anywhere; }
+    .no-results { padding: 20px 12px; color: var(--body); font-size: 12px; }
+
+    .segmented { display: flex; flex-wrap: wrap; gap: 8px; }
+    .segmented button, .small-btn, .copy-btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--white);
+      font: 500 11px/1 "JetBrains Mono", monospace;
+      cursor: pointer;
+    }
+    .segmented button[aria-pressed="true"] { border-color: var(--white); background: var(--white); color: var(--blue); font-weight: 700; }
+    .range-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .check-label { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; cursor: pointer; }
+    .check-label input { width: 18px; height: 18px; accent-color: var(--orange); }
+    .degree-section + .degree-section { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border-soft); }
+    .degree-section-title { margin: 0 0 10px; color: var(--body); font: 500 11px/1.4 "JetBrains Mono", monospace; }
+    .degree-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(68px, 1fr)); gap: 8px; }
+    .degree-cell {
+      position: relative;
+      min-height: 74px;
+      padding: 10px 6px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--white);
+      cursor: pointer;
+    }
+    .degree-cell:hover { background: var(--surface-strong); }
+    .degree-cell[aria-pressed="true"] { border: 3px solid var(--white); background: var(--orange); }
+    .degree-cell[aria-pressed="true"]::after { content: "✓ 選択"; display: block; margin-top: 5px; color: var(--white); font: 700 8px/1 "JetBrains Mono", monospace; }
+    .degree-num { display: block; color: var(--muted); font: 500 10px/1.2 "JetBrains Mono", monospace; }
+    .degree-cell[aria-pressed="true"] .degree-num { color: var(--white); }
+    .degree-note { display: block; margin-top: 5px; font: 700 17px/1.1 "Space Grotesk", sans-serif; }
+    .octave-break { box-shadow: inset 4px 0 0 var(--white); }
+    .advanced { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-soft); }
+    summary { color: var(--white); font: 500 12px/1.5 "JetBrains Mono", monospace; cursor: pointer; }
+    .advanced-controls { display: grid; grid-template-columns: 1fr 150px auto auto; gap: 10px; align-items: end; margin-top: 14px; }
+    .active-token { min-height: 44px; display: flex; align-items: center; padding: 0 12px; border: 1px solid var(--border-soft); border-radius: 6px; background: var(--code); font: 500 13px/1 "JetBrains Mono", monospace; }
+
+    .piano-scroll { width: 100%; overflow-x: auto; padding: 4px 2px 12px; overscroll-behavior-x: contain; }
+    .piano { position: relative; height: 180px; min-width: max-content; display: flex; align-items: start; }
+    .piano-key {
+      position: relative;
+      flex: 0 0 42px;
+      height: 172px;
+      padding: 0 2px 10px;
+      border: 1px solid rgba(11,28,174,0.45);
+      border-radius: 0 0 6px 6px;
+      background: var(--white);
+      color: var(--blue);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 5px;
+      font: 700 9px/1.1 "JetBrains Mono", monospace;
+    }
+    .piano-key.black {
+      z-index: 2;
+      flex-basis: 28px;
+      height: 108px;
+      margin: 0 -14px;
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(0,0,0,0.78);
+      color: var(--white);
+    }
+    .piano-key.in-scale { box-shadow: inset 0 -34px 0 rgba(11,28,174,0.26); }
+    .piano-key.black.in-scale { box-shadow: inset 0 -34px 0 rgba(255,255,255,0.26); }
+    .piano-key.is-selected { outline: 4px solid var(--orange); outline-offset: -5px; }
+    .piano-key.is-selected::before { content: "✓"; position: absolute; top: 10px; color: var(--orange); font-size: 14px; }
+    .piano-key.off-scale-selected::after { content: "外"; color: var(--orange); font-weight: 700; }
+    .key-state { min-height: 18px; font-size: 7px; text-align: center; }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px 18px; margin-top: 10px; color: var(--body); font-size: 10px; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-mark { width: 18px; height: 12px; border: 1px solid var(--white); background: rgba(255,255,255,0.22); }
+    .legend-mark.selected { border: 3px solid var(--orange); background: var(--white); }
+
+    .code-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: stretch; }
+    .code-output {
+      min-width: 0;
+      min-height: 48px;
+      margin: 0;
+      padding: 13px 14px;
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      background: var(--code);
+      color: rgba(255,255,255,0.92);
+      font: 400 12px/1.7 "JetBrains Mono", monospace;
+      white-space: nowrap;
+    }
+    .copy-btn { min-height: 48px; border-color: var(--white); background: var(--white); color: var(--blue); font-family: "Space Grotesk", sans-serif; font-weight: 700; }
+    .copy-btn:hover { border-color: var(--orange); background: var(--orange); color: var(--white); }
+    .copy-fallback { margin-top: 12px; }
+    .copy-fallback textarea { width: 100%; min-height: 76px; padding: 10px; border: 1px solid var(--white); border-radius: 6px; background: var(--code); color: var(--white); font: 12px/1.5 "JetBrains Mono", monospace; }
+    .status { min-height: 20px; margin: 10px 0 0; color: var(--body); font-size: 11px; }
+    .selection-list { margin: 12px 0 0; color: var(--body); font: 11px/1.7 "JetBrains Mono", monospace; overflow-wrap: anywhere; }
+    .small-btn:hover { border-color: var(--white); background: var(--surface-strong); }
+
+    footer { border-top: 1px solid var(--border-soft); background: rgba(0,0,0,0.15); }
+    .footer-inner { min-height: 62px; display: flex; justify-content: space-between; align-items: center; gap: 18px; color: var(--muted); font-size: 10px; }
+    .footer-inner a { color: var(--body); text-decoration: none; }
+    .footer-inner a:hover { color: var(--white); }
+
+    @media (max-width: 860px) {
+      .control-row { grid-template-columns: 1fr 1fr; }
+      .scale-builder { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 24px, 1120px); }
+      .topbar { padding: 12px 0; flex-wrap: wrap; }
+      .site-nav { flex-basis: 100%; justify-content: flex-start; gap: 8px 12px; }
+      .intro { padding: 30px 0 14px; }
+      .fact-strip span { flex-basis: 100%; text-align: left; }
+      .fact-strip span + span { border-left: 0; border-top: 1px solid var(--border-soft); }
+      .panel { padding: 18px; }
+      .panel-head { display: block; }
+      .range-tools { align-items: flex-start; }
+      .control-row, .browse-tools, .advanced-controls { grid-template-columns: 1fr; }
+      .all-scales-btn { width: 100%; }
+      .degree-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .code-row { grid-template-columns: 1fr; }
+      .copy-btn { width: 100%; }
+      .footer-inner { padding: 16px 0; align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell topbar">
+      <a class="brand" href="../">
+        <span class="brand-main">narucode<span>/scale</span></span>
+        <span class="brand-sub">STRUDEL 日本語ハブ · 非公式</span>
+      </a>
+      <nav class="site-nav" aria-label="narucode 内部ナビ">
+        <a href="../">ホーム</a>
+        <a href="../guide/">ガイド</a>
+        <a href="../ref/">リファレンス</a>
+        <span aria-current="page">スケール</span>
+        <span class="nav-sep" aria-hidden="true">·</span>
+        <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="intro" aria-label="このツールでできること">
+      <p class="intro-copy"><code class="mono">scale()</code> を実在する85種類から選び、<code class="mono">n()</code> の度数を音名・鍵盤・そのまま使えるコードで確認できます。</p>
+    </section>
+
+    <div class="fact-strip" aria-label="スケールツールの要点">
+      <span>0 は第1音</span>
+      <span><strong id="scale-count">85</strong> scales</span>
+      <span>tonaljs 実データ · 名前合成なし</span>
+    </div>
+
+    <div class="layout">
+      <div class="main-stack">
+        <section class="panel" aria-labelledby="scale-heading">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">01 / SCALE</p>
+              <h2 id="scale-heading">スケールを選ぶ</h2>
+            </div>
+            <label class="check-label"><input id="audio-toggle" type="checkbox"> 音を鳴らす</label>
+          </div>
+          <div class="control-row">
+            <label><span class="field-label">ROOT</span><select id="root-select" aria-label="ルート音"></select></label>
+            <label><span class="field-label">OCTAVE</span><select id="octave-select" aria-label="ルートのオクターブ"></select></label>
+          </div>
+          <div class="scale-builder">
+            <label><span class="step-label">STEP 1 / ベースを選ぶ</span><select id="base-select" aria-label="スケールのベース"></select></label>
+            <fieldset><legend class="step-label">STEP 2 / 種類を選ぶ</legend><div id="type-options" class="type-options"></div></fieldset>
+          </div>
+          <div id="scale-current" class="scale-current"></div>
+          <div id="scale-meta" class="scale-meta"></div>
+          <div class="browse-tools">
+            <label class="search-field"><span class="field-label">SEARCH</span><input id="scale-search" type="search" placeholder="name / strudel / alias" autocomplete="off" aria-controls="scale-results"></label>
+            <button id="show-all-scales" class="small-btn all-scales-btn" type="button" aria-expanded="false" aria-controls="scale-results">すべて表示（85）</button>
+          </div>
+          <div id="scale-results" class="results" role="listbox" aria-label="スケール候補" hidden></div>
+        </section>
+
+        <section class="panel panel-primary" aria-labelledby="degrees-heading">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">02 / DEGREE → NOTE</p>
+              <h2 id="degrees-heading">度数 → 音名</h2>
+              <p class="help">クリック順でコードになります。各音名にはオクターブ番号を表示します。</p>
+            </div>
+          </div>
+          <div class="range-tools">
+            <div class="segmented" aria-label="表示範囲">
+              <button id="range-7" type="button" aria-pressed="true">0–7</button>
+              <button id="range-15" type="button" aria-pressed="false">0–15</button>
+            </div>
+            <label class="check-label"><input id="negative-toggle" type="checkbox"> − の度数を表示</label>
+          </div>
+          <div id="positive-degrees" class="degree-section"></div>
+          <div id="negative-degrees" class="degree-section" hidden></div>
+          <details class="advanced">
+            <summary>スケール外の音を使う</summary>
+            <p class="help">最後に操作した度数へ半音補正を加え、完成トークンとして追加します。</p>
+            <div class="advanced-controls">
+              <div><span class="field-label">ACTIVE DEGREE</span><div id="active-degree" class="active-token">0</div></div>
+              <label><span class="field-label">補正</span><select id="accidental-select"><option value="-3">bbb (−3)</option><option value="-2">bb (−2)</option><option value="-1">b (−1)</option><option value="0" selected>なし</option><option value="1"># (+1)</option><option value="2">## (+2)</option><option value="3">### (+3)</option></select></label>
+              <button id="add-adjusted" class="small-btn" type="button">完成トークンを追加</button>
+              <button id="repeat-degree" class="small-btn" type="button">同じ度数を追加</button>
+            </div>
+          </details>
+        </section>
+
+        <section class="panel" aria-labelledby="piano-heading">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">03 / PIANO</p>
+              <h2 id="piano-heading">ピアノ鍵盤</h2>
+              <p class="help">表示範囲に合わせて音域が変わります。横に送って確認できます。</p>
+            </div>
+          </div>
+          <div class="piano-scroll" tabindex="0" aria-label="ピアノ鍵盤 横スクロール領域"><div id="piano" class="piano"></div></div>
+          <div class="legend" aria-label="鍵盤の凡例"><span><i class="legend-mark"></i>スケール構成音</span><span><i class="legend-mark selected"></i>選択中（✓付き）</span><span>「外」= スケール外補正</span></div>
+        </section>
+
+        <section class="panel" aria-labelledby="code-heading">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">04 / STRUDEL CODE</p>
+              <h2 id="code-heading">コードを生成</h2>
+            </div>
+            <button id="clear-selection" class="small-btn" type="button">全解除</button>
+          </div>
+          <div class="code-row">
+            <pre id="code-output" class="code-output" tabindex="0"></pre>
+            <button id="copy-code" class="copy-btn" type="button">コピー</button>
+          </div>
+          <p id="selection-list" class="selection-list"></p>
+          <p id="copy-status" class="status" role="status" aria-live="polite"></p>
+          <div id="copy-fallback" class="copy-fallback" hidden>
+            <label for="copy-fallback-text" class="field-label">下のコードを選択してコピーしてください</label>
+            <textarea id="copy-fallback-text" readonly></textarea>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+
+  <footer><div class="shell footer-inner"><span>Strudel © TidalCycles contributors (AGPL-3.0-or-later) · 本サイトも AGPL-3.0 · 非公式 · 無保証</span><span><a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a> · <a href="https://github.com/sakunova/narucode" target="_blank" rel="noopener noreferrer">ソース ↗</a></span></div></footer>
+
+  <script id="scale-data" type="application/json">{"_source":{"origin":"tonaljs/tonal packages/scale-type/data.ts","url":"https://raw.githubusercontent.com/tonaljs/tonal/main/packages/scale-type/data.ts","fetchedAt":"2026-08-15","sha256OfSource":"171f51fc8ae55263b7b2a0b982c471d678f63a1fb063b216ee6b0a9eb8a08f1a","note":"Strudel の scale() はこの tonaljs のスケール型に依存する。strudel フィールドはスペースをコロンに置換した Strudel 記法。semitones/degreeNumbers は intervals から規則で算出（表のハードコードなし）。"},"scaleCount":85,"scales":[{"strudel":"major:pentatonic","name":"major pentatonic","aliases":["pentatonic"],"intervals":"1P 2M 3M 5P 6M","semitones":[0,2,4,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"major","name":"major","aliases":["ionian"],"intervals":"1P 2M 3M 4P 5P 6M 7M","semitones":[0,2,4,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"minor","name":"minor","aliases":["aeolian"],"intervals":"1P 2M 3m 4P 5P 6m 7m","semitones":[0,2,3,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"major:blues","name":"major blues","aliases":[],"intervals":"1P 2M 3m 3M 5P 6M","semitones":[0,2,3,4,7,9],"degreeNumbers":[1,2,3,3,5,6],"count":6,"hasSpecialChars":false},{"strudel":"minor:blues","name":"minor blues","aliases":["blues"],"intervals":"1P 3m 4P 5d 5P 7m","semitones":[0,3,5,6,7,10],"degreeNumbers":[1,3,4,5,5,7],"count":6,"hasSpecialChars":false},{"strudel":"melodic:minor","name":"melodic minor","aliases":[],"intervals":"1P 2M 3m 4P 5P 6M 7M","semitones":[0,2,3,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"harmonic:minor","name":"harmonic minor","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 7M","semitones":[0,2,3,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"bebop","name":"bebop","aliases":[],"intervals":"1P 2M 3M 4P 5P 6M 7m 7M","semitones":[0,2,4,5,7,9,10,11],"degreeNumbers":[1,2,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"diminished","name":"diminished","aliases":["whole-half:diminished"],"intervals":"1P 2M 3m 4P 5d 6m 6M 7M","semitones":[0,2,3,5,6,8,9,11],"degreeNumbers":[1,2,3,4,5,6,6,7],"count":8,"hasSpecialChars":false},{"strudel":"dorian","name":"dorian","aliases":[],"intervals":"1P 2M 3m 4P 5P 6M 7m","semitones":[0,2,3,5,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian","name":"lydian","aliases":[],"intervals":"1P 2M 3M 4A 5P 6M 7M","semitones":[0,2,4,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"mixolydian","name":"mixolydian","aliases":["dominant"],"intervals":"1P 2M 3M 4P 5P 6M 7m","semitones":[0,2,4,5,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"phrygian","name":"phrygian","aliases":[],"intervals":"1P 2m 3m 4P 5P 6m 7m","semitones":[0,1,3,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian","name":"locrian","aliases":[],"intervals":"1P 2m 3m 4P 5d 6m 7m","semitones":[0,1,3,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"ionian:pentatonic","name":"ionian pentatonic","aliases":[],"intervals":"1P 3M 4P 5P 7M","semitones":[0,4,5,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"mixolydian:pentatonic","name":"mixolydian pentatonic","aliases":["indian"],"intervals":"1P 3M 4P 5P 7m","semitones":[0,4,5,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"ritusen","name":"ritusen","aliases":[],"intervals":"1P 2M 4P 5P 6M","semitones":[0,2,5,7,9],"degreeNumbers":[1,2,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"egyptian","name":"egyptian","aliases":[],"intervals":"1P 2M 4P 5P 7m","semitones":[0,2,5,7,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"neapolitan:major:pentatonic","name":"neapolitan major pentatonic","aliases":[],"intervals":"1P 3M 4P 5d 7m","semitones":[0,4,5,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"vietnamese:1","name":"vietnamese 1","aliases":[],"intervals":"1P 3m 4P 5P 6m","semitones":[0,3,5,7,8],"degreeNumbers":[1,3,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"pelog","name":"pelog","aliases":[],"intervals":"1P 2m 3m 5P 6m","semitones":[0,1,3,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"kumoijoshi","name":"kumoijoshi","aliases":[],"intervals":"1P 2m 4P 5P 6m","semitones":[0,1,5,7,8],"degreeNumbers":[1,2,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"hirajoshi","name":"hirajoshi","aliases":[],"intervals":"1P 2M 3m 5P 6m","semitones":[0,2,3,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"iwato","name":"iwato","aliases":[],"intervals":"1P 2m 4P 5d 7m","semitones":[0,1,5,6,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"in-sen","name":"in-sen","aliases":[],"intervals":"1P 2m 4P 5P 7m","semitones":[0,1,5,7,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"lydian:pentatonic","name":"lydian pentatonic","aliases":["chinese"],"intervals":"1P 3M 4A 5P 7M","semitones":[0,4,6,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"malkos:raga","name":"malkos raga","aliases":[],"intervals":"1P 3m 4P 6m 7m","semitones":[0,3,5,8,10],"degreeNumbers":[1,3,4,6,7],"count":5,"hasSpecialChars":false},{"strudel":"locrian:pentatonic","name":"locrian pentatonic","aliases":["minor:seven:flat:five:pentatonic"],"intervals":"1P 3m 4P 5d 7m","semitones":[0,3,5,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:pentatonic","name":"minor pentatonic","aliases":["vietnamese:2"],"intervals":"1P 3m 4P 5P 7m","semitones":[0,3,5,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:six:pentatonic","name":"minor six pentatonic","aliases":[],"intervals":"1P 3m 4P 5P 6M","semitones":[0,3,5,7,9],"degreeNumbers":[1,3,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"flat:three:pentatonic","name":"flat three pentatonic","aliases":["kumoi"],"intervals":"1P 2M 3m 5P 6M","semitones":[0,2,3,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"flat:six:pentatonic","name":"flat six pentatonic","aliases":[],"intervals":"1P 2M 3M 5P 6m","semitones":[0,2,4,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"scriabin","name":"scriabin","aliases":[],"intervals":"1P 2m 3M 5P 6M","semitones":[0,1,4,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"whole:tone:pentatonic","name":"whole tone pentatonic","aliases":[],"intervals":"1P 3M 5d 6m 7m","semitones":[0,4,6,8,10],"degreeNumbers":[1,3,5,6,7],"count":5,"hasSpecialChars":false},{"strudel":"lydian:#5p:pentatonic","name":"lydian #5p pentatonic","aliases":[],"intervals":"1P 3M 4A 5A 7M","semitones":[0,4,6,8,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":true},{"strudel":"lydian:dominant:pentatonic","name":"lydian dominant pentatonic","aliases":[],"intervals":"1P 3M 4A 5P 7m","semitones":[0,4,6,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:#7m:pentatonic","name":"minor #7m pentatonic","aliases":[],"intervals":"1P 3m 4P 5P 7M","semitones":[0,3,5,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":true},{"strudel":"super:locrian:pentatonic","name":"super locrian pentatonic","aliases":[],"intervals":"1P 3m 4d 5d 7m","semitones":[0,3,4,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:hexatonic","name":"minor hexatonic","aliases":[],"intervals":"1P 2M 3m 4P 5P 7M","semitones":[0,2,3,5,7,11],"degreeNumbers":[1,2,3,4,5,7],"count":6,"hasSpecialChars":false},{"strudel":"augmented","name":"augmented","aliases":[],"intervals":"1P 2A 3M 5P 5A 7M","semitones":[0,3,4,7,8,11],"degreeNumbers":[1,2,3,5,5,7],"count":6,"hasSpecialChars":false},{"strudel":"piongio","name":"piongio","aliases":[],"intervals":"1P 2M 4P 5P 6M 7m","semitones":[0,2,5,7,9,10],"degreeNumbers":[1,2,4,5,6,7],"count":6,"hasSpecialChars":false},{"strudel":"prometheus:neapolitan","name":"prometheus neapolitan","aliases":[],"intervals":"1P 2m 3M 4A 6M 7m","semitones":[0,1,4,6,9,10],"degreeNumbers":[1,2,3,4,6,7],"count":6,"hasSpecialChars":false},{"strudel":"prometheus","name":"prometheus","aliases":[],"intervals":"1P 2M 3M 4A 6M 7m","semitones":[0,2,4,6,9,10],"degreeNumbers":[1,2,3,4,6,7],"count":6,"hasSpecialChars":false},{"strudel":"mystery:#1","name":"mystery #1","aliases":[],"intervals":"1P 2m 3M 5d 6m 7m","semitones":[0,1,4,6,8,10],"degreeNumbers":[1,2,3,5,6,7],"count":6,"hasSpecialChars":true},{"strudel":"six:tone:symmetric","name":"six tone symmetric","aliases":[],"intervals":"1P 2m 3M 4P 5A 6M","semitones":[0,1,4,5,8,9],"degreeNumbers":[1,2,3,4,5,6],"count":6,"hasSpecialChars":false},{"strudel":"whole:tone","name":"whole tone","aliases":["messiaen's:mode:#1"],"intervals":"1P 2M 3M 4A 5A 6A","semitones":[0,2,4,6,8,10],"degreeNumbers":[1,2,3,4,5,6],"count":6,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#5","name":"messiaen's mode #5","aliases":[],"intervals":"1P 2m 4P 4A 5P 7M","semitones":[0,1,5,6,7,11],"degreeNumbers":[1,2,4,4,5,7],"count":6,"hasSpecialChars":true},{"strudel":"locrian:major","name":"locrian major","aliases":["arabian"],"intervals":"1P 2M 3M 4P 5d 6m 7m","semitones":[0,2,4,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"double:harmonic:lydian","name":"double harmonic lydian","aliases":[],"intervals":"1P 2m 3M 4A 5P 6m 7M","semitones":[0,1,4,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian:#2","name":"locrian #2","aliases":["half-diminished","aeolian:b5"],"intervals":"1P 2M 3m 4P 5d 6m 7m","semitones":[0,2,3,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":true},{"strudel":"lydian:dominant","name":"lydian dominant","aliases":["lydian:b7","overtone"],"intervals":"1P 2M 3M 4A 5P 6M 7m","semitones":[0,2,4,6,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:augmented","name":"lydian augmented","aliases":[],"intervals":"1P 2M 3M 4A 5A 6M 7M","semitones":[0,2,4,6,8,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian:6","name":"locrian 6","aliases":["locrian:natural:6","locrian:sharp:6"],"intervals":"1P 2m 3m 4P 5d 6M 7m","semitones":[0,1,3,5,6,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"augmented:heptatonic","name":"augmented heptatonic","aliases":[],"intervals":"1P 2A 3M 4P 5P 5A 7M","semitones":[0,3,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,5,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:diminished","name":"lydian diminished","aliases":[],"intervals":"1P 2M 3m 4A 5P 6M 7M","semitones":[0,2,3,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"leading:whole:tone","name":"leading whole tone","aliases":[],"intervals":"1P 2M 3M 4A 5A 7m 7M","semitones":[0,2,4,6,8,10,11],"degreeNumbers":[1,2,3,4,5,7,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:minor","name":"lydian minor","aliases":[],"intervals":"1P 2M 3M 4A 5P 6m 7m","semitones":[0,2,4,6,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"phrygian:dominant","name":"phrygian dominant","aliases":["spanish","phrygian:major"],"intervals":"1P 2m 3M 4P 5P 6m 7m","semitones":[0,1,4,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"balinese","name":"balinese","aliases":[],"intervals":"1P 2m 3m 4P 5P 6m 7M","semitones":[0,1,3,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"neapolitan:major","name":"neapolitan major","aliases":[],"intervals":"1P 2m 3m 4P 5P 6M 7M","semitones":[0,1,3,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"harmonic:major","name":"harmonic major","aliases":[],"intervals":"1P 2M 3M 4P 5P 6m 7M","semitones":[0,2,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"double:harmonic:major","name":"double harmonic major","aliases":["gypsy"],"intervals":"1P 2m 3M 4P 5P 6m 7M","semitones":[0,1,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"hungarian:minor","name":"hungarian minor","aliases":[],"intervals":"1P 2M 3m 4A 5P 6m 7M","semitones":[0,2,3,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"hungarian:major","name":"hungarian major","aliases":[],"intervals":"1P 2A 3M 4A 5P 6M 7m","semitones":[0,3,4,6,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"oriental","name":"oriental","aliases":[],"intervals":"1P 2m 3M 4P 5d 6M 7m","semitones":[0,1,4,5,6,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"flamenco","name":"flamenco","aliases":[],"intervals":"1P 2m 3m 3M 4A 5P 7m","semitones":[0,1,3,4,6,7,10],"degreeNumbers":[1,2,3,3,4,5,7],"count":7,"hasSpecialChars":false},{"strudel":"todi:raga","name":"todi raga","aliases":[],"intervals":"1P 2m 3m 4A 5P 6m 7M","semitones":[0,1,3,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"persian","name":"persian","aliases":[],"intervals":"1P 2m 3M 4P 5d 6m 7M","semitones":[0,1,4,5,6,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"enigmatic","name":"enigmatic","aliases":[],"intervals":"1P 2m 3M 5d 6m 7m 7M","semitones":[0,1,4,6,8,10,11],"degreeNumbers":[1,2,3,5,6,7,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:#9","name":"lydian #9","aliases":[],"intervals":"1P 2A 3M 4A 5P 6M 7M","semitones":[0,3,4,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":true},{"strudel":"messiaen's:mode:#4","name":"messiaen's mode #4","aliases":[],"intervals":"1P 2m 2M 4P 4A 5P 6m 7M","semitones":[0,1,2,5,6,7,8,11],"degreeNumbers":[1,2,2,4,4,5,6,7],"count":8,"hasSpecialChars":true},{"strudel":"purvi:raga","name":"purvi raga","aliases":[],"intervals":"1P 2m 3M 4P 4A 5P 6m 7M","semitones":[0,1,4,5,6,7,8,11],"degreeNumbers":[1,2,3,4,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"spanish:heptatonic","name":"spanish heptatonic","aliases":[],"intervals":"1P 2m 3m 3M 4P 5P 6m 7m","semitones":[0,1,3,4,5,7,8,10],"degreeNumbers":[1,2,3,3,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:minor","name":"bebop minor","aliases":[],"intervals":"1P 2M 3m 3M 4P 5P 6M 7m","semitones":[0,2,3,4,5,7,9,10],"degreeNumbers":[1,2,3,3,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:major","name":"bebop major","aliases":[],"intervals":"1P 2M 3M 4P 5P 5A 6M 7M","semitones":[0,2,4,5,7,8,9,11],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:locrian","name":"bebop locrian","aliases":[],"intervals":"1P 2m 3m 4P 5d 5P 6m 7m","semitones":[0,1,3,5,6,7,8,10],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"minor:bebop","name":"minor bebop","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 7m 7M","semitones":[0,2,3,5,7,8,10,11],"degreeNumbers":[1,2,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"ichikosucho","name":"ichikosucho","aliases":[],"intervals":"1P 2M 3M 4P 5d 5P 6M 7M","semitones":[0,2,4,5,6,7,9,11],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"minor:six:diminished","name":"minor six diminished","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 6M 7M","semitones":[0,2,3,5,7,8,9,11],"degreeNumbers":[1,2,3,4,5,6,6,7],"count":8,"hasSpecialChars":false},{"strudel":"kafi:raga","name":"kafi raga","aliases":[],"intervals":"1P 3m 3M 4P 5P 6M 7m 7M","semitones":[0,3,4,5,7,9,10,11],"degreeNumbers":[1,3,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#6","name":"messiaen's mode #6","aliases":[],"intervals":"1P 2M 3M 4P 4A 5A 6A 7M","semitones":[0,2,4,5,6,8,10,11],"degreeNumbers":[1,2,3,4,4,5,6,7],"count":8,"hasSpecialChars":true},{"strudel":"composite:blues","name":"composite blues","aliases":[],"intervals":"1P 2M 3m 3M 4P 5d 5P 6M 7m","semitones":[0,2,3,4,5,6,7,9,10],"degreeNumbers":[1,2,3,3,4,5,5,6,7],"count":9,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#3","name":"messiaen's mode #3","aliases":[],"intervals":"1P 2M 3m 3M 4A 5P 6m 7m 7M","semitones":[0,2,3,4,6,7,8,10,11],"degreeNumbers":[1,2,3,3,4,5,6,7,7],"count":9,"hasSpecialChars":true},{"strudel":"messiaen's:mode:#7","name":"messiaen's mode #7","aliases":[],"intervals":"1P 2m 2M 3m 4P 4A 5P 6m 6M 7M","semitones":[0,1,2,3,5,6,7,8,9,11],"degreeNumbers":[1,2,2,3,4,4,5,6,6,7],"count":10,"hasSpecialChars":true},{"strudel":"chromatic","name":"chromatic","aliases":[],"intervals":"1P 2m 2M 3m 3M 4P 5d 5P 6m 6M 7m 7M","semitones":[0,1,2,3,4,5,6,7,8,9,10,11],"degreeNumbers":[1,2,2,3,3,4,5,5,6,6,7,7],"count":12,"hasSpecialChars":false}]}</script>
+  <script>
+  (() => {
+    'use strict';
+    const DATA = JSON.parse(document.getElementById('scale-data').textContent);
+    const SCALES = DATA.scales;
+    const SCALE_BY_NAME = new Map(SCALES.map(scale => [scale.strudel, scale]));
+    const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    const NATURAL_PC = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+    const ROOTS = ['c', 'c#', 'db', 'd', 'd#', 'eb', 'e', 'f', 'f#', 'gb', 'g', 'g#', 'ab', 'a', 'a#', 'bb', 'b'];
+    const TYPE_DEFINITIONS = [
+      ['basic', '基本'],
+      ['pentatonic', 'ペンタトニック'],
+      ['blues', 'ブルース'],
+      ['hexatonic', 'ヘキサトニック'],
+      ['bebop', 'ビバップ'],
+      ['heptatonic', 'ヘプタトニック'],
+    ];
+    const MODIFIERS = TYPE_DEFINITIONS.slice(1).map(([type]) => type);
+    const state = { root: 'c', octave: '', base: 'major', scale: SCALE_BY_NAME.get('major'), maxDegree: 7, showNegative: false, showAll: false, selected: [], activeDegree: 0, audioEnabled: false, audioContext: null };
+    const $ = id => document.getElementById(id);
+    const mod = (value, divisor) => ((value % divisor) + divisor) % divisor;
+    const accidentalText = amount => amount > 0 ? '#'.repeat(amount) : amount < 0 ? 'b'.repeat(-amount) : '';
+    const normalizeSearch = value => value.toLowerCase().trim().replace(/[\s:]+/g, ':');
+
+    function classifyScale(scale) {
+      for (const modifier of MODIFIERS) {
+        const suffix = ` ${modifier}`;
+        if (scale.name.endsWith(suffix)) return { base: scale.name.slice(0, -suffix.length), type: modifier, scale };
+      }
+      return { base: scale.name, type: 'basic', scale };
+    }
+
+    const CLASSIFIED = SCALES.map(classifyScale);
+    const BASE_GROUPS = new Map();
+    CLASSIFIED.forEach(item => {
+      if (!BASE_GROUPS.has(item.base)) BASE_GROUPS.set(item.base, new Map());
+      BASE_GROUPS.get(item.base).set(item.type, item.scale);
+    });
+    const ALIAS_TARGETS = new Map();
+    SCALES.forEach(scale => scale.aliases.forEach(alias => ALIAS_TARGETS.set(alias.replaceAll(':', ' '), scale)));
+    // ionian のような別名の基本形も、文字列合成せず既存データへの参照として解決する。
+    BASE_GROUPS.forEach((types, base) => {
+      if (!types.has('basic') && ALIAS_TARGETS.has(base)) types.set('basic', ALIAS_TARGETS.get(base));
+    });
+    const BASE_NAMES = [...BASE_GROUPS.keys()];
+    const PRIMARY_ROUTE_BY_SCALE = new Map(CLASSIFIED.map(item => [item.scale.strudel, item]));
+
+    function parseRoot(rootToken) {
+      const match = /^([a-g])([#b]*)(-?\d+)?$/i.exec(rootToken);
+      if (!match) throw new Error(`invalid root: ${rootToken}`);
+      const letter = match[1].toUpperCase();
+      const accidental = [...match[2]].reduce((sum, char) => sum + (char === '#' ? 1 : -1), 0);
+      const octave = match[3] === undefined ? 3 : Number(match[3]);
+      return { letter, letterIndex: LETTERS.indexOf(letter), accidental, octave, pc: mod(NATURAL_PC[letter] + accidental, 12) };
+    }
+
+    function parseScaleKey(key) {
+      const separator = key.indexOf(':');
+      if (separator < 1) throw new Error(`invalid scale key: ${key}`);
+      return { root: key.slice(0, separator), type: key.slice(separator + 1) };
+    }
+
+    function parseDegreeToken(token) {
+      const match = /^(-?\d+)(#{1,3}|b{1,3})?$/.exec(String(token));
+      if (!match) throw new Error(`invalid degree token: ${token}`);
+      const suffix = match[2] || '';
+      return { degree: Number(match[1]), correction: suffix ? (suffix[0] === '#' ? suffix.length : -suffix.length) : 0 };
+    }
+
+    function degreeToPitch(token, scale = state.scale, rootToken = currentRootToken()) {
+      const { degree, correction } = parseDegreeToken(token);
+      const root = parseRoot(rootToken);
+      const count = scale.count;
+      const cycle = Math.floor(degree / count);
+      const index = mod(degree, count);
+      const interval = scale.semitones[index] + 12 * cycle;
+      const targetAbsolute = 12 * (root.octave + 1) + root.pc + interval + correction;
+      const degreeNumber = scale.degreeNumbers[index];
+      const diatonicStep = root.octave * 7 + root.letterIndex + (degreeNumber - 1) + cycle * 7;
+      const noteOctave = Math.floor(diatonicStep / 7);
+      const letter = LETTERS[mod(diatonicStep, 7)];
+      const naturalAbsolute = 12 * (noteOctave + 1) + NATURAL_PC[letter];
+      const accidental = targetAbsolute - naturalAbsolute;
+      return { token: String(token), degree, correction, absolute: targetAbsolute, frequency: 440 * 2 ** ((targetAbsolute - 69) / 12), name: `${letter}${accidentalText(accidental)}${noteOctave}`, letter, accidental, octave: noteOctave };
+    }
+
+    function currentRootToken() { return `${state.root}${state.octave}`; }
+    function currentScaleKey() { return `${currentRootToken()}:${state.scale.strudel}`; }
+    function noteRange(start, end, scale = state.scale, root = currentRootToken()) { return Array.from({ length: end - start + 1 }, (_, index) => degreeToPitch(start + index, scale, root)); }
+    function codeText() {
+      const tokens = state.selected.length ? state.selected : ['0', '2', '4'];
+      const key = currentScaleKey();
+      const scaleArgument = key.includes("'") ? `String.raw\`${key}\`` : `"${key}"`;
+      return `n("${tokens.join(' ')}").scale(${scaleArgument})`;
+    }
+    function isSelectedDegree(degree) { return state.selected.some(token => parseDegreeToken(token).degree === degree); }
+    function scaleMatches(scale, query) { const needle = normalizeSearch(query); if (!needle) return true; return [scale.name, scale.strudel, ...scale.aliases].some(value => normalizeSearch(value).includes(needle)); }
+
+    function initControls() {
+      ROOTS.forEach(root => $('root-select').add(new Option(root, root)));
+      $('root-select').value = state.root;
+      $('octave-select').add(new Option('省略 (= 3)', ''));
+      for (let octave = 0; octave <= 8; octave += 1) $('octave-select').add(new Option(String(octave), String(octave)));
+      $('octave-select').value = '';
+      $('scale-count').textContent = String(SCALES.length);
+      BASE_NAMES.forEach(base => $('base-select').add(new Option(base, base)));
+      $('base-select').value = state.base;
+    }
+
+    function groupFor(scale) { return scale.count === 5 ? '5音' : scale.count === 6 ? '6音' : scale.count === 7 ? '7音' : '8音以上'; }
+    function selectScaleObject(scale, base = PRIMARY_ROUTE_BY_SCALE.get(scale.strudel).base) {
+      state.scale = scale;
+      state.base = base;
+      state.selected = [];
+      state.activeDegree = 0;
+      $('base-select').value = base;
+      renderAll();
+    }
+
+    function renderTypeOptions() {
+      const container = $('type-options');
+      const routes = BASE_GROUPS.get(state.base);
+      container.replaceChildren();
+      TYPE_DEFINITIONS.forEach(([type, label]) => {
+        const scale = routes.get(type);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'type-option';
+        button.dataset.type = type;
+        button.disabled = !scale;
+        button.setAttribute('aria-disabled', String(!scale));
+        button.setAttribute('aria-pressed', String(Boolean(scale && scale === state.scale)));
+        button.textContent = label;
+        if (scale) {
+          button.dataset.scale = scale.strudel;
+          button.setAttribute('aria-label', `${state.base} の ${label}を選ぶ（${scale.strudel}）`);
+          button.addEventListener('click', () => selectScaleObject(scale, state.base));
+        } else {
+          button.setAttribute('aria-label', `${state.base} には ${label}が存在しないため選択不可`);
+        }
+        container.append(button);
+      });
+    }
+
+    function renderScaleResults() {
+      const container = $('scale-results');
+      const query = $('scale-search').value;
+      container.replaceChildren();
+      const visible = Boolean(query.trim() || state.showAll);
+      container.hidden = !visible;
+      $('show-all-scales').setAttribute('aria-expanded', String(state.showAll));
+      $('show-all-scales').textContent = state.showAll ? 'すべて閉じる' : `すべて表示（${SCALES.length}）`;
+      if (!visible) return;
+      let groups;
+      if (query.trim()) {
+        groups = [['検索結果', SCALES.filter(scale => scaleMatches(scale, query))]];
+      } else {
+        groups = ['5音', '6音', '7音', '8音以上'].map(group => [group, SCALES.filter(scale => groupFor(scale) === group)]);
+      }
+      const total = groups.reduce((sum, [, scales]) => sum + scales.length, 0);
+      if (!total) { const empty = document.createElement('p'); empty.className = 'no-results'; empty.textContent = '一致するスケールはありません'; container.append(empty); return; }
+      groups.forEach(([name, scales]) => {
+        if (!scales.length) return;
+        const section = document.createElement('section'); section.className = 'result-group';
+        const heading = document.createElement('h3'); heading.className = 'result-heading'; heading.textContent = `${name} (${scales.length})`; section.append(heading);
+        scales.forEach(scale => {
+          const button = document.createElement('button'); button.type = 'button'; button.className = 'scale-option'; button.setAttribute('role', 'option'); button.setAttribute('aria-selected', String(scale === state.scale)); button.dataset.scale = scale.strudel;
+          const title = document.createElement('span'); title.className = 'scale-option-name'; title.textContent = scale.strudel;
+          const meta = document.createElement('span'); meta.className = 'scale-option-meta'; meta.textContent = `${scale.count} notes · ${scale.intervals}${scale.aliases.length ? ` · aliases: ${scale.aliases.join(', ')}` : ''}`;
+          button.append(title, meta); button.addEventListener('click', () => selectScaleObject(scale)); section.append(button);
+        });
+        container.append(section);
+      });
+    }
+
+    function createDegreeSection(container, title, start, end) {
+      container.replaceChildren();
+      const heading = document.createElement('h3'); heading.className = 'degree-section-title'; heading.textContent = title;
+      const grid = document.createElement('div'); grid.className = 'degree-grid';
+      noteRange(start, end).forEach((pitch, index) => {
+        const button = document.createElement('button'); button.type = 'button'; button.className = 'degree-cell';
+        if (index > 0 && pitch.octave !== degreeToPitch(pitch.degree - 1).octave) button.classList.add('octave-break');
+        button.dataset.degree = String(pitch.degree); button.setAttribute('aria-pressed', String(isSelectedDegree(pitch.degree))); button.setAttribute('aria-label', `度数 ${pitch.degree}、${pitch.name}${isSelectedDegree(pitch.degree) ? '、選択中' : ''}`);
+        const degree = document.createElement('span'); degree.className = 'degree-num'; degree.textContent = `degree ${pitch.degree}`;
+        const note = document.createElement('span'); note.className = 'degree-note'; note.textContent = pitch.name;
+        button.append(degree, note); button.addEventListener('click', () => toggleDegree(pitch.degree)); grid.append(button);
+      });
+      container.append(heading, grid);
+    }
+
+    function toggleDegree(degree) {
+      state.activeDegree = degree;
+      const index = state.selected.findIndex(token => parseDegreeToken(token).degree === degree);
+      if (index >= 0) state.selected = state.selected.filter(token => parseDegreeToken(token).degree !== degree);
+      else state.selected.push(String(degree));
+      if (state.audioEnabled) playPitch(degreeToPitch(degree));
+      renderDynamic();
+    }
+
+    function renderDegrees() {
+      createDegreeSection($('positive-degrees'), `0–${state.maxDegree}`, 0, state.maxDegree);
+      $('negative-degrees').hidden = !state.showNegative;
+      if (state.showNegative) createDegreeSection($('negative-degrees'), '−8…−1', -8, -1);
+      $('range-7').setAttribute('aria-pressed', String(state.maxDegree === 7));
+      $('range-15').setAttribute('aria-pressed', String(state.maxDegree === 15));
+      $('negative-toggle').checked = state.showNegative;
+    }
+
+    function renderPiano() {
+      const container = $('piano'); container.replaceChildren();
+      const displayed = [...noteRange(0, state.maxDegree), ...(state.showNegative ? noteRange(-8, -1) : [])];
+      const selectedPitches = state.selected.map(token => degreeToPitch(token));
+      const minimum = Math.min(...displayed.map(pitch => pitch.absolute), ...selectedPitches.map(pitch => pitch.absolute), degreeToPitch(0).absolute) - 1;
+      const maximum = Math.max(...displayed.map(pitch => pitch.absolute), ...selectedPitches.map(pitch => pitch.absolute), degreeToPitch(state.maxDegree).absolute) + 1;
+      const scaleClasses = new Set(displayed.filter(pitch => pitch.correction === 0).map(pitch => pitch.absolute));
+      for (let absolute = minimum; absolute <= maximum; absolute += 1) {
+        const pc = mod(absolute, 12); const black = [1, 3, 6, 8, 10].includes(pc); const octave = Math.floor(absolute / 12) - 1;
+        const selected = selectedPitches.filter(pitch => pitch.absolute === absolute); const matching = displayed.find(pitch => pitch.absolute === absolute);
+        const button = document.createElement('button'); button.type = 'button'; button.className = `piano-key${black ? ' black' : ''}`;
+        if (scaleClasses.has(absolute)) button.classList.add('in-scale');
+        if (selected.length) button.classList.add('is-selected');
+        if (selected.some(pitch => pitch.correction !== 0)) button.classList.add('off-scale-selected');
+        const fallbackName = `${['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][pc]}${octave}`;
+        const label = matching?.name || selected[0]?.name || fallbackName;
+        button.setAttribute('aria-label', `${label}${scaleClasses.has(absolute) ? '、スケール構成音' : ''}${selected.length ? '、選択中' : ''}`); button.setAttribute('aria-pressed', String(Boolean(selected.length)));
+        const stateLabel = document.createElement('span'); stateLabel.className = 'key-state'; stateLabel.textContent = selected.length ? '✓ 選択' : scaleClasses.has(absolute) ? 'scale' : '';
+        const noteLabel = document.createElement('span'); noteLabel.textContent = label; button.append(stateLabel, noteLabel);
+        button.addEventListener('click', () => { if (matching) toggleDegree(matching.degree); else if (state.audioEnabled) playPitch({ absolute, frequency: 440 * 2 ** ((absolute - 69) / 12) }); });
+        container.append(button);
+      }
+    }
+
+    function renderCode() {
+      const code = codeText(); $('code-output').textContent = code; $('copy-fallback-text').value = code;
+      $('selection-list').textContent = state.selected.length ? `選択順: ${state.selected.join(' → ')}` : '未選択のため既定例 0 2 4 を表示中';
+      $('active-degree').textContent = String(state.activeDegree);
+    }
+    function renderHeader() {
+      $('scale-current').textContent = currentScaleKey();
+      $('scale-meta').textContent = `${state.scale.name} · ${state.scale.count} notes · ${state.scale.intervals}${state.scale.aliases.length ? ` · aliases: ${state.scale.aliases.join(', ')}` : ''}`;
+    }
+    function renderDynamic() { renderDegrees(); renderPiano(); renderCode(); }
+    function renderAll() { renderHeader(); renderTypeOptions(); renderScaleResults(); renderDynamic(); }
+
+    function playPitch(pitch) {
+      if (!state.audioEnabled) return false;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) { $('copy-status').textContent = 'このブラウザは Web Audio に対応していません'; return false; }
+      state.audioContext ||= new AudioContextClass();
+      if (state.audioContext.state === 'suspended') state.audioContext.resume();
+      const now = state.audioContext.currentTime; const oscillator = state.audioContext.createOscillator(); const gain = state.audioContext.createGain();
+      oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(pitch.frequency, now); gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(0.11, now + 0.012); gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+      oscillator.connect(gain).connect(state.audioContext.destination); oscillator.start(now); oscillator.stop(now + 0.34); return true;
+    }
+
+    function showCopyFallback(message = '自動コピーできませんでした。下の欄から手動でコピーしてください。') {
+      $('copy-fallback').hidden = false; $('copy-status').textContent = message; $('copy-fallback-text').value = codeText(); $('copy-fallback-text').focus(); $('copy-fallback-text').select();
+    }
+    async function copyCode() {
+      $('copy-fallback').hidden = true;
+      try { if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable'); await navigator.clipboard.writeText(codeText()); $('copy-status').textContent = 'コードをコピーしました'; }
+      catch (error) { showCopyFallback(); }
+    }
+    function addToken(correction) {
+      const token = `${state.activeDegree}${accidentalText(correction)}`; state.selected.push(token); if (state.audioEnabled) playPitch(degreeToPitch(token)); renderDynamic();
+    }
+
+    $('root-select').addEventListener('change', event => { state.root = event.target.value; state.selected = []; renderAll(); });
+    $('octave-select').addEventListener('change', event => { state.octave = event.target.value; state.selected = []; renderAll(); });
+    $('base-select').addEventListener('change', event => {
+      state.base = event.target.value;
+      const routes = BASE_GROUPS.get(state.base);
+      const nextScale = routes.get('basic') || TYPE_DEFINITIONS.map(([type]) => routes.get(type)).find(Boolean);
+      selectScaleObject(nextScale, state.base);
+    });
+    $('scale-search').addEventListener('input', renderScaleResults);
+    $('show-all-scales').addEventListener('click', () => { state.showAll = !state.showAll; renderScaleResults(); });
+    $('range-7').addEventListener('click', () => { state.maxDegree = 7; renderDynamic(); });
+    $('range-15').addEventListener('click', () => { state.maxDegree = 15; renderDynamic(); });
+    $('negative-toggle').addEventListener('change', event => { state.showNegative = event.target.checked; renderDynamic(); });
+    $('audio-toggle').addEventListener('change', event => { state.audioEnabled = event.target.checked; });
+    $('add-adjusted').addEventListener('click', () => addToken(Number($('accidental-select').value)));
+    $('repeat-degree').addEventListener('click', () => addToken(0));
+    $('clear-selection').addEventListener('click', () => { state.selected = []; renderDynamic(); });
+    $('copy-code').addEventListener('click', copyCode);
+    document.addEventListener('visibilitychange', () => { if (document.hidden && state.audioContext?.state === 'running') state.audioContext.suspend(); });
+
+    initControls(); renderAll();
+    window.__SCALE_TOOL__ = Object.freeze({
+      data: DATA,
+      state,
+      mod,
+      parseRoot,
+      parseScaleKey,
+      parseDegreeToken,
+      degreeToPitch: (token, scaleName = state.scale.strudel, root = currentRootToken()) => degreeToPitch(token, SCALE_BY_NAME.get(scaleName), root),
+      notes: (scaleName, start, end, root = 'c') => noteRange(start, end, SCALE_BY_NAME.get(scaleName), root).map(pitch => pitch.name),
+      findScales: query => SCALES.filter(scale => scaleMatches(scale, query)).map(scale => scale.strudel),
+      classification: () => ({ bases: BASE_NAMES.length, primaryRoutes: CLASSIFIED.map(({ base, type, scale }) => ({ base, type, scale: scale.strudel })), uiRoutes: [...BASE_GROUPS].flatMap(([base, types]) => [...types].map(([type, scale]) => ({ base, type, scale: scale.strudel }))) }),
+      selectScale: name => { const scale = SCALE_BY_NAME.get(name); if (!scale) throw new Error(`unknown scale: ${name}`); selectScaleObject(scale); return currentScaleKey(); },
+      setRoot: root => { const parsed = parseRoot(root); state.root = `${parsed.letter.toLowerCase()}${accidentalText(parsed.accidental)}`; state.octave = String(parsed.octave) === '3' && !/\d/.test(root) ? '' : String(parsed.octave); renderAll(); return currentScaleKey(); },
+      codeText,
+      playDegree: token => playPitch(degreeToPitch(token)),
+      showCopyFallback,
+    });
+  })();
+  </script>
+</body>
+</html>
