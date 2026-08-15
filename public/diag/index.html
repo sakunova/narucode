@@ -48,6 +48,9 @@
 <button id="run" type="button">各ページの実測を開始</button>
 <pre id="out">上のボタンを押すと、4ページとフォントを実際に取得して1つずつ時間を測ります。</pre>
 
+<button id="runfont" type="button">フォント読み込みテスト（最大60秒）</button>
+<pre id="font">フォントが46秒かかる原因を切り分けます。同じファイルを「普通の取得」と「フォントとしての取得」で比べます。</pre>
+
 <button id="runpaint" type="button">描画テストを開始（15秒ほど）</button>
 <pre id="paint">ホームで使っているぼかし効果が、この端末でどれくらい重いかを実際に描画して測ります。</pre>
 
@@ -214,6 +217,65 @@
     next();
   });
 
+  // --- フォント読み込み経路の切り分け ---
+  // 同じファイルでも、普通の fetch と @font-face 経由（CORSモード）では
+  // 使われる接続が違う。後者だけ極端に遅いなら、接続の張り直しで詰まっている。
+  var fontOut = document.getElementById("font");
+  var runFont = document.getElementById("runfont");
+
+  function plainFetch(url) {
+    var t0 = performance.now();
+    return fetch(url, { cache: "no-store" }).then(function (r) { return r.arrayBuffer(); })
+      .then(function () { return performance.now() - t0; })
+      .catch(function (e) { return "失敗 " + e; });
+  }
+
+  function corsFetch(url) {
+    var t0 = performance.now();
+    // フォントと同じ「匿名（credentials を送らない）」取得
+    return fetch(url, { cache: "no-store", mode: "cors", credentials: "omit" })
+      .then(function (r) { return r.arrayBuffer(); })
+      .then(function () { return performance.now() - t0; })
+      .catch(function (e) { return "失敗 " + e; });
+  }
+
+  function fontFaceLoad(url, name) {
+    if (!window.FontFace) return Promise.resolve("FontFace 未対応");
+    var t0 = performance.now();
+    var ff = new FontFace(name, "url(" + url + ")");
+    return ff.load().then(function () { return performance.now() - t0; })
+      .catch(function (e) { return "失敗 " + (e && e.message || e); });
+  }
+
+  runFont.addEventListener("click", function () {
+    runFont.disabled = true; runFont.textContent = "測定中…（最大60秒）";
+    var lines = ["== フォント読み込みの切り分け ==", ""];
+    var bust = "?_f=" + Date.now() + Math.random();
+    var url = "/fonts/inter-latin.woff2" + bust;
+    fontOut.textContent = "① 普通の取得…";
+
+    plainFetch(url).then(function (a) {
+      lines.push("① 普通の取得        : " + (typeof a === "number" ? Math.round(a) + "ms" : a));
+      fontOut.textContent = lines.join("\n") + "\n② 匿名モードの取得…";
+      return corsFetch("/fonts/inter-latin.woff2?_c=" + Date.now() + Math.random());
+    }).then(function (b) {
+      lines.push("② 匿名モードの取得  : " + (typeof b === "number" ? Math.round(b) + "ms" : b));
+      fontOut.textContent = lines.join("\n") + "\n③ フォントとして読み込み…";
+      return fontFaceLoad("/fonts/inter-latin.woff2?_g=" + Date.now() + Math.random(), "NaruTest1");
+    }).then(function (c) {
+      lines.push("③ フォントとして    : " + (typeof c === "number" ? Math.round(c) + "ms" : c));
+      lines.push("");
+      lines.push("③だけ極端に遅ければ、フォント用の接続の張り直しで詰まっている。");
+      lines.push("①②③すべて速ければ、この時点では再現していない（重い時にもう一度）。");
+      lines.push("計測時刻: " + new Date().toString());
+      fontOut.textContent = lines.join("\n");
+      runFont.textContent = "もう一度測る"; runFont.disabled = false;
+    }).catch(function (e) {
+      fontOut.textContent = lines.join("\n") + "\n測定失敗: " + e;
+      runFont.textContent = "もう一度測る"; runFont.disabled = false;
+    });
+  });
+
   // --- 描画コストの実測 ---
   // ホームの CSS と同じ値で、ぼかし要素を実際に描いてフレーム時間を測る。
   // ネットワークが速いのに表示が遅い場合、ここに時間が消えている。
@@ -320,7 +382,7 @@
   });
 
   document.getElementById("copy").addEventListener("click", function () {
-    var text = document.getElementById("self").textContent + "\n\n" + document.getElementById("visits").textContent + "\n\n" + out.textContent + "\n\n" + document.getElementById("paint").textContent;
+    var text = document.getElementById("self").textContent + "\n\n" + document.getElementById("visits").textContent + "\n\n" + out.textContent + "\n\n" + document.getElementById("font").textContent + "\n\n" + document.getElementById("paint").textContent;
     var btn = this;
     function done() { btn.textContent = "コピーした"; setTimeout(function () { btn.textContent = "結果を全部コピー"; }, 1800); }
     if (navigator.clipboard) {
