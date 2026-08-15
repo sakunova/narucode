@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://narucode.pages.dev/sitemap.xml
+Sitemap: https://narucode.tochino0707.workers.dev/sitemap.xml
