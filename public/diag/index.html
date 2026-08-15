@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>narucode 速度チェック</title>
+<style>
+  /* 診断ページなので Web フォントも外部も一切使わない。
+     これ自体が遅いと測定にならないため、依存はゼロにしてある。 */
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px 14px 60px;
+    background: #0B1CAE; color: #fff;
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 15px; line-height: 1.6;
+  }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { color: rgba(255,255,255,0.6); font-size: 12px; margin: 0 0 18px; }
+  button {
+    display: block; width: 100%; min-height: 52px; margin: 0 0 16px;
+    border: 0; border-radius: 8px; background: #ff7a1a; color: #fff;
+    font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer;
+  }
+  button[disabled] { opacity: 0.5; }
+  button.sec { background: rgba(255,255,255,0.14); }
+  pre {
+    margin: 0 0 16px; padding: 12px;
+    background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+    font-family: ui-monospace, Menlo, monospace; font-size: 12px; line-height: 1.5;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  .hint { color: rgba(255,255,255,0.65); font-size: 13px; margin: 0 0 18px; }
+  .big { font-size: 15px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<h1>narucode 速度チェック</h1>
+<p class="sub">このページは診断専用。外部サーバーを一切使っていない。</p>
+
+<pre id="self">計測中…</pre>
+
+<button id="run" type="button">各ページの実測を開始</button>
+<pre id="out">上のボタンを押すと、4ページとフォントを実際に取得して1つずつ時間を測ります。</pre>
+
+<button id="copy" class="sec" type="button">結果を全部コピー</button>
+<p class="hint">コピーして貼り付けるか、スクリーンショットを送ってください。</p>
+
+<script>
+(function () {
+  "use strict";
+
+  var ms = function (v) { return v == null ? "-" : Math.round(v) + "ms"; };
+  var kb = function (v) { return v ? (v / 1024).toFixed(1) + "KB" : "-"; };
+
+  // --- このページ自身がどう読まれたか ---
+  function selfReport() {
+    var lines = [];
+    var n = performance.getEntriesByType("navigation")[0];
+    lines.push("== このページの読み込み ==");
+    if (!n) { lines.push("Navigation Timing が取れない"); return lines.join("\n"); }
+    lines.push("接続方式      : " + (n.nextHopProtocol || "不明") + "   ← h3=HTTP/3(UDP) h2=HTTP/2(TCP)");
+    lines.push("DNS 解決      : " + ms(n.domainLookupEnd - n.domainLookupStart));
+    lines.push("TCP 接続      : " + ms(n.connectEnd - n.connectStart));
+    lines.push("TLS 確立      : " + (n.secureConnectionStart ? ms(n.connectEnd - n.secureConnectionStart) : "-"));
+    lines.push("最初の1byte   : " + ms(n.responseStart - n.requestStart) + "   ← サーバーの応答の速さ");
+    lines.push("本体の受信    : " + ms(n.responseEnd - n.responseStart));
+    lines.push("表示できるまで: " + ms(n.domContentLoadedEventEnd));
+    lines.push("読み込み完了  : " + ms(n.loadEventEnd));
+    lines.push("転送量        : " + kb(n.transferSize));
+    var p = performance.getEntriesByType("paint");
+    for (var i = 0; i < p.length; i++) {
+      if (p[i].name === "first-contentful-paint") lines.push("最初の描画    : " + ms(p[i].startTime));
+    }
+    lines.push("");
+    lines.push("端末: " + navigator.userAgent);
+    if (navigator.connection) {
+      lines.push("回線: " + (navigator.connection.effectiveType || "?") +
+        " / 推定" + (navigator.connection.downlink || "?") + "Mbps" +
+        " / RTT" + (navigator.connection.rtt || "?") + "ms");
+    }
+    return lines.join("\n");
+  }
+
+  document.getElementById("self").textContent = selfReport();
+
+  // --- 各ページを実際に取りに行って測る ---
+  var TARGETS = [
+    ["ホーム", "/"],
+    ["ガイド", "/guide/"],
+    ["リファレンス", "/ref/"],
+    ["スケール", "/scale/"],
+    ["REFのデータJS", "/ref/strudel-ref-data.js"],
+    ["フォントCSS", "/narucode-fonts.css"],
+    ["フォント本体", "/fonts/inter-latin.woff2"],
+    ["アイコンJS", "/narucode-icons.js"],
+  ];
+
+  var out = document.getElementById("out");
+  var run = document.getElementById("run");
+
+  function timeOne(label, path) {
+    // キャッシュを避けて、実際に取りに行った時間を測る
+    var url = path + (path.indexOf("?") < 0 ? "?" : "&") + "_d=" + Date.now() + Math.random();
+    var t0 = performance.now();
+    var firstByte = null;
+    return fetch(url, { cache: "no-store" })
+      .then(function (res) {
+        firstByte = performance.now() - t0;
+        return res.arrayBuffer().then(function (buf) {
+          var total = performance.now() - t0;
+          return { label: label, path: path, status: res.status, firstByte: firstByte, total: total, bytes: buf.byteLength };
+        });
+      })
+      .catch(function (e) {
+        return { label: label, path: path, error: String(e && e.message || e), total: performance.now() - t0 };
+      });
+  }
+
+  run.addEventListener("click", function () {
+    run.disabled = true;
+    run.textContent = "計測中…";
+    var lines = ["== 各ページを実際に取得した時間 ==", ""];
+    out.textContent = "計測中…";
+
+    var i = 0;
+    var worst = 0;
+    function next() {
+      if (i >= TARGETS.length) {
+        lines.push("");
+        lines.push("一番遅かったもの: " + Math.round(worst) + "ms");
+        lines.push("計測時刻: " + new Date().toString());
+        out.textContent = lines.join("\n");
+        run.textContent = "もう一度計測する";
+        run.disabled = false;
+        return;
+      }
+      var t = TARGETS[i++];
+      timeOne(t[0], t[1]).then(function (r) {
+        if (r.error) {
+          lines.push(r.label + " : 失敗 " + r.error + " (" + Math.round(r.total) + "ms)");
+        } else {
+          if (r.total > worst) worst = r.total;
+          lines.push(
+            pad(r.label, 14) + " " + String(r.status) +
+            "  最初の1byte " + pad(Math.round(r.firstByte) + "ms", 8) +
+            " 全部で " + pad(Math.round(r.total) + "ms", 8) +
+            " " + kb(r.bytes)
+          );
+        }
+        out.textContent = lines.join("\n") + "\n…";
+        next();
+      });
+    }
+    function pad(s, n) { s = String(s); while (s.length < n) s += " "; return s; }
+    next();
+  });
+
+  document.getElementById("copy").addEventListener("click", function () {
+    var text = document.getElementById("self").textContent + "\n\n" + out.textContent;
+    var btn = this;
+    function done() { btn.textContent = "コピーした"; setTimeout(function () { btn.textContent = "結果を全部コピー"; }, 1800); }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) { btn.textContent = "コピーできず。長押しで選択して"; }
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
