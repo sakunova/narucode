@@ -19,8 +19,35 @@
   if (!window.performance || !window.localStorage) return;
 
   var KEY = "narucode_timing_log";
-  var MAX = 8;
+  var MAX = 12;
   var longTasks = [];
+  var T0 = performance.now();
+
+  // 画面に出ているかどうかの遷移。iOS は非表示のページの処理を絞るので、
+  // 「描画は速いのに完了が遅い」の説明になりうる。
+  var visLog = [{ at: 0, state: document.visibilityState, hidden: document.hidden }];
+  document.addEventListener("visibilitychange", function () {
+    visLog.push({ at: Math.round(performance.now()), state: document.visibilityState, hidden: document.hidden });
+  });
+
+  // readyState がいつ変わったか
+  var stateLog = [{ at: 0, s: document.readyState }];
+  document.addEventListener("readystatechange", function () {
+    stateLog.push({ at: Math.round(performance.now()), s: document.readyState });
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    stateLog.push({ at: Math.round(performance.now()), s: "DOMContentLoaded" });
+  });
+  window.addEventListener("load", function () {
+    stateLog.push({ at: Math.round(performance.now()), s: "load" });
+  });
+
+  // 1秒ごとに生存確認を打つ。空白がどこにあるか分かる。
+  var beats = [];
+  var beatTimer = setInterval(function () {
+    beats.push(Math.round(performance.now()));
+    if (beats.length > 40) clearInterval(beatTimer);
+  }, 1000);
 
   try {
     if (window.PerformanceObserver && PerformanceObserver.supportedEntryTypes &&
@@ -71,7 +98,15 @@
         longTaskTotal: big,
         longTaskTop: longTasks.slice().sort(function (a, b) { return b.d - a.d; }).slice(0, 4),
         // スクリプトが動き出した時点で、ナビ開始から何ms経っていたか
-        scriptAt: Math.round(performance.now()),
+        scriptAt: Math.round(T0),
+        // 追加した診断項目
+        visibility: visLog,
+        states: stateLog,
+        beats: beats.slice(0, 30),
+        wallAtRecord: Math.round(Date.now() - (performance.timeOrigin || Date.now())),
+        allResources: res.map(function (r) {
+          return { n: r.name.split("/").pop().slice(0, 24), t: Math.round(r.startTime), d: Math.round(r.duration), k: r.initiatorType };
+        }).slice(0, 12),
       };
 
       var log = [];

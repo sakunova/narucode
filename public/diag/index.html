@@ -108,6 +108,26 @@
       lines.push("  ★読み込み完了 " + r.loaded + "ms  ← ページ内で実際にかかった時間");
       lines.push("  リソース " + r.resources + "件 / 一番遅い: " + r.slowest);
       lines.push("  JSが固まった回数 " + r.longTaskCount + " / 合計 " + r.longTaskTotal + "ms");
+      if (r.states) {
+        var st = [];
+        for (var a = 0; a < r.states.length; a++) st.push(r.states[a].s + "@" + r.states[a].at + "ms");
+        lines.push("  進行: " + st.join(" -> "));
+      }
+      if (r.visibility) {
+        var vs = [];
+        for (var b = 0; b < r.visibility.length; b++) vs.push(r.visibility[b].state + "@" + r.visibility[b].at + "ms");
+        lines.push("  画面表示: " + vs.join(" -> ") + "   ← hidden があれば裏で読まれていた");
+      }
+      if (r.beats && r.beats.length) {
+        lines.push("  生存確認(1秒ごと): " + r.beats.join(", ") + "ms");
+      }
+      if (r.wallAtRecord != null) lines.push("  記録した時点の経過: " + r.wallAtRecord + "ms");
+      if (r.allResources) {
+        for (var c = 0; c < r.allResources.length; c++) {
+          var x = r.allResources[c];
+          lines.push("    - " + x.n + " (" + x.k + ") " + x.t + "ms開始 " + x.d + "ms");
+        }
+      }
       if (r.longTaskTop && r.longTaskTop.length) {
         var s = [];
         for (var j = 0; j < r.longTaskTop.length; j++) s.push(r.longTaskTop[j].d + "ms(" + r.longTaskTop[j].s + "msの時点)");
