@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /diag/
 
 Sitemap: https://narucode.sakunova.workers.dev/sitemap.xml
