@@ -1,0 +1,4 @@
+# wrangler のローカル作業ディレクトリ（デプロイ物ではない）
+.wrangler/
+node_modules/
+.DS_Store

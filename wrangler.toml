@@ -1,11 +1,15 @@
-# Cloudflare Workers (Static Assets) 設定
-# narucode は完成済みの静的 HTML を配信するだけなので、Worker スクリプトは持たず
-# assets だけを公開する。main を指定しないことで、全リクエストが静的配信になる。
+# Cloudflare Workers（静的アセット配信）設定
+#
+# narucode は完成済みの静的 HTML を配信するだけなので Worker スクリプトは持たず、
+# assets のみを公開する。
+#
+# directory を "./" にすると .git の中身（config のリモートURL・logs のコミット履歴）
+# まで配信対象に入ってしまうため（実測で 97 ファイル読み込まれることを確認）、
+# 配信物は public/ 配下に隔離している。
 name = "narucode"
 compatibility_date = "2026-08-15"
 
 [assets]
-# リポジトリのルートに index.html / guide/ / ref/ / scale/ がそのまま置いてある
-directory = "./"
-# 404 は用意した 404.html を返す
+directory = "./public"
+# 存在しないパスは同梱の 404.html を返す
 not_found_handling = "404-page"
