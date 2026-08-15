@@ -65,26 +65,58 @@
     .bg-glow {
       position: fixed;
       z-index: 0;
-      border-radius: 999px;
       pointer-events: none;
-      filter: blur(150px);
+      /* iOS Safari で表示が15〜77秒止まる原因だったため、blur をやめて
+         同じ見え方の放射グラデーションに置き換えた（2026-08-16 実機で特定）。
+         blur(150px) は 1辺1220px 相当の面を GPU で作り直す処理で、
+         position: fixed と組み合わさって毎フレーム再合成されていた。
+         色停止点は元の blur の減衰を実測して写したもの（見た目はほぼ同一）。
+         この値を手で丸めない。変えるときは blur 版と並べて画素比較すること。 */
+      width: 1220px;
+      height: 1220px;
     }
 
     .bg-glow-top {
-      top: -128px;
-      right: -96px;
-      width: 416px;
-      height: 416px;
-      background: var(--bg-glow);
+      top: -530px;
+      right: -498px;
+      background: radial-gradient(circle closest-side,
+        rgba(47,86,255,0.6078) 0%,
+        rgba(47,86,255,0.5926) 7.1%,
+        rgba(47,86,255,0.5499) 14.3%,
+        rgba(47,86,255,0.4829) 21.4%,
+        rgba(47,86,255,0.4034) 28.6%,
+        rgba(47,86,255,0.3179) 35.7%,
+        rgba(47,86,255,0.2352) 42.9%,
+        rgba(47,86,255,0.1652) 50%,
+        rgba(47,86,255,0.109) 57.1%,
+        rgba(47,86,255,0.0646) 64.3%,
+        rgba(47,86,255,0.0374) 71.4%,
+        rgba(47,86,255,0.0196) 78.6%,
+        rgba(47,86,255,0.0118) 85.7%,
+        rgba(47,86,255,0.0047) 92.9%,
+        rgba(47,86,255,0) 100%);
       opacity: 0.45;
     }
 
     .bg-glow-bottom {
-      bottom: -160px;
-      left: -128px;
-      width: 448px;
-      height: 448px;
-      background: var(--bg-deep);
+      bottom: -546px;
+      left: -514px;
+      background: radial-gradient(circle closest-side,
+        rgba(10,21,128,0.6627) 0%,
+        rgba(10,21,128,0.651) 7.1%,
+        rgba(10,21,128,0.6087) 14.3%,
+        rgba(10,21,128,0.5411) 21.4%,
+        rgba(10,21,128,0.4563) 28.6%,
+        rgba(10,21,128,0.368) 35.7%,
+        rgba(10,21,128,0.2789) 42.9%,
+        rgba(10,21,128,0.2) 50%,
+        rgba(10,21,128,0.1325) 57.1%,
+        rgba(10,21,128,0.0822) 64.3%,
+        rgba(10,21,128,0.0473) 71.4%,
+        rgba(10,21,128,0.0275) 78.6%,
+        rgba(10,21,128,0.0118) 85.7%,
+        rgba(10,21,128,0.0047) 92.9%,
+        rgba(10,21,128,0) 100%);
       opacity: 0.60;
     }
 

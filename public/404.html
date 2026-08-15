@@ -32,14 +32,30 @@
     }
     .glow {
       position: fixed;
-      top: -96px;
-      right: -64px;
-      width: 320px;
-      height: 320px;
-      border-radius: 50%;
-      background: #2f56ff;
+      /* iOS Safari で表示が長時間止まる原因だったため blur をやめ、
+         同じ見え方の放射グラデーションに置き換えた（2026-08-16）。
+         色停止点は元の blur(120px) の減衰を実測して写したもの。手で丸めない。 */
+      top: -426px;
+      right: -394px;
+      width: 980px;
+      height: 980px;
+      background: radial-gradient(circle closest-side,
+        rgba(47,86,255,0.5804) 0%,
+        rgba(47,86,255,0.5672) 7.1%,
+        rgba(47,86,255,0.5245) 14.3%,
+        rgba(47,86,255,0.4588) 21.4%,
+        rgba(47,86,255,0.3804) 28.6%,
+        rgba(47,86,255,0.2973) 35.7%,
+        rgba(47,86,255,0.2186) 42.9%,
+        rgba(47,86,255,0.1512) 50%,
+        rgba(47,86,255,0.098) 57.1%,
+        rgba(47,86,255,0.0598) 64.3%,
+        rgba(47,86,255,0.0333) 71.4%,
+        rgba(47,86,255,0.0157) 78.6%,
+        rgba(47,86,255,0.0078) 85.7%,
+        rgba(47,86,255,0.0039) 92.9%,
+        rgba(47,86,255,0) 100%);
       opacity: 0.40;
-      filter: blur(120px);
       pointer-events: none;
       z-index: 0;
     }
