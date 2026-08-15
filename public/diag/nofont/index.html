@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Strudelを日本語で学ぶ非公式ガイド。関数リファレンス・スケールツール・デモで、コードで鳴らす音楽を始めよう。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="narucode – Strudel 日本語ハブ">
+  <meta property="og:description" content="Strudelを日本語で学ぶ非公式ガイド。関数リファレンス・スケールツール・デモで、コードで鳴らす音楽を始めよう。">
+  <meta property="og:url" content="https://narucode.sakunova.workers.dev/">
+  <link rel="canonical" href="https://narucode.sakunova.workers.dev/">
+  <title>narucode – Strudel 日本語ハブ</title>
+<meta name="robots" content="noindex, nofollow">
+  <!-- 診断用: フォント読み込みを外してある -->
+  <style>
+    :root {
+      --bg: #0B1CAE;
+      --bg-deep: #0a1580;
+      --bg-glow: #2f56ff;
+      --surface: rgba(255,255,255,0.10);
+      --surface-hover: #ffffff;
+      --panel: rgba(0,0,0,0.24);
+      --panel-soft: rgba(0,0,0,0.18);
+      --border: rgba(255,255,255,0.25);
+      --border-subtle: rgba(255,255,255,0.12);
+      --border-active: rgba(255,255,255,0.60);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.75);
+      --text-muted: rgba(255,255,255,0.55);
+      --text-soft: rgba(255,255,255,0.45);
+      --text-disabled: rgba(255,255,255,0.35);
+      --accent-orange: #ff7a1a;
+      --code-ink: rgba(255,255,255,0.90);
+      --blue-ink: #0B1CAE;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: "Inter", sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page-frame {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .bg-glow {
+      position: fixed;
+      z-index: 0;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(150px);
+    }
+
+    .bg-glow-top {
+      top: -128px;
+      right: -96px;
+      width: 416px;
+      height: 416px;
+      background: var(--bg-glow);
+      opacity: 0.45;
+    }
+
+    .bg-glow-bottom {
+      bottom: -160px;
+      left: -128px;
+      width: 448px;
+      height: 448px;
+      background: var(--bg-deep);
+      opacity: 0.60;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      background: rgba(11,28,174,0.92);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 56px;
+      gap: 24px;
+    }
+
+    .nc-brand-hub {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .nc-wordmark {
+      color: var(--text-primary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .nc-sub {
+      display: block;
+      color: rgba(255,255,255,0.50);
+      font-family: "Inter", sans-serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+    }
+
+    .topbar-link {
+      color: var(--text-secondary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-decoration: none;
+      transition: color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .topbar-link:hover,
+    .topbar-link:focus-visible {
+      color: var(--text-primary);
+    }
+
+    .narucode-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+    }
+
+    .topbar-current {
+      /* 小さい文字なのでブランドの #ff7a1a より一段明るく。
+         #0B1CAE 上で 4.99:1（#ff7a1a は 4.49:1 で WCAG AA に届かない） */
+      color: #ff8a33;
+    }
+
+    .nav-separator {
+      color: rgba(255,255,255,0.20);
+      font-size: 11px;
+    }
+
+    .hero {
+      max-width: 760px;
+      padding: 96px 0 64px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 24px;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent-orange);
+      color: var(--text-primary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      line-height: 1;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--text-primary);
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      color: var(--text-primary);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: min(7.5vw, 64px);
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 0.95;
+      white-space: nowrap;
+    }
+
+    h1 span {
+      color: var(--accent-orange);
+    }
+
+    .hero-copy {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.75;
+    }
+
+    .hero-demo {
+      width: min(100%, 620px);
+      margin-top: 32px;
+    }
+
+    .hero-demo-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .demo-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 24px;
+      border: 0;
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--blue-ink);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .demo-button:hover,
+    .demo-button:focus-visible {
+      background: var(--accent-orange);
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .demo-button.is-playing {
+      background: var(--accent-orange);
+      color: var(--text-primary);
+    }
+
+    .demo-status {
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .demo-code-shell {
+      margin-top: 16px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .demo-code {
+      display: block;
+      width: 100%;
+      min-height: 116px;
+      padding: 14px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--code-ink);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      resize: vertical;
+    }
+
+    .demo-code:focus-visible {
+      outline: 1px solid var(--accent-orange);
+      outline-offset: -1px;
+    }
+
+    .demo-editor-host {
+      min-height: 164px;
+    }
+
+    .demo-editor-host:empty {
+      display: none;
+    }
+
+    .demo-editor-host strudel-editor {
+      display: block;
+      min-height: 164px;
+      color: var(--text-primary);
+    }
+
+    .cards-section {
+      padding: 12px 0 72px;
+    }
+
+    .section-label {
+      margin: 0 0 32px;
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      line-height: 1;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      min-height: 204px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+    }
+
+    .card-active {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease, border-color 0.15s ease;
+    }
+
+    .card-featured {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 28px;
+      min-height: 120px;
+    }
+
+    .card-active:hover,
+    .card-active:focus-visible {
+      background: var(--surface-hover);
+      border-color: #ffffff;
+      color: var(--blue-ink);
+      outline: none;
+    }
+
+    .card-active:focus-visible {
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.55);
+    }
+
+    .card-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--accent-orange);
+      stroke-width: 1.75;
+    }
+
+    .card-title {
+      margin: 24px 0 0;
+      color: var(--text-primary);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.35;
+      transition: color 0.18s ease;
+    }
+
+    .card-sub {
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      font-weight: 400;
+      transition: color 0.18s ease;
+    }
+
+    .card-desc {
+      margin: 8px 0 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.7;
+      transition: color 0.18s ease;
+    }
+
+    .card-cta {
+      display: inline-flex;
+      margin-top: auto;
+      padding-top: 20px;
+      color: var(--text-secondary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1;
+      transition: color 0.18s ease;
+    }
+
+    .card-active:hover .card-title,
+    .card-active:focus-visible .card-title {
+      color: var(--blue-ink);
+    }
+
+    .card-active:hover .card-sub,
+    .card-active:focus-visible .card-sub,
+    .card-active:hover .card-desc,
+    .card-active:focus-visible .card-desc {
+      color: rgba(11,28,174,0.65);
+    }
+
+    .card-active:hover .card-cta,
+    .card-active:focus-visible .card-cta {
+      color: var(--blue-ink);
+    }
+
+    .card-list {
+      margin: 10px 0 0;
+      padding: 0;
+      color: var(--text-secondary);
+      font-size: 12px;
+      line-height: 1.7;
+      list-style: none;
+    }
+
+    .card-list li + li {
+      margin-top: 2px;
+    }
+
+    .works-section {
+      padding: 8px 0 88px;
+    }
+
+    .about-section {
+      padding: 8px 0 88px;
+      border-top: 1px solid var(--border);
+    }
+
+    .about-inner {
+      max-width: 680px;
+      padding-top: 56px;
+    }
+
+    .about-name {
+      margin: 0 0 4px;
+      color: var(--text-primary);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .about-reading {
+      display: block;
+      margin-bottom: 28px;
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+    }
+
+    .about-body p {
+      margin: 0 0 20px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.95;
+    }
+
+    .about-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .about-body strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .works-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .works-title {
+      margin: 0;
+      color: var(--text-primary);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.2;
+    }
+
+    .works-note {
+      max-width: 520px;
+      margin: 8px 0 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .works-link {
+      flex: 0 0 auto;
+      color: var(--text-secondary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .works-link:hover,
+    .works-link:focus-visible {
+      color: var(--accent-orange);
+    }
+
+    .work-code {
+      overflow-x: auto;
+      margin: 0;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.30);
+      color: var(--code-ink);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      line-height: 1.75;
+      white-space: pre;
+      /* 横スクロールできることが分かるように、掴めるバーを常に見せる */
+      scrollbar-color: rgba(255,255,255,0.45) rgba(0,0,0,0.25);
+      scrollbar-width: thin;
+      overscroll-behavior-x: contain;
+    }
+
+    .work-code::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    .work-code::-webkit-scrollbar-track {
+      border-radius: 999px;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .work-code::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.35);
+      background-clip: content-box;
+    }
+
+    .work-code::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-orange);
+      background-clip: content-box;
+    }
+
+    /* 長いコードは畳んでおく。閾値を超えたものだけ JS が is-collapsible を付ける */
+    .code-card.is-collapsible .work-code {
+      max-height: var(--code-collapsed-height);
+      overflow-y: hidden;
+    }
+
+    .code-card.is-collapsible.is-expanded .work-code {
+      max-height: none;
+      overflow-y: visible;
+    }
+
+    .code-card-fade {
+      position: relative;
+      height: 0;
+      margin-top: -56px;
+      pointer-events: none;
+      background: linear-gradient(to bottom, rgba(11,28,174,0), var(--surface));
+      transition: opacity 0.15s ease;
+    }
+
+    .code-card.is-collapsible .code-card-fade {
+      height: 56px;
+    }
+
+    .code-card.is-expanded .code-card-fade {
+      opacity: 0;
+      height: 0;
+      margin-top: 0;
+    }
+
+    .code-card-toggle {
+      display: none;
+      margin-top: 12px;
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: none;
+      color: var(--text-secondary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .code-card.is-collapsible .code-card-toggle {
+      display: inline-block;
+    }
+
+    .code-card-toggle:hover {
+      color: var(--accent-orange);
+      border-color: var(--accent-orange);
+    }
+
+    .code-card-toggle:focus-visible {
+      outline: 2px solid var(--accent-orange);
+      outline-offset: 2px;
+    }
+
+    .works-sub-head {
+      margin: 40px 0 16px;
+    }
+
+    .works-sub-label {
+      margin: 0 0 6px;
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+    }
+
+    .works-sub-note {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .works-sub-note a {
+      color: var(--text-secondary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .works-sub-note a:hover {
+      color: var(--accent-orange);
+    }
+
+    /* 作品コードは2枚ずつ横並び。3枚目からは横スライドで送る（縦に伸ばさない）。
+       minmax(0,…)/min-width:0 にしないと長いコード行のぶんカードが画面外まで広がるので、
+       はみ出しは .work-code の横スクロールに閉じ込める */
+    .code-cards-grid {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: calc(50% - 8px);
+      gap: 16px;
+      margin-top: 16px;
+      align-items: start;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-left: 0;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+
+    .code-cards-grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .code-cards-grid > .code-card {
+      min-width: 0;
+      scroll-snap-align: start;
+    }
+
+    .works-carousel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .carousel-controls {
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .carousel-controls.is-active {
+      display: flex;
+    }
+
+    .carousel-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    }
+
+    .carousel-btn:hover:not(:disabled) {
+      color: var(--accent-orange);
+      border-color: var(--accent-orange);
+    }
+
+    .carousel-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .carousel-btn:focus-visible {
+      outline: 2px solid var(--accent-orange);
+      outline-offset: 2px;
+    }
+
+    .carousel-count {
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    .code-card {
+      padding: 20px 22px 22px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .code-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .code-card-meta {
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .code-card-copy {
+      flex-shrink: 0;
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.10);
+      color: #ffffff;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .code-card-copy:hover {
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.60);
+    }
+
+    .code-card-copy.is-copied {
+      color: var(--accent-orange);
+      border-color: var(--accent-orange);
+    }
+
+    .video-link-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .video-list-note {
+      margin: 0 0 4px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .video-link-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      color: var(--text-secondary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .video-link-item svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      stroke-width: 1.75;
+    }
+
+    .video-link-item:hover {
+      color: var(--accent-orange);
+    }
+
+    .video-link-list .works-link {
+      margin-top: 4px;
+    }
+
+    @media (min-width: 768px) {
+      .card-featured {
+        grid-column: 1 / -1;
+      }
+
+      .card-featured .card-title {
+        font-size: 22px;
+      }
+
+      .card-featured .card-cta {
+        flex-shrink: 0;
+        margin-top: 0;
+        margin-left: auto;
+        padding-top: 0;
+      }
+    }
+
+    .site-footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.20);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding-top: 28px;
+      padding-bottom: 28px;
+    }
+
+    .footer-left {
+      margin: 0;
+      min-width: 0;
+    }
+
+    .footer-main {
+      color: var(--text-disabled);
+      font-size: 11px;
+      line-height: 1.6;
+      margin: 0 0 4px 0;
+    }
+
+    .footer-main a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .footer-main a:hover,
+    .footer-main a:focus-visible {
+      color: var(--text-primary);
+    }
+
+    .footer-legal {
+      color: rgba(255,255,255,0.25);
+      font-family: "Inter", sans-serif;
+      font-size: 10px;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .footer-legal a {
+      color: rgba(255,255,255,0.25);
+      text-decoration: none;
+    }
+
+    .footer-legal a:hover,
+    .footer-legal a:focus-visible {
+      color: rgba(255,255,255,0.55);
+    }
+
+    .footer-credit {
+      margin: 0;
+      color: var(--text-disabled);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .footer-social {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .footer-social a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    }
+
+    .footer-social a:hover,
+    .footer-social a:focus-visible {
+      border-color: var(--border-active);
+      background: rgba(255,255,255,0.10);
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .footer-social svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 1.75;
+    }
+
+    @media (max-width: 767px) {
+      .shell {
+        padding: 0 24px;
+      }
+
+      .topbar {
+        flex-wrap: wrap;
+        gap: 16px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      .narucode-nav {
+        flex-basis: 100%;
+        justify-content: flex-start;
+      }
+
+      .hero {
+        padding: 64px 0 48px;
+      }
+
+      .cards-section {
+        padding: 0 0 56px;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .works-head {
+        display: block;
+      }
+
+      .works-link {
+        display: inline-flex;
+        margin-top: 14px;
+      }
+
+      .card-featured {
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: 190px;
+      }
+
+      .card-featured .card-cta {
+        padding-top: 20px;
+      }
+
+      .code-cards-grid {
+        /* スマホは画面が狭いので1枚ずつ見せて、←→ とスワイプで送る。
+           2枚を並べると1枚あたり163pxまで潰れてコードが読めなくなる（実測） */
+        grid-auto-columns: 100%;
+      }
+
+      .card {
+        min-height: 190px;
+        padding: 24px;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding-top: 24px;
+        padding-bottom: 24px;
+      }
+
+      .footer-right {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
+<script src="../../narucode-timing.js" defer></script>
+</head>
+<body>
+  <div class="page-frame">
+    <div aria-hidden="true" class="bg-glow bg-glow-top"></div>
+    <div aria-hidden="true" class="bg-glow bg-glow-bottom"></div>
+
+    <header class="site-header">
+      <div class="shell topbar">
+        <span class="nc-brand-hub">
+          <span class="nc-wordmark">narucode</span>
+          <span class="nc-sub">Strudel 日本語ハブ · 非公式</span>
+        </span>
+        <nav class="narucode-nav" aria-label="narucode 内部ナビ">
+          <span class="topbar-link topbar-current" aria-current="page">ホーム</span>
+          <a class="topbar-link" href="../../guide/">ガイド</a>
+          <a class="topbar-link" href="../../ref/">リファレンス</a>
+          <a class="topbar-link" href="../../scale/">スケール</a>
+          <span class="nav-separator" aria-hidden="true">·</span>
+          <a class="topbar-link" href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="shell">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">LIVE CODING / 日本語</p>
+      <h1 id="hero-title">コードで、<span>音楽</span>を書く。</h1>
+      <p class="hero-copy">
+        Strudel はブラウザだけで動くライブコーディング環境。<br>
+        コードを書けば、そのまま音楽になる。<br>
+        このサイトは、そのStrudelを日本語で学ぶための非公式ハブです。
+      </p>
+      <div class="hero-demo" id="hero-demo">
+        <div class="hero-demo-controls">
+          <button class="demo-button" id="hero-demo-button" type="button" aria-pressed="false">
+            <i data-lucide="play" aria-hidden="true"></i>
+            <span>鳴らしてみる</span>
+          </button>
+          <span class="demo-status" id="hero-demo-status" aria-live="polite">クリックするまで読み込みません</span>
+        </div>
+        <div class="demo-code-shell">
+          <textarea class="demo-code" id="hero-demo-code" spellcheck="false" aria-label="Strudelデモコード">setcpm(138/4)
+$: n(irand(16)).sound("sqr").scale("c:major")
+  .struct("x x x x").fast(4).gain(.2)</textarea>
+          <div class="demo-editor-host" id="hero-demo-editor"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards-section" aria-labelledby="contents-title">
+      <h2 class="section-label" id="contents-title">CONTENTS</h2>
+      <div class="cards-grid">
+        <a class="card card-active card-featured" href="../../guide/" aria-label="はじめてガイドを開く">
+          <i class="card-icon" data-lucide="book-marked" aria-hidden="true"></i>
+          <div>
+            <h3 class="card-title">はじめてガイド</h3>
+            <p class="card-desc">Strudelって何？どうやって鳴らすの？をかいつまんで日本語で。
+              インストール不要、ブラウザだけで始められます。</p>
+          </div>
+          <span class="card-cta">→ 読む</span>
+        </a>
+
+        <!-- 2カラムグリッドに row 順で流し込む。左列=ツール、右列=作品導線。
+             並び: 関数リファレンス / TikTok → スケールツール / YouTube -->
+        <a class="card card-active" href="../../ref/" aria-label="関数リファレンスを開く">
+          <i class="card-icon" data-lucide="book-open" aria-hidden="true"></i>
+          <h3 class="card-title">関数リファレンス <span class="card-sub">REF</span></h3>
+          <p class="card-desc">Strudelの関数を日本語で逆引き。カテゴリ・検索で目的の関数にすぐ辿り着く。</p>
+          <span class="card-cta">→ 開く</span>
+        </a>
+
+        <a class="card card-active" href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="sakunovaのTikTokプロフィールを別タブで開く">
+          <i class="card-icon" data-lucide="music-2" aria-hidden="true"></i>
+          <h3 class="card-title">TikTok</h3>
+          <p class="card-desc">ショートクリップを投稿しています。プロフィールからまとめて見られます。</p>
+          <span class="card-cta">→ TikTok ↗</span>
+        </a>
+
+        <a class="card card-active" href="../../scale/" aria-label="スケールツールを開く">
+          <i class="card-icon" data-lucide="music" aria-hidden="true"></i>
+          <h3 class="card-title">スケールツール</h3>
+          <p class="card-desc">Strudelの度数を音名に変換。85種類のスケールを鍵盤とコードで確認する。</p>
+          <span class="card-cta">→ 開く</span>
+        </a>
+
+        <a class="card card-active" href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer" aria-label="sakunovaのYouTubeチャンネルを別タブで開く">
+          <i class="card-icon" data-lucide="play-circle" aria-hidden="true"></i>
+          <h3 class="card-title">YouTube</h3>
+          <p class="card-desc">Strudelを実際に動かす映像で見る。blue machine、Strudelで曲をゼロから作る など。</p>
+          <span class="card-cta">→ YouTube ↗</span>
+        </a>
+
+        <a class="card card-active card-featured" href="https://note.com/dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="noteの記事を別タブで開く">
+          <i class="card-icon" data-lucide="file-text" aria-hidden="true"></i>
+          <div>
+            <h3 class="card-title">記事</h3>
+            <p class="card-desc">Strudel（ストゥルーデル）や音楽についての発信、あとは制作物や思ったことなどを記事にしています。</p>
+          </div>
+          <span class="card-cta">→ note ↗</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="works-section" aria-labelledby="works-title">
+      <div class="works-head">
+        <div>
+          <h2 class="works-title" id="works-title">sakunova の作品</h2>
+          <p class="works-note">実作品のコードを、そのまま読める形で置いています。
+            コピーして動かしたり、部品として使ったりしてもらえたら嬉しいです。</p>
+        </div>
+      </div>
+
+      <div class="works-sub-head works-carousel-head">
+        <h3 class="works-sub-label">コード置き場</h3>
+        <div class="carousel-controls" id="works-carousel-controls">
+          <button class="carousel-btn" type="button" id="works-prev" aria-label="前の作品へ">←</button>
+          <span class="carousel-count" id="works-count" aria-live="polite"></span>
+          <button class="carousel-btn" type="button" id="works-next" aria-label="次の作品へ">→</button>
+        </div>
+      </div>
+
+      <div class="code-cards-grid">
+        <!-- 作品を追加するには: <article class="code-card">...</article> を複製し、
+             code-card-meta と <code> の中身を書き換えてください（書き換えるのはこの2つだけ）。
+             コピーボタンは <pre class="work-code"><code> の中身をそのまま読むので、
+             コードを二重に書く必要はありません。
+             <code> 内で書くときの注意: < は &lt;、> は &gt;、& は &amp; と書く。 -->
+        <article class="code-card">
+          <header class="code-card-head">
+            <span class="code-card-meta">blue machine · BPM 138/4 · f:minor</span>
+            <button class="code-card-copy" type="button" aria-label="コードをコピー">コピー</button>
+          </header>
+          <pre class="work-code"><code>setcpm(138/4)
+
+
+$LEAD: n(irand(8)).s("supersaw,sawtooth").scale("f:minor").seg(16)
+  // .rib(20,1)
+  .struct("x - x x,[x x] &lt;x -&gt;").fast(4)
+  .rib(40,2)
+  // .slice(8, "0 1 &lt;2 2*2&gt; 3 [4 0] 5 6 7".every(3, rev)).fast(2)
+  .lpf(slider(10000,0,10000))
+  ._pianoroll()
+
+$BASS: n("4 5 6 &lt;7 2&gt;").s("supersaw").scale("f:minor").trans(-24).gain(1.8).slow(4)
+
+$PLUCK: n(irand(8)).s("triangle").scale("f:minor")
+  .struct("x - x -").fast(4)
+  .rib(20,4)
+  .gain(slider(1.828,0,2))
+  .pan("&lt;.5&gt;")
+  ._pianoroll()
+
+DRUM: stack(
+ s("sbd!4").duckorbit(2).duckattack(0.2).duckdepth(1),
+ s("[&lt;- - - [- hh]&gt; hh]!4").n(0).gain(1.4).room(1),
+ s("cr").n(0).gain(1.2).slow(8),
+ s("[- sd]!2").n(1).fit()
+  .gain(slider(1.18,0,2))
+  )._scope()</code></pre>
+          <div class="code-card-fade" aria-hidden="true"></div>
+          <button class="code-card-toggle" type="button" aria-expanded="false">すべて表示</button>
+        </article>
+        <article class="code-card">
+          <header class="code-card-head">
+            <span class="code-card-meta">サカナクション「ミュージック」 · BPM 136/4 · a:major</span>
+            <button class="code-card-copy" type="button" aria-label="コードをコピー">コピー</button>
+          </header>
+          <pre class="work-code"><code>//サカナクション　ミュージック
+
+const master = slider(0.667, 0, 1)
+all(p =&gt; p.mul(gain(master)))
+
+
+const _rlpfHz = (knob, knobMax=5, maxHz=5000) =&gt;
+  knob.fmap(x =&gt; (x / knobMax) * maxHz)
+
+Pattern.prototype.rlpf = function(knob){
+  return this.lpf(_rlpfHz(knob, 5, 5000))
+}
+
+window.ar = function(...input) {
+
+  if (input.length % 2 !== 0) {
+    throw new Error('Arrange needs a length paramter for each pattern (length, pattern, length, pattern)');
+  }
+  let sects = [];
+  let total = 0;
+  for (let i = 0; i &lt; input.length; i += 2) {
+    let inp = [input.at(i)].flat()
+    let cycles = inp.at(0);
+    let start = inp.at(1) ?? 0
+    total += cycles;
+
+    let pattern = input.at(i + 1);
+    sects.push([cycles, pattern.ribbon(start, cycles).fast(cycles)]);
+  }
+  return stepcat(...sects).slow(total);
+}
+
+
+window.p = stack
+
+window.blockArrange = function (patArr, modifiers = []) {
+  return stack(
+    ...patArr.map(([pat, maskPat]) =&gt; {
+      pat = [pat].flat()
+
+      return maskPat.fmap(m =&gt; {
+        return stack(...pat.map(p =&gt; {
+
+          if (m == 0) {
+            return
+          }
+          const ms = m.toString()
+          let newPat = p
+
+          if (ms.includes('R')) {
+            newPat = newPat.restart(1)
+          }
+          if (ms.includes('B')) {
+            newPat = newPat.rev().speed(-1)
+          }
+          modifiers.forEach(([mod, callback]) =&gt; {
+            if (mod(ms)) {
+              newPat = callback(newPat)
+            }
+          })
+          return newPat
+        }).filter(Boolean))
+      }).innerJoin()
+    }).flat()
+  )
+}
+
+setcpm(136/4)
+
+const key = "a:major"
+
+//chord---------------------
+
+
+
+const nch = {
+  A:"A2,C#3,E3",
+  B:"F#2,B2,D#3",
+  Dbm:"Ab2,C#3,E3",
+  Abm:"B2,Eb3,Ab3",
+}
+const nca = "&lt;A - A A - A - A - A -  B - B - Dbm - Dbm Dbm - Dbm - Dbm Dbm - Dbm - Abm - Abm - Abm&gt;"
+
+let chord1 = nca.pickmodOut(nch).trans(12).s("saw").fast(8)
+  .note().room(.5)
+  .rlpf(slider(3.16,0,5))
+  .decay(slider(0.239,0,1))
+  // .layer(x=&gt;x.add("0,2")).gain(0.7)
+  // .delay(0.2)
+
+const nss = slider(10,0,50)
+
+let snback = n(irand(16)).scale(key).s("square")
+  .div(16).seg(16)
+  .rib(nss,4).almostNever(ply(2))
+  .clip("&lt;0.5&gt;")
+  .rlpf(slider(1.355,0,5))
+  // .fm(1).fmwave("brown")
+  .delay(slider(0.566,0,2))
+  .pan(rand)
+  .gain(slider(0.804,0,2))
+  ._pianoroll()
+
+let FILL = n("- 9 7 4").scale(key).s("square").fast(4).decay(0.1)
+
+let chord2 = nca.pickmodOut(nch).trans(12).s("saw").fast(8)
+  .note().room(.5)
+  .rlpf(slider(5,0,5))
+  .decay(slider(0.24,0,1))
+  .layer(x=&gt;x.add("0,2")).gain(0.7)
+  .delay(0.2)
+
+
+let chord2a = nca.pickmodOut(nch).trans(0).s("supersaw").fast(8)
+  .note().room(.5)
+  .rlpf(slider(5,0,5))
+  .decay(slider(0.499,0,1))
+  .layer(x=&gt;x.add("0,2")).gain(0.7)
+  .delay(0.2)
+
+let chord3 = nca.pickmodOut(nch).trans(12).s("saw").fast(8)
+  .note().room(.8)
+  .rlpf(slider(5,0,5))
+  .decay(slider(0.24,0,1))
+  .layer(x=&gt;x.add("0,2")).gain(0.7)
+  .delay(0.3).gain(0)
+
+
+let chord3a = nca.pickmodOut(nch).trans(0).s("supersaw").fast(8)
+  .note().room(.8).pan(2)
+  .rlpf(slider(5,0,5))
+  .decay(slider(0.499,0,1))
+  .layer(x=&gt;x.add("0,2")).gain(0.7)
+  .delay(0.3)
+
+let chord3b = nca.pickmodOut(nch).trans(0).s("supersaw").fast(8)
+  .note().room(.8).pan(-2)
+  .rlpf(slider(5,0,5))
+  .decay(slider(0.499,0,1))
+  .layer(x=&gt;x.add("0,2")).gain(0.7)
+  .delay(0.3)
+
+//BASS---------------------
+
+const nBA = "&lt;A2 - A2 A2 - A2 - A2 - A2 -  B2 - B2 - Db3 - Db3 Db3 - Db3 - Db3 Db3 - Db3 - Ab2 - Ab2 - Ab2&gt;".add(-12)
+
+let BASS1 = note(nBA).s("gm_electric_bass_finger").fast(8)
+  .gain(slider(1.752,0,2))
+
+let BASS1a = note(nBA).s("supersaw").fast(8)
+  .gain(slider(1.338,0,2))
+
+let BASS2 = note("A2!8 B2!8 Ab2!8 Db3!8 A2!8 B2!8 Db3!12 E3!4 Gb2!16 A2!40 Ab2!8 ".add(-12)).s("gm_electric_bass_finger").slow(16)
+  .attack("0.05")
+  .distort("&lt;1:0.5&gt;")
+  .gain(slider(1.626,0,2))
+
+let BASS2a = note("A2@8 B2@8 Ab2@8 Db3@8 A2@8 B2@8 Db3@12 E3@4 Gb2@16 A2@40 Ab2@8 ".add(-12)).s("supersaw").slow(16)
+  .attack("0.05")
+  .distort("&lt;1:0.5&gt;")
+  .gain(slider(1.196,0,2))
+
+//DRUM---------------------
+
+let DRUM1 = s("sbd!4,[- hh:3]!4")//.duckatt("2:3")
+
+let FILL1 = s("sd!8 ht!4 lt!4 ").bank("9000").crush("5.5").room(0.2)
+
+let DRUM2 = s("bd - - sd - - sd - - - bd - sd - bd -, oh:4!8")
+            .crush("7").room(0.2)
+            // .dist("2:.5")
+            .delay(.3)
+
+let DRUM3 = s("sbd!4,[- oh:2]!4").duckatt("2:3")
+
+//LIVE---------------------
+
+let intro = blockArrange(
+    [
+      [[chord1],    "&lt;F F F F F F F F F F F F F F F F&gt;"],
+      [[BASS1],     "&lt;F F F F F F F F F F F F F F F F&gt;"],
+      [[DRUM1],     "&lt;F F F F F F F F F F F F F F F F&gt;"],
+    ],
+  )
+
+let Amelo = blockArrange(
+    [
+      [[chord1],    "&lt;F F F F F F F F F F F F F F F F F@1.7 0@0.3&gt;"],
+      [[BASS1],     "&lt;F F F F F F F F F F F F F F F F F@1.7 0@0.3&gt;"],
+      [[DRUM1],     "&lt;F F F F F F F F F F F F F F F F F@1.7 0@0.3&gt;"],
+      [[FILL],      "&lt;0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0@1.7 F@0.3&gt;"],
+
+    ],
+  )
+
+let Bmelo = blockArrange(
+    [
+      [[chord1],    "&lt;F F F F F F F F F F F F F F F F&gt;"],
+      [[BASS1],     "&lt;F F F F F F F F F F F F F F F F&gt;"],
+      [[DRUM1],     "&lt;F F F F F F F F F F F F F F F F&gt;"],
+      [[snback],    "&lt;F F F F F F F F F F F F F F F F&gt;"],
+      [[FILL1],     "&lt;0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 F&gt;"],
+    ],
+  )
+
+let chorus = blockArrange(
+    [
+      [[chord2],    "&lt;F F F F F F F F F F F F F F F F 0&gt;"],
+      [[chord2a],   "&lt;F F F F F F F F F F F F F F F F 0&gt;"],
+      [[BASS2],     "&lt;F F F F F F F F F F F F F F F F 0&gt;"],
+      [[BASS2a],    "&lt;F F F F F F F F F F F F F F F F 0&gt;"],
+      [[DRUM2],     "&lt;F F F F F F F F F F F F F F F F 0&gt;"],
+    ],
+  )
+
+let Cmelo = blockArrange(
+    [
+      [[chord3],    "&lt;F F F F F F F F F F F F F F F F F&gt;"],
+      [[chord3a],   "&lt;F F F F F F F F F F F F F F F F F&gt;"],
+      [[chord3b],   "&lt;F F F F F F F F F F F F F F F F F&gt;"],
+      [[BASS1],     "&lt;F F F F F F F F F F F F F F F F F&gt;"],
+      [[BASS1a],    "&lt;F F F F F F F F F F F F F F F F F&gt;"],
+      [[DRUM3],     "&lt;F F F F F F F F F F F F F F F F F&gt;"],
+    ],
+  )
+
+$: ar(
+      8, intro,
+      18, Amelo,
+      16, Bmelo,
+      17, chorus,
+      16, Cmelo,
+     )._punchcard()</code></pre>
+          <div class="code-card-fade" aria-hidden="true"></div>
+          <button class="code-card-toggle" type="button" aria-expanded="false">すべて表示</button>
+        </article>
+      </div><!-- /code-cards-grid -->
+
+      <div class="video-link-list" aria-label="実在動画">
+        <p class="video-list-note">動画はこちら</p>
+        <a class="video-link-item" href="https://www.youtube.com/watch?v=TPjAIFaP6bw" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="play" aria-hidden="true"></i><span>blue machine</span>
+        </a>
+        <a class="video-link-item" href="https://www.youtube.com/watch?v=Z2mzLotcyyw" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="play" aria-hidden="true"></i><span>サカナクション「新宝島」</span>
+        </a>
+        <a class="video-link-item" href="https://www.youtube.com/watch?v=UGDuvCDINmI" target="_blank" rel="noopener noreferrer">
+          <i data-lucide="play" aria-hidden="true"></i><span>Strudelで曲をゼロから作る</span>
+        </a>
+        <a class="works-link" href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer">チャンネルをすべて見る ↗</a>
+      </div>
+    </section>
+
+    <section class="about-section" aria-labelledby="about-title">
+      <div class="about-inner">
+        <h2 class="about-name" id="about-title">sakunova</h2>
+        <span class="about-reading">サクノバ</span>
+
+        <div class="about-body">
+          <p>Ableton Live と Strudel を使って、電子音楽を作っています。
+            テクノ、ハイパーポップ、トランスなどが好きで、最近は特に Strudel でコードを書きながら
+            音楽を組み立てています。</p>
+
+          <p>Strudel に惹かれた一番の理由は、<strong>音楽ができあがっていく「過程」そのものを
+            演奏にできること</strong>です。</p>
+
+          <p>キックを鳴らして、ベースを足して、コードを書いて、音を崩して、また組み直す。
+            何もないところから少しずつ音楽ができていく。その一連の流れまで含めてパフォーマンスになる
+            ところが、ライブコーディングの面白さだと思っています。</p>
+
+          <p>音楽を完成させること自体は、以前よりずっと簡単になりました。
+            だからこそ、自分は完成した曲だけではなく、<strong>「どうやってそこに辿り着いたのか」まで
+            見せられる音楽</strong>をやってみたいと思っています。</p>
+
+          <p>今は Strudel で作った作品や、好きな曲のコピーなどを投稿しながら試行錯誤しています。
+            TikTok では、ときどき Strudel を使ったライブ配信もしています。</p>
+
+          <p>そして今取り組んでいるのが、<strong>Ableton Live と Strudel をリアルタイムに
+            同期させた演奏</strong>です。</p>
+
+          <p>Strudel でコードを書きながらパターンを変化させ、Ableton の音やエフェクトと組み合わせて、
+            その場で音楽を組み立てていく。最終的には、PC の前だけではなく、<strong>人前に立って
+            Strudel でライブをすること</strong>がひとつの目標です。</p>
+
+          <p>このサイトを作ったのも、その活動の延長です。</p>
+
+          <p>Strudel はとても面白いツールなのですが、日本語で調べようとすると、まだ情報がかなり
+            限られています。自分自身、分からないことをひとつずつ調べながら使ってきました。</p>
+
+          <p>だったら、自分が覚えたことや作ったものを残しておけば、これから Strudel を触る人の
+            役に立つかもしれない。</p>
+
+          <p>そんな理由から、このサイトには<strong>Strudel の関数をまとめた早見表</strong>や、
+            <strong>そのまま部品として使ったり改造したりできるコード・作品</strong>を置いています。</p>
+
+          <p>まだ自分も試している途中です。</p>
+
+          <p>このサイトや作品をきっかけに Strudel を触る人が少しでも増えて、
+            「こうしたらもっと面白い」「こんな使い方もできる」と、いろんな人と試行錯誤できたら嬉しいです。</p>
+        </div>
+      </div>
+    </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-inner">
+        <div class="footer-left">
+          <p class="footer-main">
+            <span>AGPL-3.0</span>
+            <span aria-hidden="true">·</span>
+            <span>非公式の日本語学習サイト</span>
+            <span aria-hidden="true">·</span>
+            <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
+            <span aria-hidden="true">·</span>
+            <a href="https://codeberg.org/uzu/strudel" target="_blank" rel="noopener noreferrer">Codeberg ↗</a>
+          </p>
+          <p class="footer-legal">
+            Strudel © TidalCycles contributors (AGPL-3.0-or-later) · 本サイトも AGPL-3.0 ·
+            ソース: <a href="https://github.com/sakunova/narucode" target="_blank" rel="noopener noreferrer">github.com/sakunova/narucode</a> ·
+            CDN: @strudel/repl@1.3.0 · 無保証
+          </p>
+        </div>
+        <div class="footer-right">
+          <p class="footer-credit">by sakunova</p>
+          <nav class="footer-social" aria-label="sakunova SNS">
+            <a href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="TikTokを開く"><i data-lucide="music-2" aria-hidden="true"></i></a>
+            <a href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer" aria-label="YouTubeを開く"><i data-lucide="play-circle" aria-hidden="true"></i></a>
+            <a href="https://note.com/dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="noteを開く"><i data-lucide="file-text" aria-hidden="true"></i></a>
+            <a href="https://x.com/sakuNovaDJ" target="_blank" rel="noopener noreferrer" aria-label="Xを開く"><i data-lucide="x" aria-hidden="true"></i></a>
+            <a href="https://www.instagram.com/dj_sakunova/" target="_blank" rel="noopener noreferrer" aria-label="Instagramを開く"><i data-lucide="camera" aria-hidden="true"></i></a>
+          </nav>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../../narucode-icons.js"></script>
+  <script>
+    const STRUDEL_REPL_CDN = "https://unpkg.com/@strudel/repl@1.3.0/dist/index.js";
+    const STRUDEL_EDITOR_TAG = "strudel-editor";
+    let strudelReplPromise = null;
+    let activeStrudelSession = null;
+
+    function loadStrudelRepl() {
+      if (customElements.get(STRUDEL_EDITOR_TAG)) {
+        return Promise.resolve();
+      }
+      if (strudelReplPromise) return strudelReplPromise;
+
+      strudelReplPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = STRUDEL_REPL_CDN;
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Strudel REPLの読み込みに失敗しました"));
+        document.head.appendChild(script);
+      });
+
+      return strudelReplPromise;
+    }
+
+    function setDemoButtonPlaying(button, isPlaying) {
+      const icon = button.querySelector("i, svg");
+      const label = button.querySelector("span");
+      button.classList.toggle("is-playing", isPlaying);
+      button.setAttribute("aria-pressed", String(isPlaying));
+      if (icon) {
+        const nextIcon = document.createElement("i");
+        nextIcon.setAttribute("data-lucide", isPlaying ? "square" : "play");
+        nextIcon.setAttribute("aria-hidden", "true");
+        icon.replaceWith(nextIcon);
+      }
+      if (label) label.textContent = isPlaying ? "停止" : "鳴らしてみる";
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function createHeroDemoSession(root) {
+      const button = document.getElementById("hero-demo-button");
+      const status = document.getElementById("hero-demo-status");
+      const codeArea = document.getElementById("hero-demo-code");
+      const host = document.getElementById("hero-demo-editor");
+      let editorEl = null;
+
+      return {
+        root,
+        button,
+        status,
+        get editor() {
+          return editorEl?.editor || null;
+        },
+        readCode() {
+          return this.editor?.code ?? codeArea.value ?? root.dataset.code ?? "";
+        },
+        async mount() {
+          if (editorEl) return;
+          const code = this.readCode();
+          await loadStrudelRepl();
+          await customElements.whenDefined(STRUDEL_EDITOR_TAG);
+          editorEl = document.createElement(STRUDEL_EDITOR_TAG);
+          editorEl.setAttribute("code", code);
+          editorEl.textContent = code;
+          host.appendChild(editorEl);
+          codeArea.hidden = true;
+          codeArea.setAttribute("aria-hidden", "true");
+          await this.ready();
+          // StrudelMirror に code セッターは無い。CodeMirror文書ごと更新する正規API setCode を使う。
+          this.editor.setCode?.(code);
+        },
+        async ready() {
+          await customElements.whenDefined(STRUDEL_EDITOR_TAG);
+          for (let i = 0; i < 50; i += 1) {
+            if (this.editor) return this.editor;
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+          throw new Error("Strudel editorの初期化が完了しませんでした");
+        },
+        async syncCode() {
+          const editor = await this.ready();
+          editor.setCode?.(this.readCode());
+          return editor;
+        },
+        async start() {
+          this.status.textContent = "読み込み中";
+          await this.mount();
+          const editor = await this.syncCode();
+          if (activeStrudelSession && activeStrudelSession !== this) {
+            await activeStrudelSession.stop();
+          }
+          // StrudelMirror の正規の発音API。start は存在しないので evaluate を主経路にする。
+          await editor.evaluate();
+          activeStrudelSession = this;
+          setDemoButtonPlaying(this.button, true);
+          this.status.textContent = "再生中";
+        },
+        async stop() {
+          const editor = this.editor || (editorEl ? await this.ready() : null);
+          if (editor && typeof editor.stop === "function") await editor.stop();
+          if (activeStrudelSession === this) activeStrudelSession = null;
+          setDemoButtonPlaying(this.button, false);
+          this.status.textContent = "停止中";
+        }
+      };
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) {
+        lucide.createIcons({
+          attrs: {
+            "aria-hidden": "true",
+            focusable: "false",
+            "stroke-width": 1.75
+          }
+        });
+      }
+
+      const heroDemo = document.getElementById("hero-demo");
+      const heroButton = document.getElementById("hero-demo-button");
+      if (heroDemo && heroButton) {
+        const session = createHeroDemoSession(heroDemo);
+        let busy = false;
+
+        heroButton.addEventListener("click", async () => {
+          if (busy) return;
+          busy = true;
+          try {
+            // 再生状態の真実は activeStrudelSession（CSSクラスは見た目の従属）
+            if (activeStrudelSession === session) {
+              await session.stop();
+            } else {
+              await session.start();
+            }
+          } catch (error) {
+            console.error(error);
+            session.status.textContent = "読み込み失敗";
+            setDemoButtonPlaying(heroButton, false);
+          } finally {
+            busy = false;
+          }
+        });
+      }
+
+      // 作品カルーセル。画面に収まりきらない枚数になったときだけ ←→ を出す。
+      // 作品を <article> で足すだけで自動的に対象になる（JS側の変更は不要）。
+      (function setupWorksCarousel() {
+        var track = document.querySelector(".code-cards-grid");
+        var controls = document.getElementById("works-carousel-controls");
+        var prev = document.getElementById("works-prev");
+        var next = document.getElementById("works-next");
+        var counter = document.getElementById("works-count");
+        if (!track || !controls || !prev || !next) return;
+
+        var cards = track.querySelectorAll(".code-card");
+
+        function step() {
+          var first = track.querySelector(".code-card");
+          if (!first) return track.clientWidth;
+          // カード幅 + gap ぶんだけ送る
+          var gap = parseFloat(getComputedStyle(track).columnGap || "16") || 16;
+          return first.getBoundingClientRect().width + gap;
+        }
+
+        function currentIndex() {
+          var s = step();
+          return s > 0 ? Math.round(track.scrollLeft / s) : 0;
+        }
+
+        function sync() {
+          var scrollable = track.scrollWidth - track.clientWidth;
+          // 1px 未満の誤差でボタンが出ないように閾値を持たせる
+          var hasOverflow = scrollable > 2;
+          controls.classList.toggle("is-active", hasOverflow);
+          if (!hasOverflow) return;
+          prev.disabled = track.scrollLeft <= 2;
+          next.disabled = track.scrollLeft >= scrollable - 2;
+          counter.textContent = (currentIndex() + 1) + " / " + cards.length;
+        }
+
+        prev.addEventListener("click", function() { track.scrollBy({ left: -step(), behavior: "smooth" }); });
+        next.addEventListener("click", function() { track.scrollBy({ left: step(), behavior: "smooth" }); });
+        track.addEventListener("scroll", sync, { passive: true });
+        window.addEventListener("resize", sync);
+        sync();
+      })();
+
+      // 長い作品コードは畳んでおく。閾値を超えたカードにだけ折りたたみUIを出す。
+      // 作品が増えても各カードを実測して判定するので、追加時に何もしなくてよい。
+      var CODE_COLLAPSED_HEIGHT = 260;
+      document.querySelectorAll(".code-card").forEach(function(card) {
+        var pre = card.querySelector(".work-code");
+        var toggle = card.querySelector(".code-card-toggle");
+        if (!pre || !toggle) return;
+
+        card.style.setProperty("--code-collapsed-height", CODE_COLLAPSED_HEIGHT + "px");
+        // 畳む価値がある長さか（余白ぶんの誤差で無意味な畳みが出ないよう 40px の余裕を見る）
+        if (pre.scrollHeight <= CODE_COLLAPSED_HEIGHT + 40) return;
+        card.classList.add("is-collapsible");
+
+        toggle.addEventListener("click", function() {
+          var expanded = card.classList.toggle("is-expanded");
+          toggle.setAttribute("aria-expanded", String(expanded));
+          toggle.textContent = expanded ? "折りたたむ" : "すべて表示";
+        });
+      });
+
+      document.querySelectorAll(".code-card-copy").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          if (!navigator.clipboard) return;
+          // 表示しているコードそのものをコピーする。
+          // 二重管理（data-code と <pre><code> の食い違い）を避けるため、正本は <pre><code> 側の1つだけ。
+          var codeEl = btn.closest(".code-card")?.querySelector(".work-code code");
+          var code = codeEl ? codeEl.textContent : "";
+          navigator.clipboard.writeText(code).then(function() {
+            btn.textContent = "コピーしました";
+            btn.classList.add("is-copied");
+            setTimeout(function() {
+              btn.textContent = "コピー";
+              btn.classList.remove("is-copied");
+            }, 2000);
+          });
+        });
+      });
+    });
+
+    window.addEventListener("beforeunload", () => {
+      activeStrudelSession?.stop?.();
+    });
+  </script>
+</body>
+</html>
