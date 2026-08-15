@@ -42,6 +42,9 @@
 
 <pre id="self">計測中…</pre>
 
+<pre id="visits">ホームを開いた記録はまだありません。</pre>
+<button id="clearlog" class="sec" type="button">記録を消す</button>
+
 <button id="run" type="button">各ページの実測を開始</button>
 <pre id="out">上のボタンを押すと、4ページとフォントを実際に取得して1つずつ時間を測ります。</pre>
 
@@ -88,6 +91,36 @@
   }
 
   document.getElementById("self").textContent = selfReport();
+
+  // --- 実際にページを開いた時の記録（narucode-timing.js が残したもの）---
+  function visitReport() {
+    var log;
+    try { log = JSON.parse(localStorage.getItem("narucode_timing_log") || "[]"); } catch (e) { log = []; }
+    if (!log.length) return "== 実際にページを開いた時の記録 ==\n\nまだ記録がありません。\n一度ホームを普通に開いてから、このページに戻ってください。";
+    var lines = ["== 実際にページを開いた時の記録（新しい順）=="];
+    for (var i = log.length - 1; i >= 0; i--) {
+      var r = log[i];
+      lines.push("");
+      lines.push("[" + r.page + "]  開始 " + r.started);
+      lines.push("  接続方式 " + (r.proto || "不明") + " / 種別 " + (r.type || "-") + " / リダイレクト " + r.redirects);
+      lines.push("  最初の1byte " + r.ttfb + "ms / HTML受信完了 " + r.htmlDone + "ms");
+      lines.push("  最初の描画 " + (r.fcp == null ? "-" : r.fcp + "ms") + " / DOM準備 " + r.domReady + "ms");
+      lines.push("  ★読み込み完了 " + r.loaded + "ms  ← ページ内で実際にかかった時間");
+      lines.push("  リソース " + r.resources + "件 / 一番遅い: " + r.slowest);
+      lines.push("  JSが固まった回数 " + r.longTaskCount + " / 合計 " + r.longTaskTotal + "ms");
+      if (r.longTaskTop && r.longTaskTop.length) {
+        var s = [];
+        for (var j = 0; j < r.longTaskTop.length; j++) s.push(r.longTaskTop[j].d + "ms(" + r.longTaskTop[j].s + "msの時点)");
+        lines.push("  内訳: " + s.join(", "));
+      }
+    }
+    return lines.join("\n");
+  }
+  document.getElementById("visits").textContent = visitReport();
+  document.getElementById("clearlog").addEventListener("click", function () {
+    localStorage.removeItem("narucode_timing_log");
+    document.getElementById("visits").textContent = "記録を消しました。";
+  });
 
   // --- 各ページを実際に取りに行って測る ---
   var TARGETS = [
@@ -267,7 +300,7 @@
   });
 
   document.getElementById("copy").addEventListener("click", function () {
-    var text = document.getElementById("self").textContent + "\n\n" + out.textContent + "\n\n" + document.getElementById("paint").textContent;
+    var text = document.getElementById("self").textContent + "\n\n" + document.getElementById("visits").textContent + "\n\n" + out.textContent + "\n\n" + document.getElementById("paint").textContent;
     var btn = this;
     function done() { btn.textContent = "コピーした"; setTimeout(function () { btn.textContent = "結果を全部コピー"; }, 1800); }
     if (navigator.clipboard) {
