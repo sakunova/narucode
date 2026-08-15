@@ -1,0 +1,11 @@
+# Cloudflare Workers (Static Assets) 設定
+# narucode は完成済みの静的 HTML を配信するだけなので、Worker スクリプトは持たず
+# assets だけを公開する。main を指定しないことで、全リクエストが静的配信になる。
+name = "narucode"
+compatibility_date = "2026-08-15"
+
+[assets]
+# リポジトリのルートに index.html / guide/ / ref/ / scale/ がそのまま置いてある
+directory = "./"
+# 404 は用意した 404.html を返す
+not_found_handling = "404-page"
