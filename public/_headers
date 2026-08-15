@@ -1,0 +1,17 @@
+# Cloudflare の静的アセット配信でヘッダーを付ける設定。
+# 既定は cache-control: max-age=0, must-revalidate で、
+# アイコンを表示するたびにサーバーへの確認が必要になっていた。
+# 確認できない状況（電波が悪い・バックグラウンド）でアイコンが落ちる要因になるため、
+# アイコン類だけ1日キャッシュさせる。差し替えても翌日には行き渡る長さにしてある。
+/favicon.ico
+  Cache-Control: public, max-age=86400
+/apple-touch-icon.png
+  Cache-Control: public, max-age=86400
+/icon-32.png
+  Cache-Control: public, max-age=86400
+/icon-192.png
+  Cache-Control: public, max-age=86400
+/narucode-mark.png
+  Cache-Control: public, max-age=86400
+/fonts/*
+  Cache-Control: public, max-age=604800
