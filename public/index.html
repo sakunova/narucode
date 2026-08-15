@@ -148,10 +148,27 @@
       gap: 24px;
     }
 
+    .nc-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .nc-mark {
+      /* 8ビットのDJアイコン。白抜きなので背景の青にそのまま乗る（下地は付けない）。
+         実体は3倍の90x84。幅と高さを属性で指定して読み込み時のガタつきを防ぐ。 */
+      display: block;
+      height: 28px;
+      width: auto;
+      flex-shrink: 0;
+    }
+
     .nc-brand-hub {
       display: flex;
       flex-direction: column;
       justify-content: center;
+      min-width: 0;
     }
 
     .nc-wordmark {
@@ -1078,9 +1095,13 @@
 
     <header class="site-header">
       <div class="shell topbar">
-        <span class="nc-brand-hub">
-          <span class="nc-wordmark">narucode</span>
-          <span class="nc-sub">Strudel 日本語ハブ · 非公式</span>
+        <span class="nc-brand">
+          <img class="nc-mark" src="narucode-mark.png"
+               width="30" height="28" alt="" aria-hidden="true" decoding="async">
+          <span class="nc-brand-hub">
+            <span class="nc-wordmark">narucode</span>
+            <span class="nc-sub">Strudel 日本語ハブ · 非公式</span>
+          </span>
         </span>
         <nav class="narucode-nav" aria-label="narucode 内部ナビ">
           <span class="topbar-link topbar-current" aria-current="page">ホーム</span>
