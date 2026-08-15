@@ -331,6 +331,18 @@
       line-height: 1.5;
     }
 
+    .demo-note {
+      /* スマホから来る人向けの補足。iOS は本体の消音スイッチが入っていると
+         Web Audio が鳴らない（Strudel 側の制約ではない）。実際に問い合わせがあったので置いた。
+         色は #0B1CAE 上で 4.55:1（AA を満たす最小の濃さ＝一番控えめにできる値）。
+         既存の .demo-status は 4.34:1 で基準に届いていないが、そちらは別途の話。 */
+      margin: 10px 0 0;
+      color: rgba(255,255,255,0.57);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
     .demo-code-shell {
       margin-top: 16px;
       border: 1px solid rgba(255,255,255,0.15);
@@ -1133,6 +1145,7 @@
           </button>
           <span class="demo-status" id="hero-demo-status" aria-live="polite">クリックするまで読み込みません</span>
         </div>
+        <p class="demo-note">スマホの方は、マナーモードだと音が出ません</p>
         <div class="demo-code-shell">
           <textarea class="demo-code" id="hero-demo-code" spellcheck="false" aria-label="Strudelデモコード">setcpm(138/4)
 $: n(irand(16)).sound("sqr").scale("c:major")
