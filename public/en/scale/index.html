@@ -1,21 +1,21 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Strudelのscale()で使う度数を音名に変換。85種類のスケール、鍵盤表示、コード生成に対応した非公式ツール。">
+  <meta name="description" content="Convert Strudel scale() degrees into note names across 85 scales, inspect them on a keyboard, and generate ready-to-use code.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="narucode/scale – Strudel スケールツール">
-  <meta property="og:description" content="Strudelのscale()で使う度数を音名に変換。85種類のスケール、鍵盤表示、コード生成に対応。">
-  <meta property="og:url" content="https://narucode.sakunova.workers.dev/scale/">
-  <link rel="canonical" href="https://narucode.sakunova.workers.dev/scale/">
-  <title>narucode/scale – Strudel スケールツール</title>
+  <meta property="og:title" content="narucode/scale – Strudel Scale Tool">
+  <meta property="og:description" content="Convert Strudel scale() degrees into note names across 85 scales, inspect them on a keyboard, and generate code.">
+  <meta property="og:url" content="https://narucode.sakunova.workers.dev/en/scale/">
+  <link rel="canonical" href="https://narucode.sakunova.workers.dev/en/scale/">
+  <title>narucode/scale – Strudel Scale Tool</title>
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta name="theme-color" content="#0B1CAE">
-  <link href="../narucode-fonts.css" rel="stylesheet">
+  <link href="/narucode-fonts.css" rel="stylesheet">
   <style>
     :root {
       --blue: #0B1CAE;
@@ -106,7 +106,7 @@
     .type-option { min-height: 44px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--white); font: 500 10px/1.3 "JetBrains Mono", monospace; cursor: pointer; }
     .type-option[aria-pressed="true"] { border-color: var(--white); background: var(--white); color: var(--blue); font-weight: 700; }
     .type-option:disabled { border-style: dashed; color: var(--muted); cursor: not-allowed; opacity: .72; }
-    .type-option:disabled::after { content: "選択不可"; display: block; margin-top: 3px; font-size: 8px; }
+    .type-option:disabled::after { content: "Unavailable"; display: block; margin-top: 3px; font-size: 8px; }
     .browse-tools { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; margin-top: 18px; }
     .all-scales-btn[aria-expanded="true"] { border-color: var(--white); background: var(--white); color: var(--blue); }
     .scale-current { margin: 18px 0 10px; color: var(--white); font: 700 20px/1.3 "JetBrains Mono", monospace; overflow-wrap: anywhere; }
@@ -135,7 +135,7 @@
       cursor: pointer;
     }
     .scale-option:hover, .scale-option[aria-selected="true"] { background: var(--surface-strong); color: var(--white); }
-    .scale-option[aria-selected="true"]::before { content: "選択中"; grid-column: 2; grid-row: 1; color: var(--orange-readable); font: 500 9px/1.4 "JetBrains Mono", monospace; }
+    .scale-option[aria-selected="true"]::before { content: "Selected"; grid-column: 2; grid-row: 1; color: var(--orange-readable); font: 500 9px/1.4 "JetBrains Mono", monospace; }
     .scale-option-name { min-width: 0; grid-column: 1; grid-row: 1; font: 500 12px/1.4 "JetBrains Mono", monospace; overflow-wrap: anywhere; }
     .scale-option-meta { grid-column: 1 / -1; color: var(--muted); font-size: 10px; overflow-wrap: anywhere; }
     .no-results { padding: 20px 12px; color: var(--body); font-size: 12px; }
@@ -170,7 +170,7 @@
     }
     .degree-cell:hover { background: var(--surface-strong); }
     .degree-cell[aria-pressed="true"] { border: 3px solid var(--white); background: var(--orange); }
-    .degree-cell[aria-pressed="true"]::after { content: "✓ 選択"; display: block; margin-top: 5px; color: var(--white); font: 700 8px/1 "JetBrains Mono", monospace; }
+    .degree-cell[aria-pressed="true"]::after { content: "✓ Selected"; display: block; margin-top: 5px; color: var(--white); font: 700 8px/1 "JetBrains Mono", monospace; }
     .degree-num { display: block; color: var(--muted); font: 500 10px/1.2 "JetBrains Mono", monospace; }
     .degree-cell[aria-pressed="true"] .degree-num { color: var(--white); }
     .degree-note { display: block; margin-top: 5px; font: 700 17px/1.1 "Space Grotesk", sans-serif; }
@@ -212,7 +212,7 @@
     .piano-key.black.in-scale { box-shadow: inset 0 -34px 0 rgba(255,255,255,0.26); }
     .piano-key.is-selected { outline: 4px solid var(--orange); outline-offset: -5px; }
     .piano-key.is-selected::before { content: "✓"; position: absolute; top: 10px; color: var(--orange); font-size: 14px; }
-    .piano-key.off-scale-selected::after { content: "外"; color: var(--orange); font-weight: 700; }
+    .piano-key.off-scale-selected::after { content: "Off"; color: var(--orange); font-weight: 700; }
     .key-state { min-height: 18px; font-size: 7px; text-align: center; }
     .legend { display: flex; flex-wrap: wrap; gap: 12px 18px; margin-top: 10px; color: var(--body); font-size: 10px; }
     .legend span { display: inline-flex; align-items: center; gap: 6px; }
@@ -274,15 +274,15 @@
     <div class="shell topbar">
       <a class="brand" href="../">
         <span class="brand-main">narucode<span>/scale</span></span>
-        <span class="brand-sub">STRUDEL 日本語ハブ · 非公式</span>
+        <span class="brand-sub">STRUDEL HUB · UNOFFICIAL</span>
       </a>
-      <nav class="site-nav" aria-label="narucode 内部ナビ">
-        <a href="../">ホーム</a>
-        <a href="../guide/">ガイド</a>
-        <a href="../ref/">リファレンス</a>
-        <span aria-current="page">スケール</span>
+      <nav class="site-nav" aria-label="narucode navigation">
+        <a href="../">Home</a>
+        <a href="../guide/">Guide</a>
+        <a href="../ref/">Reference</a>
+        <span aria-current="page">Scales</span>
         <span class="nav-sep" aria-hidden="true">·</span>
-        <a href="../en/scale/" hreflang="en" lang="en">English</a>
+        <a href="/scale/" hreflang="ja" lang="ja">日本語</a>
         <span class="nav-sep" aria-hidden="true">·</span>
         <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
       </nav>
@@ -290,14 +290,14 @@
   </header>
 
   <main class="shell">
-    <section class="intro" aria-label="このツールでできること">
-      <p class="intro-copy"><code class="mono">scale()</code> を実在する85種類から選び、<code class="mono">n()</code> の度数を音名・鍵盤・そのまま使えるコードで確認できます。</p>
+    <section class="intro" aria-label="What this tool does">
+      <p class="intro-copy">Choose from 85 real scales for <code class="mono">scale()</code>, then inspect <code class="mono">n()</code> degrees as note names, on a keyboard, and as ready-to-use code.</p>
     </section>
 
-    <div class="fact-strip" aria-label="スケールツールの要点">
-      <span>0 は第1音</span>
+    <div class="fact-strip" aria-label="Scale tool facts">
+      <span>0 is the first scale note</span>
       <span><strong id="scale-count">85</strong> scales</span>
-      <span>tonaljs 実データ · 名前合成なし</span>
+      <span>Real tonaljs data · no synthesized names</span>
     </div>
 
     <div class="layout">
@@ -306,52 +306,52 @@
           <div class="panel-head">
             <div>
               <p class="section-kicker">01 / SCALE</p>
-              <h2 id="scale-heading">スケールを選ぶ</h2>
+              <h2 id="scale-heading">Choose a scale</h2>
             </div>
-            <label class="check-label"><input id="audio-toggle" type="checkbox"> 音を鳴らす</label>
+            <label class="check-label"><input id="audio-toggle" type="checkbox"> Play notes</label>
           </div>
           <div class="control-row">
-            <label><span class="field-label">ROOT</span><select id="root-select" aria-label="ルート音"></select></label>
-            <label><span class="field-label">OCTAVE</span><select id="octave-select" aria-label="ルートのオクターブ"></select></label>
+            <label><span class="field-label">ROOT</span><select id="root-select" aria-label="Root note"></select></label>
+            <label><span class="field-label">OCTAVE</span><select id="octave-select" aria-label="Root octave"></select></label>
           </div>
           <div class="scale-builder">
-            <label><span class="step-label">STEP 1 / ベースを選ぶ</span><select id="base-select" aria-label="スケールのベース"></select></label>
-            <fieldset><legend class="step-label">STEP 2 / 種類を選ぶ</legend><div id="type-options" class="type-options"></div></fieldset>
+            <label><span class="step-label">STEP 1 / CHOOSE A BASE</span><select id="base-select" aria-label="Scale base"></select></label>
+            <fieldset><legend class="step-label">STEP 2 / CHOOSE A TYPE</legend><div id="type-options" class="type-options"></div></fieldset>
           </div>
           <div id="scale-current" class="scale-current"></div>
           <div id="scale-meta" class="scale-meta"></div>
           <div class="browse-tools">
             <label class="search-field"><span class="field-label">SEARCH</span><input id="scale-search" type="search" placeholder="name / strudel / alias" autocomplete="off" aria-controls="scale-results"></label>
-            <button id="show-all-scales" class="small-btn all-scales-btn" type="button" aria-expanded="false" aria-controls="scale-results">すべて表示（85）</button>
+            <button id="show-all-scales" class="small-btn all-scales-btn" type="button" aria-expanded="false" aria-controls="scale-results">Show all (85)</button>
           </div>
-          <div id="scale-results" class="results" role="listbox" aria-label="スケール候補" hidden></div>
+          <div id="scale-results" class="results" role="listbox" aria-label="Scale candidates" hidden></div>
         </section>
 
         <section class="panel panel-primary" aria-labelledby="degrees-heading">
           <div class="panel-head">
             <div>
               <p class="section-kicker">02 / DEGREE → NOTE</p>
-              <h2 id="degrees-heading">度数 → 音名</h2>
-              <p class="help">クリック順でコードになります。各音名にはオクターブ番号を表示します。</p>
+              <h2 id="degrees-heading">Degrees → Notes</h2>
+              <p class="help">Click notes in chord order. Each note name includes its octave number.</p>
             </div>
           </div>
           <div class="range-tools">
-            <div class="segmented" aria-label="表示範囲">
+            <div class="segmented" aria-label="Display range">
               <button id="range-7" type="button" aria-pressed="true">0–7</button>
               <button id="range-15" type="button" aria-pressed="false">0–15</button>
             </div>
-            <label class="check-label"><input id="negative-toggle" type="checkbox"> − の度数を表示</label>
+            <label class="check-label"><input id="negative-toggle" type="checkbox"> Show negative degrees</label>
           </div>
           <div id="positive-degrees" class="degree-section"></div>
           <div id="negative-degrees" class="degree-section" hidden></div>
           <details class="advanced">
-            <summary>スケール外の音を使う</summary>
-            <p class="help">最後に操作した度数へ半音補正を加え、完成トークンとして追加します。</p>
+            <summary>Use a note outside the scale</summary>
+            <p class="help">Apply a semitone adjustment to the last active degree and add the completed token.</p>
             <div class="advanced-controls">
               <div><span class="field-label">ACTIVE DEGREE</span><div id="active-degree" class="active-token">0</div></div>
-              <label><span class="field-label">補正</span><select id="accidental-select"><option value="-3">bbb (−3)</option><option value="-2">bb (−2)</option><option value="-1">b (−1)</option><option value="0" selected>なし</option><option value="1"># (+1)</option><option value="2">## (+2)</option><option value="3">### (+3)</option></select></label>
-              <button id="add-adjusted" class="small-btn" type="button">完成トークンを追加</button>
-              <button id="repeat-degree" class="small-btn" type="button">同じ度数を追加</button>
+              <label><span class="field-label">Adjustment</span><select id="accidental-select"><option value="-3">bbb (−3)</option><option value="-2">bb (−2)</option><option value="-1">b (−1)</option><option value="0" selected>None</option><option value="1"># (+1)</option><option value="2">## (+2)</option><option value="3">### (+3)</option></select></label>
+              <button id="add-adjusted" class="small-btn" type="button">Add adjusted token</button>
+              <button id="repeat-degree" class="small-btn" type="button">Repeat degree</button>
             </div>
           </details>
         </section>
@@ -360,30 +360,30 @@
           <div class="panel-head">
             <div>
               <p class="section-kicker">03 / PIANO</p>
-              <h2 id="piano-heading">ピアノ鍵盤</h2>
-              <p class="help">表示範囲に合わせて音域が変わります。横に送って確認できます。</p>
+              <h2 id="piano-heading">Piano keyboard</h2>
+              <p class="help">The pitch range follows the selected display range. Scroll horizontally to inspect it.</p>
             </div>
           </div>
-          <div class="piano-scroll" tabindex="0" aria-label="ピアノ鍵盤 横スクロール領域"><div id="piano" class="piano"></div></div>
-          <div class="legend" aria-label="鍵盤の凡例"><span><i class="legend-mark"></i>スケール構成音</span><span><i class="legend-mark selected"></i>選択中（✓付き）</span><span>「外」= スケール外補正</span></div>
+          <div class="piano-scroll" tabindex="0" aria-label="Horizontally scrollable piano keyboard"><div id="piano" class="piano"></div></div>
+          <div class="legend" aria-label="Keyboard legend"><span><i class="legend-mark"></i>Scale note</span><span><i class="legend-mark selected"></i>Selected (with ✓)</span><span>“Off” = adjusted outside-scale note</span></div>
         </section>
 
         <section class="panel" aria-labelledby="code-heading">
           <div class="panel-head">
             <div>
               <p class="section-kicker">04 / STRUDEL CODE</p>
-              <h2 id="code-heading">コードを生成</h2>
+              <h2 id="code-heading">Generate code</h2>
             </div>
-            <button id="clear-selection" class="small-btn" type="button">全解除</button>
+            <button id="clear-selection" class="small-btn" type="button">Clear all</button>
           </div>
           <div class="code-row">
             <pre id="code-output" class="code-output" tabindex="0"></pre>
-            <button id="copy-code" class="copy-btn" type="button">コピー</button>
+            <button id="copy-code" class="copy-btn" type="button">Copy</button>
           </div>
           <p id="selection-list" class="selection-list"></p>
           <p id="copy-status" class="status" role="status" aria-live="polite"></p>
           <div id="copy-fallback" class="copy-fallback" hidden>
-            <label for="copy-fallback-text" class="field-label">下のコードを選択してコピーしてください</label>
+            <label for="copy-fallback-text" class="field-label">Select and copy the code below</label>
             <textarea id="copy-fallback-text" readonly></textarea>
           </div>
         </section>
@@ -392,9 +392,9 @@
     </div>
   </main>
 
-  <footer><div class="shell footer-inner"><span>Strudel © TidalCycles contributors (AGPL-3.0-or-later) · 本サイトも AGPL-3.0 · 非公式 · 無保証</span><span><a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a> · <a href="https://github.com/sakunova/narucode" target="_blank" rel="noopener noreferrer">ソース ↗</a></span></div></footer>
+  <footer><div class="shell footer-inner"><span>Strudel © TidalCycles contributors (AGPL-3.0-or-later) · This site is also AGPL-3.0 · Unofficial · No warranty</span><span><a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a> · <a href="https://github.com/sakunova/narucode" target="_blank" rel="noopener noreferrer">Source ↗</a></span></div></footer>
 
-  <script id="scale-data" type="application/json">{"_source":{"origin":"tonaljs/tonal packages/scale-type/data.ts","url":"https://raw.githubusercontent.com/tonaljs/tonal/main/packages/scale-type/data.ts","fetchedAt":"2026-08-15","sha256OfSource":"171f51fc8ae55263b7b2a0b982c471d678f63a1fb063b216ee6b0a9eb8a08f1a","note":"Strudel の scale() はこの tonaljs のスケール型に依存する。strudel フィールドはスペースをコロンに置換した Strudel 記法。semitones/degreeNumbers は intervals から規則で算出（表のハードコードなし）。"},"scaleCount":85,"scales":[{"strudel":"major:pentatonic","name":"major pentatonic","aliases":["pentatonic"],"intervals":"1P 2M 3M 5P 6M","semitones":[0,2,4,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"major","name":"major","aliases":["ionian"],"intervals":"1P 2M 3M 4P 5P 6M 7M","semitones":[0,2,4,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"minor","name":"minor","aliases":["aeolian"],"intervals":"1P 2M 3m 4P 5P 6m 7m","semitones":[0,2,3,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"major:blues","name":"major blues","aliases":[],"intervals":"1P 2M 3m 3M 5P 6M","semitones":[0,2,3,4,7,9],"degreeNumbers":[1,2,3,3,5,6],"count":6,"hasSpecialChars":false},{"strudel":"minor:blues","name":"minor blues","aliases":["blues"],"intervals":"1P 3m 4P 5d 5P 7m","semitones":[0,3,5,6,7,10],"degreeNumbers":[1,3,4,5,5,7],"count":6,"hasSpecialChars":false},{"strudel":"melodic:minor","name":"melodic minor","aliases":[],"intervals":"1P 2M 3m 4P 5P 6M 7M","semitones":[0,2,3,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"harmonic:minor","name":"harmonic minor","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 7M","semitones":[0,2,3,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"bebop","name":"bebop","aliases":[],"intervals":"1P 2M 3M 4P 5P 6M 7m 7M","semitones":[0,2,4,5,7,9,10,11],"degreeNumbers":[1,2,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"diminished","name":"diminished","aliases":["whole-half:diminished"],"intervals":"1P 2M 3m 4P 5d 6m 6M 7M","semitones":[0,2,3,5,6,8,9,11],"degreeNumbers":[1,2,3,4,5,6,6,7],"count":8,"hasSpecialChars":false},{"strudel":"dorian","name":"dorian","aliases":[],"intervals":"1P 2M 3m 4P 5P 6M 7m","semitones":[0,2,3,5,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian","name":"lydian","aliases":[],"intervals":"1P 2M 3M 4A 5P 6M 7M","semitones":[0,2,4,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"mixolydian","name":"mixolydian","aliases":["dominant"],"intervals":"1P 2M 3M 4P 5P 6M 7m","semitones":[0,2,4,5,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"phrygian","name":"phrygian","aliases":[],"intervals":"1P 2m 3m 4P 5P 6m 7m","semitones":[0,1,3,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian","name":"locrian","aliases":[],"intervals":"1P 2m 3m 4P 5d 6m 7m","semitones":[0,1,3,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"ionian:pentatonic","name":"ionian pentatonic","aliases":[],"intervals":"1P 3M 4P 5P 7M","semitones":[0,4,5,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"mixolydian:pentatonic","name":"mixolydian pentatonic","aliases":["indian"],"intervals":"1P 3M 4P 5P 7m","semitones":[0,4,5,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"ritusen","name":"ritusen","aliases":[],"intervals":"1P 2M 4P 5P 6M","semitones":[0,2,5,7,9],"degreeNumbers":[1,2,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"egyptian","name":"egyptian","aliases":[],"intervals":"1P 2M 4P 5P 7m","semitones":[0,2,5,7,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"neapolitan:major:pentatonic","name":"neapolitan major pentatonic","aliases":[],"intervals":"1P 3M 4P 5d 7m","semitones":[0,4,5,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"vietnamese:1","name":"vietnamese 1","aliases":[],"intervals":"1P 3m 4P 5P 6m","semitones":[0,3,5,7,8],"degreeNumbers":[1,3,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"pelog","name":"pelog","aliases":[],"intervals":"1P 2m 3m 5P 6m","semitones":[0,1,3,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"kumoijoshi","name":"kumoijoshi","aliases":[],"intervals":"1P 2m 4P 5P 6m","semitones":[0,1,5,7,8],"degreeNumbers":[1,2,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"hirajoshi","name":"hirajoshi","aliases":[],"intervals":"1P 2M 3m 5P 6m","semitones":[0,2,3,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"iwato","name":"iwato","aliases":[],"intervals":"1P 2m 4P 5d 7m","semitones":[0,1,5,6,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"in-sen","name":"in-sen","aliases":[],"intervals":"1P 2m 4P 5P 7m","semitones":[0,1,5,7,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"lydian:pentatonic","name":"lydian pentatonic","aliases":["chinese"],"intervals":"1P 3M 4A 5P 7M","semitones":[0,4,6,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"malkos:raga","name":"malkos raga","aliases":[],"intervals":"1P 3m 4P 6m 7m","semitones":[0,3,5,8,10],"degreeNumbers":[1,3,4,6,7],"count":5,"hasSpecialChars":false},{"strudel":"locrian:pentatonic","name":"locrian pentatonic","aliases":["minor:seven:flat:five:pentatonic"],"intervals":"1P 3m 4P 5d 7m","semitones":[0,3,5,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:pentatonic","name":"minor pentatonic","aliases":["vietnamese:2"],"intervals":"1P 3m 4P 5P 7m","semitones":[0,3,5,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:six:pentatonic","name":"minor six pentatonic","aliases":[],"intervals":"1P 3m 4P 5P 6M","semitones":[0,3,5,7,9],"degreeNumbers":[1,3,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"flat:three:pentatonic","name":"flat three pentatonic","aliases":["kumoi"],"intervals":"1P 2M 3m 5P 6M","semitones":[0,2,3,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"flat:six:pentatonic","name":"flat six pentatonic","aliases":[],"intervals":"1P 2M 3M 5P 6m","semitones":[0,2,4,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"scriabin","name":"scriabin","aliases":[],"intervals":"1P 2m 3M 5P 6M","semitones":[0,1,4,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"whole:tone:pentatonic","name":"whole tone pentatonic","aliases":[],"intervals":"1P 3M 5d 6m 7m","semitones":[0,4,6,8,10],"degreeNumbers":[1,3,5,6,7],"count":5,"hasSpecialChars":false},{"strudel":"lydian:#5p:pentatonic","name":"lydian #5p pentatonic","aliases":[],"intervals":"1P 3M 4A 5A 7M","semitones":[0,4,6,8,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":true},{"strudel":"lydian:dominant:pentatonic","name":"lydian dominant pentatonic","aliases":[],"intervals":"1P 3M 4A 5P 7m","semitones":[0,4,6,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:#7m:pentatonic","name":"minor #7m pentatonic","aliases":[],"intervals":"1P 3m 4P 5P 7M","semitones":[0,3,5,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":true},{"strudel":"super:locrian:pentatonic","name":"super locrian pentatonic","aliases":[],"intervals":"1P 3m 4d 5d 7m","semitones":[0,3,4,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:hexatonic","name":"minor hexatonic","aliases":[],"intervals":"1P 2M 3m 4P 5P 7M","semitones":[0,2,3,5,7,11],"degreeNumbers":[1,2,3,4,5,7],"count":6,"hasSpecialChars":false},{"strudel":"augmented","name":"augmented","aliases":[],"intervals":"1P 2A 3M 5P 5A 7M","semitones":[0,3,4,7,8,11],"degreeNumbers":[1,2,3,5,5,7],"count":6,"hasSpecialChars":false},{"strudel":"piongio","name":"piongio","aliases":[],"intervals":"1P 2M 4P 5P 6M 7m","semitones":[0,2,5,7,9,10],"degreeNumbers":[1,2,4,5,6,7],"count":6,"hasSpecialChars":false},{"strudel":"prometheus:neapolitan","name":"prometheus neapolitan","aliases":[],"intervals":"1P 2m 3M 4A 6M 7m","semitones":[0,1,4,6,9,10],"degreeNumbers":[1,2,3,4,6,7],"count":6,"hasSpecialChars":false},{"strudel":"prometheus","name":"prometheus","aliases":[],"intervals":"1P 2M 3M 4A 6M 7m","semitones":[0,2,4,6,9,10],"degreeNumbers":[1,2,3,4,6,7],"count":6,"hasSpecialChars":false},{"strudel":"mystery:#1","name":"mystery #1","aliases":[],"intervals":"1P 2m 3M 5d 6m 7m","semitones":[0,1,4,6,8,10],"degreeNumbers":[1,2,3,5,6,7],"count":6,"hasSpecialChars":true},{"strudel":"six:tone:symmetric","name":"six tone symmetric","aliases":[],"intervals":"1P 2m 3M 4P 5A 6M","semitones":[0,1,4,5,8,9],"degreeNumbers":[1,2,3,4,5,6],"count":6,"hasSpecialChars":false},{"strudel":"whole:tone","name":"whole tone","aliases":["messiaen's:mode:#1"],"intervals":"1P 2M 3M 4A 5A 6A","semitones":[0,2,4,6,8,10],"degreeNumbers":[1,2,3,4,5,6],"count":6,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#5","name":"messiaen's mode #5","aliases":[],"intervals":"1P 2m 4P 4A 5P 7M","semitones":[0,1,5,6,7,11],"degreeNumbers":[1,2,4,4,5,7],"count":6,"hasSpecialChars":true},{"strudel":"locrian:major","name":"locrian major","aliases":["arabian"],"intervals":"1P 2M 3M 4P 5d 6m 7m","semitones":[0,2,4,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"double:harmonic:lydian","name":"double harmonic lydian","aliases":[],"intervals":"1P 2m 3M 4A 5P 6m 7M","semitones":[0,1,4,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian:#2","name":"locrian #2","aliases":["half-diminished","aeolian:b5"],"intervals":"1P 2M 3m 4P 5d 6m 7m","semitones":[0,2,3,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":true},{"strudel":"lydian:dominant","name":"lydian dominant","aliases":["lydian:b7","overtone"],"intervals":"1P 2M 3M 4A 5P 6M 7m","semitones":[0,2,4,6,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:augmented","name":"lydian augmented","aliases":[],"intervals":"1P 2M 3M 4A 5A 6M 7M","semitones":[0,2,4,6,8,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian:6","name":"locrian 6","aliases":["locrian:natural:6","locrian:sharp:6"],"intervals":"1P 2m 3m 4P 5d 6M 7m","semitones":[0,1,3,5,6,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"augmented:heptatonic","name":"augmented heptatonic","aliases":[],"intervals":"1P 2A 3M 4P 5P 5A 7M","semitones":[0,3,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,5,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:diminished","name":"lydian diminished","aliases":[],"intervals":"1P 2M 3m 4A 5P 6M 7M","semitones":[0,2,3,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"leading:whole:tone","name":"leading whole tone","aliases":[],"intervals":"1P 2M 3M 4A 5A 7m 7M","semitones":[0,2,4,6,8,10,11],"degreeNumbers":[1,2,3,4,5,7,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:minor","name":"lydian minor","aliases":[],"intervals":"1P 2M 3M 4A 5P 6m 7m","semitones":[0,2,4,6,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"phrygian:dominant","name":"phrygian dominant","aliases":["spanish","phrygian:major"],"intervals":"1P 2m 3M 4P 5P 6m 7m","semitones":[0,1,4,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"balinese","name":"balinese","aliases":[],"intervals":"1P 2m 3m 4P 5P 6m 7M","semitones":[0,1,3,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"neapolitan:major","name":"neapolitan major","aliases":[],"intervals":"1P 2m 3m 4P 5P 6M 7M","semitones":[0,1,3,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"harmonic:major","name":"harmonic major","aliases":[],"intervals":"1P 2M 3M 4P 5P 6m 7M","semitones":[0,2,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"double:harmonic:major","name":"double harmonic major","aliases":["gypsy"],"intervals":"1P 2m 3M 4P 5P 6m 7M","semitones":[0,1,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"hungarian:minor","name":"hungarian minor","aliases":[],"intervals":"1P 2M 3m 4A 5P 6m 7M","semitones":[0,2,3,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"hungarian:major","name":"hungarian major","aliases":[],"intervals":"1P 2A 3M 4A 5P 6M 7m","semitones":[0,3,4,6,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"oriental","name":"oriental","aliases":[],"intervals":"1P 2m 3M 4P 5d 6M 7m","semitones":[0,1,4,5,6,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"flamenco","name":"flamenco","aliases":[],"intervals":"1P 2m 3m 3M 4A 5P 7m","semitones":[0,1,3,4,6,7,10],"degreeNumbers":[1,2,3,3,4,5,7],"count":7,"hasSpecialChars":false},{"strudel":"todi:raga","name":"todi raga","aliases":[],"intervals":"1P 2m 3m 4A 5P 6m 7M","semitones":[0,1,3,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"persian","name":"persian","aliases":[],"intervals":"1P 2m 3M 4P 5d 6m 7M","semitones":[0,1,4,5,6,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"enigmatic","name":"enigmatic","aliases":[],"intervals":"1P 2m 3M 5d 6m 7m 7M","semitones":[0,1,4,6,8,10,11],"degreeNumbers":[1,2,3,5,6,7,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:#9","name":"lydian #9","aliases":[],"intervals":"1P 2A 3M 4A 5P 6M 7M","semitones":[0,3,4,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":true},{"strudel":"messiaen's:mode:#4","name":"messiaen's mode #4","aliases":[],"intervals":"1P 2m 2M 4P 4A 5P 6m 7M","semitones":[0,1,2,5,6,7,8,11],"degreeNumbers":[1,2,2,4,4,5,6,7],"count":8,"hasSpecialChars":true},{"strudel":"purvi:raga","name":"purvi raga","aliases":[],"intervals":"1P 2m 3M 4P 4A 5P 6m 7M","semitones":[0,1,4,5,6,7,8,11],"degreeNumbers":[1,2,3,4,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"spanish:heptatonic","name":"spanish heptatonic","aliases":[],"intervals":"1P 2m 3m 3M 4P 5P 6m 7m","semitones":[0,1,3,4,5,7,8,10],"degreeNumbers":[1,2,3,3,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:minor","name":"bebop minor","aliases":[],"intervals":"1P 2M 3m 3M 4P 5P 6M 7m","semitones":[0,2,3,4,5,7,9,10],"degreeNumbers":[1,2,3,3,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:major","name":"bebop major","aliases":[],"intervals":"1P 2M 3M 4P 5P 5A 6M 7M","semitones":[0,2,4,5,7,8,9,11],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:locrian","name":"bebop locrian","aliases":[],"intervals":"1P 2m 3m 4P 5d 5P 6m 7m","semitones":[0,1,3,5,6,7,8,10],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"minor:bebop","name":"minor bebop","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 7m 7M","semitones":[0,2,3,5,7,8,10,11],"degreeNumbers":[1,2,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"ichikosucho","name":"ichikosucho","aliases":[],"intervals":"1P 2M 3M 4P 5d 5P 6M 7M","semitones":[0,2,4,5,6,7,9,11],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"minor:six:diminished","name":"minor six diminished","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 6M 7M","semitones":[0,2,3,5,7,8,9,11],"degreeNumbers":[1,2,3,4,5,6,6,7],"count":8,"hasSpecialChars":false},{"strudel":"kafi:raga","name":"kafi raga","aliases":[],"intervals":"1P 3m 3M 4P 5P 6M 7m 7M","semitones":[0,3,4,5,7,9,10,11],"degreeNumbers":[1,3,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#6","name":"messiaen's mode #6","aliases":[],"intervals":"1P 2M 3M 4P 4A 5A 6A 7M","semitones":[0,2,4,5,6,8,10,11],"degreeNumbers":[1,2,3,4,4,5,6,7],"count":8,"hasSpecialChars":true},{"strudel":"composite:blues","name":"composite blues","aliases":[],"intervals":"1P 2M 3m 3M 4P 5d 5P 6M 7m","semitones":[0,2,3,4,5,6,7,9,10],"degreeNumbers":[1,2,3,3,4,5,5,6,7],"count":9,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#3","name":"messiaen's mode #3","aliases":[],"intervals":"1P 2M 3m 3M 4A 5P 6m 7m 7M","semitones":[0,2,3,4,6,7,8,10,11],"degreeNumbers":[1,2,3,3,4,5,6,7,7],"count":9,"hasSpecialChars":true},{"strudel":"messiaen's:mode:#7","name":"messiaen's mode #7","aliases":[],"intervals":"1P 2m 2M 3m 4P 4A 5P 6m 6M 7M","semitones":[0,1,2,3,5,6,7,8,9,11],"degreeNumbers":[1,2,2,3,4,4,5,6,6,7],"count":10,"hasSpecialChars":true},{"strudel":"chromatic","name":"chromatic","aliases":[],"intervals":"1P 2m 2M 3m 3M 4P 5d 5P 6m 6M 7m 7M","semitones":[0,1,2,3,4,5,6,7,8,9,10,11],"degreeNumbers":[1,2,2,3,3,4,5,5,6,6,7,7],"count":12,"hasSpecialChars":false}]}</script>
+  <script id="scale-data" type="application/json">{"_source":{"origin":"tonaljs/tonal packages/scale-type/data.ts","url":"https://raw.githubusercontent.com/tonaljs/tonal/main/packages/scale-type/data.ts","fetchedAt":"2026-08-15","sha256OfSource":"171f51fc8ae55263b7b2a0b982c471d678f63a1fb063b216ee6b0a9eb8a08f1a","note":"Strudel scale() uses these tonaljs scale types. The strudel field replaces spaces with colons; semitones and degreeNumbers are derived from intervals rather than hardcoded."},"scaleCount":85,"scales":[{"strudel":"major:pentatonic","name":"major pentatonic","aliases":["pentatonic"],"intervals":"1P 2M 3M 5P 6M","semitones":[0,2,4,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"major","name":"major","aliases":["ionian"],"intervals":"1P 2M 3M 4P 5P 6M 7M","semitones":[0,2,4,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"minor","name":"minor","aliases":["aeolian"],"intervals":"1P 2M 3m 4P 5P 6m 7m","semitones":[0,2,3,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"major:blues","name":"major blues","aliases":[],"intervals":"1P 2M 3m 3M 5P 6M","semitones":[0,2,3,4,7,9],"degreeNumbers":[1,2,3,3,5,6],"count":6,"hasSpecialChars":false},{"strudel":"minor:blues","name":"minor blues","aliases":["blues"],"intervals":"1P 3m 4P 5d 5P 7m","semitones":[0,3,5,6,7,10],"degreeNumbers":[1,3,4,5,5,7],"count":6,"hasSpecialChars":false},{"strudel":"melodic:minor","name":"melodic minor","aliases":[],"intervals":"1P 2M 3m 4P 5P 6M 7M","semitones":[0,2,3,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"harmonic:minor","name":"harmonic minor","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 7M","semitones":[0,2,3,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"bebop","name":"bebop","aliases":[],"intervals":"1P 2M 3M 4P 5P 6M 7m 7M","semitones":[0,2,4,5,7,9,10,11],"degreeNumbers":[1,2,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"diminished","name":"diminished","aliases":["whole-half:diminished"],"intervals":"1P 2M 3m 4P 5d 6m 6M 7M","semitones":[0,2,3,5,6,8,9,11],"degreeNumbers":[1,2,3,4,5,6,6,7],"count":8,"hasSpecialChars":false},{"strudel":"dorian","name":"dorian","aliases":[],"intervals":"1P 2M 3m 4P 5P 6M 7m","semitones":[0,2,3,5,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian","name":"lydian","aliases":[],"intervals":"1P 2M 3M 4A 5P 6M 7M","semitones":[0,2,4,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"mixolydian","name":"mixolydian","aliases":["dominant"],"intervals":"1P 2M 3M 4P 5P 6M 7m","semitones":[0,2,4,5,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"phrygian","name":"phrygian","aliases":[],"intervals":"1P 2m 3m 4P 5P 6m 7m","semitones":[0,1,3,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian","name":"locrian","aliases":[],"intervals":"1P 2m 3m 4P 5d 6m 7m","semitones":[0,1,3,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"ionian:pentatonic","name":"ionian pentatonic","aliases":[],"intervals":"1P 3M 4P 5P 7M","semitones":[0,4,5,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"mixolydian:pentatonic","name":"mixolydian pentatonic","aliases":["indian"],"intervals":"1P 3M 4P 5P 7m","semitones":[0,4,5,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"ritusen","name":"ritusen","aliases":[],"intervals":"1P 2M 4P 5P 6M","semitones":[0,2,5,7,9],"degreeNumbers":[1,2,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"egyptian","name":"egyptian","aliases":[],"intervals":"1P 2M 4P 5P 7m","semitones":[0,2,5,7,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"neapolitan:major:pentatonic","name":"neapolitan major pentatonic","aliases":[],"intervals":"1P 3M 4P 5d 7m","semitones":[0,4,5,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"vietnamese:1","name":"vietnamese 1","aliases":[],"intervals":"1P 3m 4P 5P 6m","semitones":[0,3,5,7,8],"degreeNumbers":[1,3,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"pelog","name":"pelog","aliases":[],"intervals":"1P 2m 3m 5P 6m","semitones":[0,1,3,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"kumoijoshi","name":"kumoijoshi","aliases":[],"intervals":"1P 2m 4P 5P 6m","semitones":[0,1,5,7,8],"degreeNumbers":[1,2,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"hirajoshi","name":"hirajoshi","aliases":[],"intervals":"1P 2M 3m 5P 6m","semitones":[0,2,3,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"iwato","name":"iwato","aliases":[],"intervals":"1P 2m 4P 5d 7m","semitones":[0,1,5,6,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"in-sen","name":"in-sen","aliases":[],"intervals":"1P 2m 4P 5P 7m","semitones":[0,1,5,7,10],"degreeNumbers":[1,2,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"lydian:pentatonic","name":"lydian pentatonic","aliases":["chinese"],"intervals":"1P 3M 4A 5P 7M","semitones":[0,4,6,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"malkos:raga","name":"malkos raga","aliases":[],"intervals":"1P 3m 4P 6m 7m","semitones":[0,3,5,8,10],"degreeNumbers":[1,3,4,6,7],"count":5,"hasSpecialChars":false},{"strudel":"locrian:pentatonic","name":"locrian pentatonic","aliases":["minor:seven:flat:five:pentatonic"],"intervals":"1P 3m 4P 5d 7m","semitones":[0,3,5,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:pentatonic","name":"minor pentatonic","aliases":["vietnamese:2"],"intervals":"1P 3m 4P 5P 7m","semitones":[0,3,5,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:six:pentatonic","name":"minor six pentatonic","aliases":[],"intervals":"1P 3m 4P 5P 6M","semitones":[0,3,5,7,9],"degreeNumbers":[1,3,4,5,6],"count":5,"hasSpecialChars":false},{"strudel":"flat:three:pentatonic","name":"flat three pentatonic","aliases":["kumoi"],"intervals":"1P 2M 3m 5P 6M","semitones":[0,2,3,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"flat:six:pentatonic","name":"flat six pentatonic","aliases":[],"intervals":"1P 2M 3M 5P 6m","semitones":[0,2,4,7,8],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"scriabin","name":"scriabin","aliases":[],"intervals":"1P 2m 3M 5P 6M","semitones":[0,1,4,7,9],"degreeNumbers":[1,2,3,5,6],"count":5,"hasSpecialChars":false},{"strudel":"whole:tone:pentatonic","name":"whole tone pentatonic","aliases":[],"intervals":"1P 3M 5d 6m 7m","semitones":[0,4,6,8,10],"degreeNumbers":[1,3,5,6,7],"count":5,"hasSpecialChars":false},{"strudel":"lydian:#5p:pentatonic","name":"lydian #5p pentatonic","aliases":[],"intervals":"1P 3M 4A 5A 7M","semitones":[0,4,6,8,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":true},{"strudel":"lydian:dominant:pentatonic","name":"lydian dominant pentatonic","aliases":[],"intervals":"1P 3M 4A 5P 7m","semitones":[0,4,6,7,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:#7m:pentatonic","name":"minor #7m pentatonic","aliases":[],"intervals":"1P 3m 4P 5P 7M","semitones":[0,3,5,7,11],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":true},{"strudel":"super:locrian:pentatonic","name":"super locrian pentatonic","aliases":[],"intervals":"1P 3m 4d 5d 7m","semitones":[0,3,4,6,10],"degreeNumbers":[1,3,4,5,7],"count":5,"hasSpecialChars":false},{"strudel":"minor:hexatonic","name":"minor hexatonic","aliases":[],"intervals":"1P 2M 3m 4P 5P 7M","semitones":[0,2,3,5,7,11],"degreeNumbers":[1,2,3,4,5,7],"count":6,"hasSpecialChars":false},{"strudel":"augmented","name":"augmented","aliases":[],"intervals":"1P 2A 3M 5P 5A 7M","semitones":[0,3,4,7,8,11],"degreeNumbers":[1,2,3,5,5,7],"count":6,"hasSpecialChars":false},{"strudel":"piongio","name":"piongio","aliases":[],"intervals":"1P 2M 4P 5P 6M 7m","semitones":[0,2,5,7,9,10],"degreeNumbers":[1,2,4,5,6,7],"count":6,"hasSpecialChars":false},{"strudel":"prometheus:neapolitan","name":"prometheus neapolitan","aliases":[],"intervals":"1P 2m 3M 4A 6M 7m","semitones":[0,1,4,6,9,10],"degreeNumbers":[1,2,3,4,6,7],"count":6,"hasSpecialChars":false},{"strudel":"prometheus","name":"prometheus","aliases":[],"intervals":"1P 2M 3M 4A 6M 7m","semitones":[0,2,4,6,9,10],"degreeNumbers":[1,2,3,4,6,7],"count":6,"hasSpecialChars":false},{"strudel":"mystery:#1","name":"mystery #1","aliases":[],"intervals":"1P 2m 3M 5d 6m 7m","semitones":[0,1,4,6,8,10],"degreeNumbers":[1,2,3,5,6,7],"count":6,"hasSpecialChars":true},{"strudel":"six:tone:symmetric","name":"six tone symmetric","aliases":[],"intervals":"1P 2m 3M 4P 5A 6M","semitones":[0,1,4,5,8,9],"degreeNumbers":[1,2,3,4,5,6],"count":6,"hasSpecialChars":false},{"strudel":"whole:tone","name":"whole tone","aliases":["messiaen's:mode:#1"],"intervals":"1P 2M 3M 4A 5A 6A","semitones":[0,2,4,6,8,10],"degreeNumbers":[1,2,3,4,5,6],"count":6,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#5","name":"messiaen's mode #5","aliases":[],"intervals":"1P 2m 4P 4A 5P 7M","semitones":[0,1,5,6,7,11],"degreeNumbers":[1,2,4,4,5,7],"count":6,"hasSpecialChars":true},{"strudel":"locrian:major","name":"locrian major","aliases":["arabian"],"intervals":"1P 2M 3M 4P 5d 6m 7m","semitones":[0,2,4,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"double:harmonic:lydian","name":"double harmonic lydian","aliases":[],"intervals":"1P 2m 3M 4A 5P 6m 7M","semitones":[0,1,4,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian:#2","name":"locrian #2","aliases":["half-diminished","aeolian:b5"],"intervals":"1P 2M 3m 4P 5d 6m 7m","semitones":[0,2,3,5,6,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":true},{"strudel":"lydian:dominant","name":"lydian dominant","aliases":["lydian:b7","overtone"],"intervals":"1P 2M 3M 4A 5P 6M 7m","semitones":[0,2,4,6,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:augmented","name":"lydian augmented","aliases":[],"intervals":"1P 2M 3M 4A 5A 6M 7M","semitones":[0,2,4,6,8,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"locrian:6","name":"locrian 6","aliases":["locrian:natural:6","locrian:sharp:6"],"intervals":"1P 2m 3m 4P 5d 6M 7m","semitones":[0,1,3,5,6,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"augmented:heptatonic","name":"augmented heptatonic","aliases":[],"intervals":"1P 2A 3M 4P 5P 5A 7M","semitones":[0,3,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,5,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:diminished","name":"lydian diminished","aliases":[],"intervals":"1P 2M 3m 4A 5P 6M 7M","semitones":[0,2,3,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"leading:whole:tone","name":"leading whole tone","aliases":[],"intervals":"1P 2M 3M 4A 5A 7m 7M","semitones":[0,2,4,6,8,10,11],"degreeNumbers":[1,2,3,4,5,7,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:minor","name":"lydian minor","aliases":[],"intervals":"1P 2M 3M 4A 5P 6m 7m","semitones":[0,2,4,6,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"phrygian:dominant","name":"phrygian dominant","aliases":["spanish","phrygian:major"],"intervals":"1P 2m 3M 4P 5P 6m 7m","semitones":[0,1,4,5,7,8,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"balinese","name":"balinese","aliases":[],"intervals":"1P 2m 3m 4P 5P 6m 7M","semitones":[0,1,3,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"neapolitan:major","name":"neapolitan major","aliases":[],"intervals":"1P 2m 3m 4P 5P 6M 7M","semitones":[0,1,3,5,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"harmonic:major","name":"harmonic major","aliases":[],"intervals":"1P 2M 3M 4P 5P 6m 7M","semitones":[0,2,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"double:harmonic:major","name":"double harmonic major","aliases":["gypsy"],"intervals":"1P 2m 3M 4P 5P 6m 7M","semitones":[0,1,4,5,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"hungarian:minor","name":"hungarian minor","aliases":[],"intervals":"1P 2M 3m 4A 5P 6m 7M","semitones":[0,2,3,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"hungarian:major","name":"hungarian major","aliases":[],"intervals":"1P 2A 3M 4A 5P 6M 7m","semitones":[0,3,4,6,7,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"oriental","name":"oriental","aliases":[],"intervals":"1P 2m 3M 4P 5d 6M 7m","semitones":[0,1,4,5,6,9,10],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"flamenco","name":"flamenco","aliases":[],"intervals":"1P 2m 3m 3M 4A 5P 7m","semitones":[0,1,3,4,6,7,10],"degreeNumbers":[1,2,3,3,4,5,7],"count":7,"hasSpecialChars":false},{"strudel":"todi:raga","name":"todi raga","aliases":[],"intervals":"1P 2m 3m 4A 5P 6m 7M","semitones":[0,1,3,6,7,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"persian","name":"persian","aliases":[],"intervals":"1P 2m 3M 4P 5d 6m 7M","semitones":[0,1,4,5,6,8,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":false},{"strudel":"enigmatic","name":"enigmatic","aliases":[],"intervals":"1P 2m 3M 5d 6m 7m 7M","semitones":[0,1,4,6,8,10,11],"degreeNumbers":[1,2,3,5,6,7,7],"count":7,"hasSpecialChars":false},{"strudel":"lydian:#9","name":"lydian #9","aliases":[],"intervals":"1P 2A 3M 4A 5P 6M 7M","semitones":[0,3,4,6,7,9,11],"degreeNumbers":[1,2,3,4,5,6,7],"count":7,"hasSpecialChars":true},{"strudel":"messiaen's:mode:#4","name":"messiaen's mode #4","aliases":[],"intervals":"1P 2m 2M 4P 4A 5P 6m 7M","semitones":[0,1,2,5,6,7,8,11],"degreeNumbers":[1,2,2,4,4,5,6,7],"count":8,"hasSpecialChars":true},{"strudel":"purvi:raga","name":"purvi raga","aliases":[],"intervals":"1P 2m 3M 4P 4A 5P 6m 7M","semitones":[0,1,4,5,6,7,8,11],"degreeNumbers":[1,2,3,4,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"spanish:heptatonic","name":"spanish heptatonic","aliases":[],"intervals":"1P 2m 3m 3M 4P 5P 6m 7m","semitones":[0,1,3,4,5,7,8,10],"degreeNumbers":[1,2,3,3,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:minor","name":"bebop minor","aliases":[],"intervals":"1P 2M 3m 3M 4P 5P 6M 7m","semitones":[0,2,3,4,5,7,9,10],"degreeNumbers":[1,2,3,3,4,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:major","name":"bebop major","aliases":[],"intervals":"1P 2M 3M 4P 5P 5A 6M 7M","semitones":[0,2,4,5,7,8,9,11],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"bebop:locrian","name":"bebop locrian","aliases":[],"intervals":"1P 2m 3m 4P 5d 5P 6m 7m","semitones":[0,1,3,5,6,7,8,10],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"minor:bebop","name":"minor bebop","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 7m 7M","semitones":[0,2,3,5,7,8,10,11],"degreeNumbers":[1,2,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"ichikosucho","name":"ichikosucho","aliases":[],"intervals":"1P 2M 3M 4P 5d 5P 6M 7M","semitones":[0,2,4,5,6,7,9,11],"degreeNumbers":[1,2,3,4,5,5,6,7],"count":8,"hasSpecialChars":false},{"strudel":"minor:six:diminished","name":"minor six diminished","aliases":[],"intervals":"1P 2M 3m 4P 5P 6m 6M 7M","semitones":[0,2,3,5,7,8,9,11],"degreeNumbers":[1,2,3,4,5,6,6,7],"count":8,"hasSpecialChars":false},{"strudel":"kafi:raga","name":"kafi raga","aliases":[],"intervals":"1P 3m 3M 4P 5P 6M 7m 7M","semitones":[0,3,4,5,7,9,10,11],"degreeNumbers":[1,3,3,4,5,6,7,7],"count":8,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#6","name":"messiaen's mode #6","aliases":[],"intervals":"1P 2M 3M 4P 4A 5A 6A 7M","semitones":[0,2,4,5,6,8,10,11],"degreeNumbers":[1,2,3,4,4,5,6,7],"count":8,"hasSpecialChars":true},{"strudel":"composite:blues","name":"composite blues","aliases":[],"intervals":"1P 2M 3m 3M 4P 5d 5P 6M 7m","semitones":[0,2,3,4,5,6,7,9,10],"degreeNumbers":[1,2,3,3,4,5,5,6,7],"count":9,"hasSpecialChars":false},{"strudel":"messiaen's:mode:#3","name":"messiaen's mode #3","aliases":[],"intervals":"1P 2M 3m 3M 4A 5P 6m 7m 7M","semitones":[0,2,3,4,6,7,8,10,11],"degreeNumbers":[1,2,3,3,4,5,6,7,7],"count":9,"hasSpecialChars":true},{"strudel":"messiaen's:mode:#7","name":"messiaen's mode #7","aliases":[],"intervals":"1P 2m 2M 3m 4P 4A 5P 6m 6M 7M","semitones":[0,1,2,3,5,6,7,8,9,11],"degreeNumbers":[1,2,2,3,4,4,5,6,6,7],"count":10,"hasSpecialChars":true},{"strudel":"chromatic","name":"chromatic","aliases":[],"intervals":"1P 2m 2M 3m 3M 4P 5d 5P 6m 6M 7m 7M","semitones":[0,1,2,3,4,5,6,7,8,9,10,11],"degreeNumbers":[1,2,2,3,3,4,5,5,6,6,7,7],"count":12,"hasSpecialChars":false}]}</script>
   <script>
   (() => {
     'use strict';
@@ -405,12 +405,12 @@
     const NATURAL_PC = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
     const ROOTS = ['c', 'c#', 'db', 'd', 'd#', 'eb', 'e', 'f', 'f#', 'gb', 'g', 'g#', 'ab', 'a', 'a#', 'bb', 'b'];
     const TYPE_DEFINITIONS = [
-      ['basic', '基本'],
-      ['pentatonic', 'ペンタトニック'],
-      ['blues', 'ブルース'],
-      ['hexatonic', 'ヘキサトニック'],
-      ['bebop', 'ビバップ'],
-      ['heptatonic', 'ヘプタトニック'],
+      ['basic', 'Basic'],
+      ['pentatonic', 'Pentatonic'],
+      ['blues', 'Blues'],
+      ['hexatonic', 'Hexatonic'],
+      ['bebop', 'Bebop'],
+      ['heptatonic', 'Heptatonic'],
     ];
     const MODIFIERS = TYPE_DEFINITIONS.slice(1).map(([type]) => type);
     const state = { root: 'c', octave: '', base: 'major', scale: SCALE_BY_NAME.get('major'), maxDegree: 7, showNegative: false, showAll: false, selected: [], activeDegree: 0, audioEnabled: false, audioContext: null };
@@ -496,7 +496,7 @@
     function initControls() {
       ROOTS.forEach(root => $('root-select').add(new Option(root, root)));
       $('root-select').value = state.root;
-      $('octave-select').add(new Option('省略 (= 3)', ''));
+      $('octave-select').add(new Option('Omit (= 3)', ''));
       for (let octave = 0; octave <= 8; octave += 1) $('octave-select').add(new Option(String(octave), String(octave)));
       $('octave-select').value = '';
       $('scale-count').textContent = String(SCALES.length);
@@ -504,7 +504,7 @@
       $('base-select').value = state.base;
     }
 
-    function groupFor(scale) { return scale.count === 5 ? '5音' : scale.count === 6 ? '6音' : scale.count === 7 ? '7音' : '8音以上'; }
+    function groupFor(scale) { return scale.count === 5 ? '5 notes' : scale.count === 6 ? '6 notes' : scale.count === 7 ? '7 notes' : '8 or more notes'; }
     function selectScaleObject(scale, base = PRIMARY_ROUTE_BY_SCALE.get(scale.strudel).base) {
       state.scale = scale;
       state.base = base;
@@ -530,10 +530,10 @@
         button.textContent = label;
         if (scale) {
           button.dataset.scale = scale.strudel;
-          button.setAttribute('aria-label', `${state.base} の ${label}を選ぶ（${scale.strudel}）`);
+          button.setAttribute('aria-label', `Select ${label} for ${state.base} (${scale.strudel})`);
           button.addEventListener('click', () => selectScaleObject(scale, state.base));
         } else {
-          button.setAttribute('aria-label', `${state.base} には ${label}が存在しないため選択不可`);
+          button.setAttribute('aria-label', `${label} is unavailable for ${state.base}`);
         }
         container.append(button);
       });
@@ -546,16 +546,16 @@
       const visible = Boolean(query.trim() || state.showAll);
       container.hidden = !visible;
       $('show-all-scales').setAttribute('aria-expanded', String(state.showAll));
-      $('show-all-scales').textContent = state.showAll ? 'すべて閉じる' : `すべて表示（${SCALES.length}）`;
+      $('show-all-scales').textContent = state.showAll ? 'Close all' : `Show all (${SCALES.length})`;
       if (!visible) return;
       let groups;
       if (query.trim()) {
-        groups = [['検索結果', SCALES.filter(scale => scaleMatches(scale, query))]];
+        groups = [['Search results', SCALES.filter(scale => scaleMatches(scale, query))]];
       } else {
-        groups = ['5音', '6音', '7音', '8音以上'].map(group => [group, SCALES.filter(scale => groupFor(scale) === group)]);
+        groups = ['5 notes', '6 notes', '7 notes', '8 or more notes'].map(group => [group, SCALES.filter(scale => groupFor(scale) === group)]);
       }
       const total = groups.reduce((sum, [, scales]) => sum + scales.length, 0);
-      if (!total) { const empty = document.createElement('p'); empty.className = 'no-results'; empty.textContent = '一致するスケールはありません'; container.append(empty); return; }
+      if (!total) { const empty = document.createElement('p'); empty.className = 'no-results'; empty.textContent = 'No matching scales'; container.append(empty); return; }
       groups.forEach(([name, scales]) => {
         if (!scales.length) return;
         const section = document.createElement('section'); section.className = 'result-group';
@@ -577,7 +577,7 @@
       noteRange(start, end).forEach((pitch, index) => {
         const button = document.createElement('button'); button.type = 'button'; button.className = 'degree-cell';
         if (index > 0 && pitch.octave !== degreeToPitch(pitch.degree - 1).octave) button.classList.add('octave-break');
-        button.dataset.degree = String(pitch.degree); button.setAttribute('aria-pressed', String(isSelectedDegree(pitch.degree))); button.setAttribute('aria-label', `度数 ${pitch.degree}、${pitch.name}${isSelectedDegree(pitch.degree) ? '、選択中' : ''}`);
+        button.dataset.degree = String(pitch.degree); button.setAttribute('aria-pressed', String(isSelectedDegree(pitch.degree))); button.setAttribute('aria-label', `Degree ${pitch.degree}, ${pitch.name}${isSelectedDegree(pitch.degree) ? ', selected' : ''}`);
         const degree = document.createElement('span'); degree.className = 'degree-num'; degree.textContent = `degree ${pitch.degree}`;
         const note = document.createElement('span'); note.className = 'degree-note'; note.textContent = pitch.name;
         button.append(degree, note); button.addEventListener('click', () => toggleDegree(pitch.degree)); grid.append(button);
@@ -619,8 +619,8 @@
         if (selected.some(pitch => pitch.correction !== 0)) button.classList.add('off-scale-selected');
         const fallbackName = `${['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][pc]}${octave}`;
         const label = matching?.name || selected[0]?.name || fallbackName;
-        button.setAttribute('aria-label', `${label}${scaleClasses.has(absolute) ? '、スケール構成音' : ''}${selected.length ? '、選択中' : ''}`); button.setAttribute('aria-pressed', String(Boolean(selected.length)));
-        const stateLabel = document.createElement('span'); stateLabel.className = 'key-state'; stateLabel.textContent = selected.length ? '✓ 選択' : scaleClasses.has(absolute) ? 'scale' : '';
+        button.setAttribute('aria-label', `${label}${scaleClasses.has(absolute) ? ', scale note' : ''}${selected.length ? ', selected' : ''}`); button.setAttribute('aria-pressed', String(Boolean(selected.length)));
+        const stateLabel = document.createElement('span'); stateLabel.className = 'key-state'; stateLabel.textContent = selected.length ? '✓ Selected' : scaleClasses.has(absolute) ? 'scale' : '';
         const noteLabel = document.createElement('span'); noteLabel.textContent = label; button.append(stateLabel, noteLabel);
         button.addEventListener('click', () => { if (matching) toggleDegree(matching.degree); else if (state.audioEnabled) playPitch({ absolute, frequency: 440 * 2 ** ((absolute - 69) / 12) }); });
         container.append(button);
@@ -629,7 +629,7 @@
 
     function renderCode() {
       const code = codeText(); $('code-output').textContent = code; $('copy-fallback-text').value = code;
-      $('selection-list').textContent = state.selected.length ? `選択順: ${state.selected.join(' → ')}` : '未選択のため既定例 0 2 4 を表示中';
+      $('selection-list').textContent = state.selected.length ? `Selection order: ${state.selected.join(' → ')}` : 'No selection; showing the default example 0 2 4';
       $('active-degree').textContent = String(state.activeDegree);
     }
     function renderHeader() {
@@ -642,7 +642,7 @@
     function playPitch(pitch) {
       if (!state.audioEnabled) return false;
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) { $('copy-status').textContent = 'このブラウザは Web Audio に対応していません'; return false; }
+      if (!AudioContextClass) { $('copy-status').textContent = 'This browser does not support Web Audio'; return false; }
       state.audioContext ||= new AudioContextClass();
       if (state.audioContext.state === 'suspended') state.audioContext.resume();
       const now = state.audioContext.currentTime; const oscillator = state.audioContext.createOscillator(); const gain = state.audioContext.createGain();
@@ -650,12 +650,12 @@
       oscillator.connect(gain).connect(state.audioContext.destination); oscillator.start(now); oscillator.stop(now + 0.34); return true;
     }
 
-    function showCopyFallback(message = '自動コピーできませんでした。下の欄から手動でコピーしてください。') {
+    function showCopyFallback(message = 'Automatic copy failed. Copy the code manually from the field below.') {
       $('copy-fallback').hidden = false; $('copy-status').textContent = message; $('copy-fallback-text').value = codeText(); $('copy-fallback-text').focus(); $('copy-fallback-text').select();
     }
     async function copyCode() {
       $('copy-fallback').hidden = true;
-      try { if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable'); await navigator.clipboard.writeText(codeText()); $('copy-status').textContent = 'コードをコピーしました'; }
+      try { if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable'); await navigator.clipboard.writeText(codeText()); $('copy-status').textContent = 'Code copied'; }
       catch (error) { showCopyFallback(); }
     }
     function addToken(correction) {

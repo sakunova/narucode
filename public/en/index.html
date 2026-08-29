@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Strudelを日本語で学ぶ非公式ガイド。関数リファレンス・スケールツール・デモで、コードで鳴らす音楽を始めよう。">
+  <meta name="description" content="Unofficial Strudel hub. A searchable reference limited to functions that actually run in the browser, a scale tool, and real track code you can copy.">
   <meta name="google-site-verification" content="YUvtKgWYCYL9WZJet-3rtNj8URiWq46_FST2ly_T304">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="narucode – Strudel 日本語ハブ">
-  <meta property="og:description" content="Strudelを日本語で学ぶ非公式ガイド。関数リファレンス・スケールツール・デモで、コードで鳴らす音楽を始めよう。">
-  <meta property="og:url" content="https://narucode.sakunova.workers.dev/">
-  <link rel="canonical" href="https://narucode.sakunova.workers.dev/">
-  <title>narucode – Strudel 日本語ハブ</title>
+  <meta property="og:title" content="narucode – Strudel Reference & Tools">
+  <meta property="og:description" content="Unofficial Strudel hub. A searchable reference limited to functions that actually run in the browser, a scale tool, and real track code you can copy.">
+  <meta property="og:url" content="https://narucode.sakunova.workers.dev/en/">
+  <link rel="canonical" href="https://narucode.sakunova.workers.dev/en/">
+  <title>narucode – Strudel Reference & Tools</title>
   <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta name="theme-color" content="#0B1CAE">
-  <link href="narucode-fonts.css" rel="stylesheet">
+  <link href="../narucode-fonts.css" rel="stylesheet">
   <style>
     :root {
       --bg: #0B1CAE;
@@ -76,7 +76,7 @@
          同じ見え方の放射グラデーションに置き換えた（2026-08-16 実機で特定）。
          blur(150px) は 1辺1220px 相当の面を GPU で作り直す処理で、
          position: fixed と組み合わさって毎フレーム再合成されていた。
-         色停止点は元の blur の減衰を実測して写したもの（見た目はほぼ同一）。
+         色Stop点は元の blur の減衰を実測して写したもの（見た目はほぼ同一）。
          この値を手で丸めない。変えるときは blur 版と並べて画素比較すること。 */
       width: 1220px;
       height: 1220px;
@@ -1112,20 +1112,20 @@
     <header class="site-header">
       <div class="shell topbar">
         <span class="nc-brand">
-          <img class="nc-mark" src="narucode-mark.png"
+          <img class="nc-mark" src="../narucode-mark.png"
                width="30" height="28" alt="" aria-hidden="true" decoding="async">
           <span class="nc-brand-hub">
             <span class="nc-wordmark">narucode</span>
-            <span class="nc-sub">Strudel 日本語ハブ · 非公式</span>
+            <span class="nc-sub">Strudel reference · unofficial</span>
           </span>
         </span>
-        <nav class="narucode-nav" aria-label="narucode 内部ナビ">
-          <span class="topbar-link topbar-current" aria-current="page">ホーム</span>
-          <a class="topbar-link" href="guide/">ガイド</a>
-          <a class="topbar-link" href="ref/">リファレンス</a>
-          <a class="topbar-link" href="scale/">スケール</a>
+        <nav class="narucode-nav" aria-label="narucode navigation">
+          <span class="topbar-link topbar-current" aria-current="page">Home</span>
+          <a class="topbar-link" href="guide/">Guide</a>
+          <a class="topbar-link" href="ref/">Reference</a>
+          <a class="topbar-link" href="scale/">Scale</a>
           <span class="nav-separator" aria-hidden="true">·</span>
-          <a class="topbar-link" href="en/" hreflang="en" lang="en">English</a>
+          <a class="topbar-link" href="../" hreflang="ja" lang="ja">日本語</a>
           <span class="nav-separator" aria-hidden="true">·</span>
           <a class="topbar-link" href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
         </nav>
@@ -1134,24 +1134,22 @@
 
     <main class="shell">
     <section class="hero" aria-labelledby="hero-title">
-      <p class="eyebrow">LIVE CODING / 日本語</p>
-      <h1 id="hero-title">コードで、<span>音楽</span>を書く。</h1>
+      <p class="eyebrow">LIVE CODING / ENGLISH</p>
+      <h1 id="hero-title">Write <span>music</span> as code.</h1>
       <p class="hero-copy">
-        Strudel はブラウザだけで動くライブコーディング環境。<br>
-        コードを書けば、そのまま音楽になる。<br>
-        このサイトは、そのStrudelを日本語で学ぶための非公式ハブです。
+        Strudel is a live coding environment that runs in the browser.<br> Write code, and it becomes music.<br> This is an unofficial hub — a reference limited to functions that actually run on their own.
       </p>
       <div class="hero-demo" id="hero-demo">
         <div class="hero-demo-controls">
           <button class="demo-button" id="hero-demo-button" type="button" aria-pressed="false">
             <i data-lucide="play" aria-hidden="true"></i>
-            <span>鳴らしてみる</span>
+            <span>Play it</span>
           </button>
-          <span class="demo-status" id="hero-demo-status" aria-live="polite">クリックするまで読み込みません</span>
+          <span class="demo-status" id="hero-demo-status" aria-live="polite">Nothing loads until you click</span>
         </div>
-        <p class="demo-note">※スマホの方は、マナーモードを解除</p>
+        <p class="demo-note">On a phone: turn off silent mode</p>
         <div class="demo-code-shell">
-          <textarea class="demo-code" id="hero-demo-code" spellcheck="false" aria-label="Strudelデモコード">setcpm(138/4)
+          <textarea class="demo-code" id="hero-demo-code" spellcheck="false" aria-label="Strudel demo code">setcpm(138/4)
 $: n(irand(16)).sound("sqr").scale("c:major")
   .struct("x x x x").fast(4).gain(.2)</textarea>
           <div class="demo-editor-host" id="hero-demo-editor"></div>
@@ -1162,53 +1160,43 @@ $: n(irand(16)).sound("sqr").scale("c:major")
     <section class="cards-section" aria-labelledby="contents-title">
       <h2 class="section-label" id="contents-title">CONTENTS</h2>
       <div class="cards-grid">
-        <a class="card card-active card-featured" href="guide/" aria-label="はじめてガイドを開く">
+        <a class="card card-active card-featured" href="guide/" aria-label="Open the getting-started guide">
           <i class="card-icon" data-lucide="book-marked" aria-hidden="true"></i>
           <div>
-            <h3 class="card-title">はじめてガイド</h3>
-            <p class="card-desc">Strudelって何？どうやって鳴らすの？をかいつまんで日本語で。
-              インストール不要、ブラウザだけで始められます。</p>
+            <h3 class="card-title">Getting Started</h3>
+            <p class="card-desc">What Strudel is and how to make your first sound. No install, no account — just a browser.</p>
           </div>
-          <span class="card-cta">→ 読む</span>
+          <span class="card-cta">→ Read</span>
         </a>
 
         <!-- 2カラムグリッドに row 順で流し込む。左列=ツール、右列=作品導線。
-             並び: 関数リファレンス / TikTok → スケールツール / YouTube -->
-        <a class="card card-active" href="ref/" aria-label="関数リファレンスを開く">
+             並び: 関数Reference / TikTok → Scale Tool / YouTube -->
+        <a class="card card-active" href="ref/" aria-label="Open the function reference">
           <i class="card-icon" data-lucide="book-open" aria-hidden="true"></i>
-          <h3 class="card-title">関数リファレンス <span class="card-sub">REF</span></h3>
-          <p class="card-desc">Strudelの関数を日本語で逆引き。カテゴリ・検索で目的の関数にすぐ辿り着く。</p>
-          <span class="card-cta">→ 開く</span>
+          <h3 class="card-title">Function Reference <span class="card-sub">REF</span></h3>
+          <p class="card-desc">Every Strudel function that runs in the browser on its own. Browse by category or search.</p>
+          <span class="card-cta">→ Open</span>
         </a>
 
-        <a class="card card-active" href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="sakunovaのTikTokプロフィールを別タブで開く">
+        <a class="card card-active" href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="Open sakunova's TikTok profile in a new tab">
           <i class="card-icon" data-lucide="music-2" aria-hidden="true"></i>
           <h3 class="card-title">TikTok</h3>
-          <p class="card-desc">ショートクリップを投稿しています。プロフィールからまとめて見られます。</p>
+          <p class="card-desc">Short clips of Strudel sets and tracks in progress.</p>
           <span class="card-cta">→ TikTok ↗</span>
         </a>
 
-        <a class="card card-active" href="scale/" aria-label="スケールツールを開く">
+        <a class="card card-active" href="scale/" aria-label="Open the scale tool">
           <i class="card-icon" data-lucide="music" aria-hidden="true"></i>
-          <h3 class="card-title">スケールツール</h3>
-          <p class="card-desc">Strudelの度数を音名に変換。85種類のスケールを鍵盤とコードで確認する。</p>
-          <span class="card-cta">→ 開く</span>
+          <h3 class="card-title">Scale Tool</h3>
+          <p class="card-desc">Turn Strudel's scale degrees into note names. 85 scales on a keyboard, with chords.</p>
+          <span class="card-cta">→ Open</span>
         </a>
 
-        <a class="card card-active" href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer" aria-label="sakunovaのYouTubeチャンネルを別タブで開く">
+        <a class="card card-active" href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer" aria-label="Open sakunova's YouTube channel in a new tab">
           <i class="card-icon" data-lucide="play-circle" aria-hidden="true"></i>
           <h3 class="card-title">YouTube</h3>
-          <p class="card-desc">Strudelを実際に動かす映像で見る。blue machine、Strudelで曲をゼロから作る など。</p>
+          <p class="card-desc">Watch Strudel actually running — blue machine, building a track from nothing, and more.</p>
           <span class="card-cta">→ YouTube ↗</span>
-        </a>
-
-        <a class="card card-active card-featured" href="https://note.com/dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="noteの記事を別タブで開く">
-          <i class="card-icon" data-lucide="file-text" aria-hidden="true"></i>
-          <div>
-            <h3 class="card-title">記事</h3>
-            <p class="card-desc">Strudel（ストゥルーデル）や音楽についての発信、あとは制作物や思ったことなどを記事にしています。</p>
-          </div>
-          <span class="card-cta">→ note ↗</span>
         </a>
       </div>
     </section>
@@ -1216,31 +1204,30 @@ $: n(irand(16)).sound("sqr").scale("c:major")
     <section class="works-section" aria-labelledby="works-title">
       <div class="works-head">
         <div>
-          <h2 class="works-title" id="works-title">sakunova の作品</h2>
-          <p class="works-note">実作品のコードを、そのまま読める形で置いています。
-            コピーして動かしたり、部品として使ったりしてもらえたら嬉しいです。</p>
+          <h2 class="works-title" id="works-title">Tracks by sakunova</h2>
+          <p class="works-note">The real code behind released tracks, left readable. Copy it, run it, pull pieces out of it — that's what it's here for.</p>
         </div>
       </div>
 
       <div class="works-sub-head works-carousel-head">
-        <h3 class="works-sub-label">コード置き場</h3>
+        <h3 class="works-sub-label">Source code</h3>
         <div class="carousel-controls" id="works-carousel-controls">
-          <button class="carousel-btn" type="button" id="works-prev" aria-label="前の作品へ">←</button>
+          <button class="carousel-btn" type="button" id="works-prev" aria-label="Previous track">←</button>
           <span class="carousel-count" id="works-count" aria-live="polite"></span>
-          <button class="carousel-btn" type="button" id="works-next" aria-label="次の作品へ">→</button>
+          <button class="carousel-btn" type="button" id="works-next" aria-label="Next track">→</button>
         </div>
       </div>
 
       <div class="code-cards-grid">
         <!-- 作品を追加するには: <article class="code-card">...</article> を複製し、
              code-card-meta と <code> の中身を書き換えてください（書き換えるのはこの2つだけ）。
-             コピーボタンは <pre class="work-code"><code> の中身をそのまま読むので、
+             Copyボタンは <pre class="work-code"><code> の中身をそのまま読むので、
              コードを二重に書く必要はありません。
              <code> 内で書くときの注意: < は &lt;、> は &gt;、& は &amp; と書く。 -->
         <article class="code-card">
           <header class="code-card-head">
             <span class="code-card-meta">blue machine · BPM 138/4 · f:minor</span>
-            <button class="code-card-copy" type="button" aria-label="コードをコピー">コピー</button>
+            <button class="code-card-copy" type="button" aria-label="Copy code">Copy</button>
           </header>
           <pre class="work-code"><code>setcpm(138/4)
 
@@ -1270,14 +1257,14 @@ DRUM: stack(
   .gain(slider(1.18,0,2))
   )._scope()</code></pre>
           <div class="code-card-fade" aria-hidden="true"></div>
-          <button class="code-card-toggle" type="button" aria-expanded="false">すべて表示</button>
+          <button class="code-card-toggle" type="button" aria-expanded="false">Show all</button>
         </article>
         <article class="code-card">
           <header class="code-card-head">
-            <span class="code-card-meta">サカナクション「ミュージック」 · BPM 136/4 · a:major</span>
-            <button class="code-card-copy" type="button" aria-label="コードをコピー">コピー</button>
+            <span class="code-card-meta">Sakanaction "Music" (cover) · BPM 136/4 · a:major</span>
+            <button class="code-card-copy" type="button" aria-label="Copy code">Copy</button>
           </header>
-          <pre class="work-code"><code>//サカナクション　ミュージック
+          <pre class="work-code"><code>// Sakanaction - Music
 
 const master = slider(0.667, 0, 1)
 all(p =&gt; p.mul(gain(master)))
@@ -1511,71 +1498,56 @@ $: ar(
       16, Cmelo,
      )._punchcard()</code></pre>
           <div class="code-card-fade" aria-hidden="true"></div>
-          <button class="code-card-toggle" type="button" aria-expanded="false">すべて表示</button>
+          <button class="code-card-toggle" type="button" aria-expanded="false">Show all</button>
         </article>
       </div><!-- /code-cards-grid -->
 
-      <div class="video-link-list" aria-label="実在動画">
-        <p class="video-list-note">動画はこちら</p>
+      <div class="video-link-list" aria-label="Videos">
+        <p class="video-list-note">Watch</p>
         <a class="video-link-item" href="https://www.youtube.com/watch?v=TPjAIFaP6bw" target="_blank" rel="noopener noreferrer">
           <i data-lucide="play" aria-hidden="true"></i><span>blue machine</span>
         </a>
         <a class="video-link-item" href="https://www.youtube.com/watch?v=Z2mzLotcyyw" target="_blank" rel="noopener noreferrer">
-          <i data-lucide="play" aria-hidden="true"></i><span>サカナクション「新宝島」</span>
+          <i data-lucide="play" aria-hidden="true"></i><span>Sakanaction "Shin Takarajima" (cover)</span>
         </a>
         <a class="video-link-item" href="https://www.youtube.com/watch?v=UGDuvCDINmI" target="_blank" rel="noopener noreferrer">
-          <i data-lucide="play" aria-hidden="true"></i><span>Strudelで曲をゼロから作る</span>
+          <i data-lucide="play" aria-hidden="true"></i><span>Building a track from nothing in Strudel</span>
         </a>
-        <a class="works-link" href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer">チャンネルをすべて見る ↗</a>
+        <a class="works-link" href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer">See the whole channel ↗</a>
       </div>
     </section>
 
     <section class="about-section" aria-labelledby="about-title">
       <div class="about-inner">
         <h2 class="about-name" id="about-title">sakunova</h2>
-        <span class="about-reading">サクノバ</span>
+        <span class="about-reading">sah-koo-NOH-vah</span>
 
         <div class="about-body">
-          <p>Ableton Live と Strudel を使って、電子音楽を作っています。
-            テクノ、ハイパーポップ、トランスなどが好きで、最近は特に Strudel でコードを書きながら
-            音楽を組み立てています。</p>
+          <p>I make electronic music with Ableton Live and Strudel. I'm into techno, hyperpop and trance, and lately I build most of my tracks by writing code in Strudel.</p>
 
-          <p>Strudel に惹かれた一番の理由は、<strong>音楽ができあがっていく「過程」そのものを
-            演奏にできること</strong>です。</p>
+          <p>What pulled me into Strudel is that <strong>the process of a track coming together can itself be the performance</strong>.</p>
 
-          <p>キックを鳴らして、ベースを足して、コードを書いて、音を崩して、また組み直す。
-            何もないところから少しずつ音楽ができていく。その一連の流れまで含めてパフォーマンスになる
-            ところが、ライブコーディングの面白さだと思っています。</p>
+          <p>Start a kick, add a bass, write a chord, break it, put it back together. Music appearing out of nothing, one line at a time. That the whole path is part of the show is what makes live coding interesting to me.</p>
 
-          <p>音楽を完成させること自体は、以前よりずっと簡単になりました。
-            だからこそ、自分は完成した曲だけではなく、<strong>「どうやってそこに辿り着いたのか」まで
-            見せられる音楽</strong>をやってみたいと思っています。</p>
+          <p>Finishing a track has never been easier than it is now. Which is exactly why I want to make music that shows <strong>how you got there</strong>, not just the finished thing.</p>
 
-          <p>今は Strudel で作った作品や、好きな曲のコピーなどを投稿しながら試行錯誤しています。
-            TikTok では、ときどき Strudel を使ったライブ配信もしています。</p>
+          <p>Right now I post tracks I made in Strudel and covers of songs I like, figuring it out as I go. I sometimes livestream Strudel sessions on TikTok.</p>
 
-          <p>そして今取り組んでいるのが、<strong>Ableton Live と Strudel をリアルタイムに
-            同期させた演奏</strong>です。</p>
+          <p>The thing I'm working on now is <strong>playing Ableton Live and Strudel in real-time sync</strong>.</p>
 
-          <p>Strudel でコードを書きながらパターンを変化させ、Ableton の音やエフェクトと組み合わせて、
-            その場で音楽を組み立てていく。最終的には、PC の前だけではなく、<strong>人前に立って
-            Strudel でライブをすること</strong>がひとつの目標です。</p>
+          <p>Morphing patterns by writing code in Strudel, running it against Ableton's sounds and effects, building the track on the spot. Eventually I want to do that <strong>in front of an audience</strong>, not just in front of my laptop.</p>
 
-          <p>このサイトを作ったのも、その活動の延長です。</p>
+          <p>This site came out of that.</p>
 
-          <p>Strudel はとても面白いツールなのですが、日本語で調べようとすると、まだ情報がかなり
-            限られています。自分自身、分からないことをひとつずつ調べながら使ってきました。</p>
+          <p>Strudel's own docs are good, but there's no single searchable list of every function — and some of the example code that ships with it doesn't actually make a sound in a browser. It quietly assumes SuperCollider, a separate program you'd have to install. I found that out by pasting an example and getting silence.</p>
 
-          <p>だったら、自分が覚えたことや作ったものを残しておけば、これから Strudel を触る人の
-            役に立つかもしれない。</p>
+          <p>So the reference here is cut down to functions that <strong>run in the browser on their own</strong>, and the examples I wrote myself are executed at build time — if one of them doesn't make a sound, the build fails and the page never ships.</p>
 
-          <p>そんな理由から、このサイトには<strong>Strudel の関数をまとめた早見表</strong>や、
-            <strong>そのまま部品として使ったり改造したりできるコード・作品</strong>を置いています。</p>
+          <p>That's what this site is: <strong>a reference for Strudel's functions</strong> and <strong>real track code you can copy, take apart, and rebuild</strong>.</p>
 
-          <p>まだ自分も試している途中です。</p>
+          <p>I'm still figuring it out myself.</p>
 
-          <p>このサイトや作品をきっかけに Strudel を触る人が少しでも増えて、
-            「こうしたらもっと面白い」「こんな使い方もできる」と、いろんな人と試行錯誤できたら嬉しいです。</p>
+          <p>If this gets a few more people writing Strudel — and someone tells me "this would be better if you did it that way" — that's the whole point.</p>
         </div>
       </div>
     </section>
@@ -1587,33 +1559,31 @@ $: ar(
           <p class="footer-main">
             <span>AGPL-3.0</span>
             <span aria-hidden="true">·</span>
-            <span>非公式の日本語学習サイト</span>
+            <span>Unofficial · not affiliated with Strudel</span>
             <span aria-hidden="true">·</span>
             <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
             <span aria-hidden="true">·</span>
             <a href="https://codeberg.org/uzu/strudel" target="_blank" rel="noopener noreferrer">Codeberg ↗</a>
           </p>
           <p class="footer-legal">
-            Strudel © TidalCycles contributors (AGPL-3.0-or-later) · 本サイトも AGPL-3.0 ·
-            ソース: <a href="https://github.com/sakunova/narucode" target="_blank" rel="noopener noreferrer">github.com/sakunova/narucode</a> ·
-            CDN: @strudel/repl@1.3.0 · 無保証
+            Strudel © TidalCycles contributors (AGPL-3.0-or-later) · this site is AGPL-3.0 too · Source: <a href="https://github.com/sakunova/narucode" target="_blank" rel="noopener noreferrer">github.com/sakunova/narucode</a> · CDN: @strudel/repl@1.3.0 · No warranty
           </p>
         </div>
         <div class="footer-right">
           <p class="footer-credit">by sakunova</p>
-          <nav class="footer-social" aria-label="sakunova SNS">
-            <a href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="TikTokを開く"><i data-lucide="music-2" aria-hidden="true"></i></a>
-            <a href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer" aria-label="YouTubeを開く"><i data-lucide="play-circle" aria-hidden="true"></i></a>
-            <a href="https://note.com/dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="noteを開く"><i data-lucide="file-text" aria-hidden="true"></i></a>
-            <a href="https://x.com/sakuNovaDJ" target="_blank" rel="noopener noreferrer" aria-label="Xを開く"><i data-lucide="x" aria-hidden="true"></i></a>
-            <a href="https://www.instagram.com/dj_sakunova/" target="_blank" rel="noopener noreferrer" aria-label="Instagramを開く"><i data-lucide="camera" aria-hidden="true"></i></a>
+          <nav class="footer-social" aria-label="sakunova social links">
+            <a href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="Open TikTok"><i data-lucide="music-2" aria-hidden="true"></i></a>
+            <a href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer" aria-label="Open YouTube"><i data-lucide="play-circle" aria-hidden="true"></i></a>
+            <a href="https://note.com/dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="Open note"><i data-lucide="file-text" aria-hidden="true"></i></a>
+            <a href="https://x.com/sakuNovaDJ" target="_blank" rel="noopener noreferrer" aria-label="Open X"><i data-lucide="x" aria-hidden="true"></i></a>
+            <a href="https://www.instagram.com/dj_sakunova/" target="_blank" rel="noopener noreferrer" aria-label="Open Instagram"><i data-lucide="camera" aria-hidden="true"></i></a>
           </nav>
         </div>
       </div>
     </footer>
   </div>
 
-  <script src="narucode-icons.js"></script>
+  <script src="../narucode-icons.js"></script>
   <script>
     const STRUDEL_REPL_CDN = "https://unpkg.com/@strudel/repl@1.3.0/dist/index.js";
     const STRUDEL_EDITOR_TAG = "strudel-editor";
@@ -1631,7 +1601,7 @@ $: ar(
         script.src = STRUDEL_REPL_CDN;
         script.async = true;
         script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Strudel REPLの読み込みに失敗しました"));
+        script.onerror = () => reject(new Error("Failed to load the Strudel REPL"));
         document.head.appendChild(script);
       });
 
@@ -1649,7 +1619,7 @@ $: ar(
         nextIcon.setAttribute("aria-hidden", "true");
         icon.replaceWith(nextIcon);
       }
-      if (label) label.textContent = isPlaying ? "停止" : "鳴らしてみる";
+      if (label) label.textContent = isPlaying ? "Stop" : "Play it";
       if (window.lucide) lucide.createIcons();
     }
 
@@ -1691,7 +1661,7 @@ $: ar(
             if (this.editor) return this.editor;
             await new Promise(resolve => setTimeout(resolve, 50));
           }
-          throw new Error("Strudel editorの初期化が完了しませんでした");
+          throw new Error("The Strudel editor did not finish initialising");
         },
         async syncCode() {
           const editor = await this.ready();
@@ -1699,7 +1669,7 @@ $: ar(
           return editor;
         },
         async start() {
-          this.status.textContent = "読み込み中";
+          this.status.textContent = "Loading";
           await this.mount();
           const editor = await this.syncCode();
           if (activeStrudelSession && activeStrudelSession !== this) {
@@ -1709,14 +1679,14 @@ $: ar(
           await editor.evaluate();
           activeStrudelSession = this;
           setDemoButtonPlaying(this.button, true);
-          this.status.textContent = "再生中";
+          this.status.textContent = "Playing";
         },
         async stop() {
           const editor = this.editor || (editorEl ? await this.ready() : null);
           if (editor && typeof editor.stop === "function") await editor.stop();
           if (activeStrudelSession === this) activeStrudelSession = null;
           setDemoButtonPlaying(this.button, false);
-          this.status.textContent = "停止中";
+          this.status.textContent = "Stopped";
         }
       };
     }
@@ -1750,7 +1720,7 @@ $: ar(
             }
           } catch (error) {
             console.error(error);
-            session.status.textContent = "読み込み失敗";
+            session.status.textContent = "Load failed";
             setDemoButtonPlaying(heroButton, false);
           } finally {
             busy = false;
@@ -1817,22 +1787,22 @@ $: ar(
         toggle.addEventListener("click", function() {
           var expanded = card.classList.toggle("is-expanded");
           toggle.setAttribute("aria-expanded", String(expanded));
-          toggle.textContent = expanded ? "折りたたむ" : "すべて表示";
+          toggle.textContent = expanded ? "Collapse" : "Show all";
         });
       });
 
       document.querySelectorAll(".code-card-copy").forEach(function(btn) {
         btn.addEventListener("click", function() {
           if (!navigator.clipboard) return;
-          // 表示しているコードそのものをコピーする。
+          // 表示しているコードそのものをCopyする。
           // 二重管理（data-code と <pre><code> の食い違い）を避けるため、正本は <pre><code> 側の1つだけ。
           var codeEl = btn.closest(".code-card")?.querySelector(".work-code code");
           var code = codeEl ? codeEl.textContent : "";
           navigator.clipboard.writeText(code).then(function() {
-            btn.textContent = "コピーしました";
+            btn.textContent = "Copied";
             btn.classList.add("is-copied");
             setTimeout(function() {
-              btn.textContent = "コピー";
+              btn.textContent = "Copy";
               btn.classList.remove("is-copied");
             }, 2000);
           });

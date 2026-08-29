@@ -1,15 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://narucode.sakunova.workers.dev/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://narucode.sakunova.workers.dev/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://narucode.sakunova.workers.dev/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://narucode.sakunova.workers.dev/" />
   </url>
   <url>
     <loc>https://narucode.sakunova.workers.dev/ref/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://narucode.sakunova.workers.dev/ref/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://narucode.sakunova.workers.dev/en/ref/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://narucode.sakunova.workers.dev/ref/" />
   </url>
   <url>
     <loc>https://narucode.sakunova.workers.dev/guide/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://narucode.sakunova.workers.dev/guide/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://narucode.sakunova.workers.dev/en/guide/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://narucode.sakunova.workers.dev/guide/" />
   </url>
   <url>
     <loc>https://narucode.sakunova.workers.dev/scale/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://narucode.sakunova.workers.dev/scale/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://narucode.sakunova.workers.dev/en/scale/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://narucode.sakunova.workers.dev/scale/" />
+  </url>
+  <url>
+    <loc>https://narucode.sakunova.workers.dev/en/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://narucode.sakunova.workers.dev/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://narucode.sakunova.workers.dev/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://narucode.sakunova.workers.dev/" />
+  </url>
+  <url>
+    <loc>https://narucode.sakunova.workers.dev/en/ref/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://narucode.sakunova.workers.dev/ref/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://narucode.sakunova.workers.dev/en/ref/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://narucode.sakunova.workers.dev/ref/" />
+  </url>
+  <url>
+    <loc>https://narucode.sakunova.workers.dev/en/guide/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://narucode.sakunova.workers.dev/guide/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://narucode.sakunova.workers.dev/en/guide/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://narucode.sakunova.workers.dev/guide/" />
+  </url>
+  <url>
+    <loc>https://narucode.sakunova.workers.dev/en/scale/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://narucode.sakunova.workers.dev/scale/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://narucode.sakunova.workers.dev/en/scale/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://narucode.sakunova.workers.dev/scale/" />
   </url>
 </urlset>
