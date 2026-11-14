@@ -16,6 +16,7 @@
   <meta property="og:url" content="https://narucode.sakunova.workers.dev/guide/">
   <link rel="canonical" href="https://narucode.sakunova.workers.dev/guide/">
   <link href="../narucode-fonts.css" rel="stylesheet">
+  <link href="../narucode-instrument.css" rel="stylesheet">
   <style>
     :root {
       --bg: #0B1CAE;
@@ -424,33 +425,92 @@
         padding-top: 36px;
       }
     }
+    /* 2026-11-14 承認案「楽器化」 */
+    body { background: var(--nc-blue); color: var(--nc-text); font-family: var(--nc-jp); font-size: 16px; line-height: 1.8; }
+    .page-frame { overflow: visible; }
+    .shell { width: min(100%,1200px); padding: 0 40px; }
+    .guide-layout { display: grid; grid-template-columns: minmax(0,1fr) 230px; gap: 70px; align-items: start; }
+    .guide-layout main { min-width: 0; }
+    .guide-hero { max-width: 780px; padding: 40px 0 36px; border-bottom: 2px solid var(--nc-line); }
+    .eyebrow { display: block; margin: 0 0 8px; padding: 0; border-radius: 0; background: none; color: var(--nc-orange-text); font: 500 14px/1.4 var(--nc-jp); letter-spacing: 0; }
+    .eyebrow::before { display: none; }
+    h1 { margin: 0 0 16px; color: var(--nc-white); font: 700 36px/1.25 var(--nc-display); white-space: normal; }
+    .hero-copy { color: var(--nc-white); font: 500 20px/1.7 var(--nc-jp); }
+    .guide-section { max-width: 780px; padding: 44px 0 0; }
+    .guide-section + .guide-section { padding-top: 44px; border-top: 0; }
+    .guide-h2 { gap: 14px; margin: 0 0 18px; color: var(--nc-white); font: 700 26px/1.35 var(--nc-display); }
+    .guide-num { color: var(--nc-orange-text); font: 700 15px/1 var(--nc-mono); letter-spacing: 0; }
+    .guide-h3 { margin: 36px 0 10px; color: var(--nc-white); font: 700 20px/1.45 var(--nc-display); }
+    .guide-p { margin: 0 0 18px; color: var(--nc-text); font: 400 17px/1.9 var(--nc-jp); }
+    code.guide-code { padding: 1px 6px; border: 1px solid var(--nc-panel-line); border-radius: 0; background: var(--nc-panel); color: var(--nc-white); font: 500 15px/1.5 var(--nc-mono); }
+    .guide-steps { margin: 0; padding: 20px 28px 16px 58px; border: 2px solid var(--nc-white); border-bottom: 0; background: var(--nc-panel); color: var(--nc-text); font: 500 17px/1.8 var(--nc-jp); }
+    .guide-steps li::marker { color: var(--nc-orange-text); font-family: var(--nc-mono); font-weight: 700; }
+    .guide-steps + .work-code { margin: 0; padding: 16px 28px; border: 2px solid var(--nc-white); border-radius: 0; background: var(--nc-panel); color: rgba(255,255,255,.92); font: 400 15px/1.85 var(--nc-mono); }
+    .work-code { margin: 0 0 18px; padding: 18px 28px; border: 2px solid var(--nc-white); border-radius: 0; background: var(--nc-panel); color: rgba(255,255,255,.92); font: 400 15px/1.85 var(--nc-mono); }
+    .work-code { white-space: pre; overflow-x: auto; font-variant-ligatures: none; }
+    .work-code code { counter-reset: nc2-line; font: inherit; }
+    .work-code .nc2-code-line { display: block; position: relative; min-height: 1.85em; padding-left: 40px; }
+    .work-code .nc2-code-line::before { counter-increment: nc2-line; content: counter(nc2-line); position: absolute; left: 0; width: 24px; color: rgba(255,255,255,.40); text-align: right; }
+    .work-code .tk-fn { color: var(--nc-white); font-weight: 700; }
+    .work-code .tk-str { color: #ffb27a; }
+    .work-code .tk-num { color: #9fd0ff; }
+    .work-code .tk-p { color: rgba(255,255,255,.60); }
+    .work-code .tk-cm { color: rgba(255,255,255,.55); }
+    .guide-note { margin-top: 12px; color: var(--nc-text-sub); font: 400 15px/1.75 var(--nc-jp); }
+    .guide-links { gap: 14px; }
+    .guide-links a { color: var(--nc-white); font: 500 16px/1.6 var(--nc-jp); text-decoration: underline; text-underline-offset: 4px; }
+    .guide-link-note { color: var(--nc-text-sub); font-size: 14px; }
+    .guide-toc { position: sticky; top: 28px; margin-top: 46px; border-left: 2px solid var(--nc-panel-line); }
+    .guide-toc p { margin: 0 0 12px; padding-left: 16px; color: var(--nc-white); font: 700 15px/1.4 var(--nc-jp); }
+    .guide-toc ol { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+    .guide-toc a { display: flex; gap: 12px; padding: 7px 12px 7px 16px; color: var(--nc-text); font: 500 15px/1.5 var(--nc-jp); text-decoration: none; }
+    .guide-toc a:hover, .guide-toc a:focus-visible { border-left: 4px solid var(--nc-orange); margin-left: -2px; color: var(--nc-white); }
+    .guide-toc a span { color: var(--nc-orange-text); font: 700 13px/1.7 var(--nc-mono); }
+    .page-frame > footer { margin-top: 72px; border-top: 2px solid var(--nc-panel-line) !important; background: var(--nc-blue-deep) !important; padding: 24px max(16px,calc((100vw - 1200px)/2 + 40px)) 32px !important; }
+    .page-frame > footer p, .page-frame > footer span { color: var(--nc-text-sub) !important; font-family: var(--nc-jp) !important; font-size: 13px !important; }
+    .page-frame > footer a { color: var(--nc-text) !important; }
+    .page-frame > footer { flex-wrap: wrap; gap: 8px 24px; }
+    .page-frame > footer > span { white-space: nowrap; }
+    @media (max-width: 860px) {
+      .shell { padding: 0 16px; }
+      .guide-layout { grid-template-columns: minmax(0,1fr); gap: 0; }
+      .guide-toc { position: static; order: -1; margin: 24px 0 0; padding: 14px 0 4px; border-left: 0; border-top: 2px solid var(--nc-panel-line); border-bottom: 2px solid var(--nc-panel-line); }
+      .guide-toc ol { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .guide-toc a { font-size: 14px; }
+      .guide-hero { padding-top: 32px; }
+      h1 { font-size: 28px; }
+      .hero-copy { font-size: 17px; }
+      .guide-section { padding-top: 36px; }
+      .guide-h2 { font-size: 22px; }
+      .guide-p { font-size: 16px; }
+      .guide-steps { padding: 16px 18px 14px 48px; font-size: 16px; }
+      .guide-steps + .work-code, .work-code { padding: 16px; font-size: 13px; }
+      .work-code .nc2-code-line { padding-left: 26px; }
+      .work-code .nc2-code-line::before { width: 16px; }
+      .page-frame > footer { align-items: flex-start !important; gap: 8px; }
+    }
   </style>
 </head>
 <body>
   <div class="page-frame">
-    <div aria-hidden="true" class="bg-glow bg-glow-top"></div>
-    <div aria-hidden="true" class="bg-glow bg-glow-bottom"></div>
-
-    <header class="site-header">
-      <div class="shell topbar">
-        <span class="nc-brand-hub">
-          <span><span class="nc-wordmark">narucode</span><span class="nc-suffix">/guide</span></span>
-          <span class="nc-sub">Strudel 日本語ハブ · 非公式</span>
-        </span>
-        <nav class="narucode-nav" aria-label="narucode 内部ナビ">
-          <a class="topbar-link" href="../">ホーム</a>
-          <span class="topbar-link topbar-current" aria-current="page">ガイド</span>
-          <a class="topbar-link" href="../ref/">リファレンス</a>
-          <a class="topbar-link" href="../scale/">スケール</a>
-          <span class="nav-separator" aria-hidden="true">·</span>
-          <a class="topbar-link" href="../en/guide/" hreflang="en" lang="en">English</a>
-          <span class="nav-separator" aria-hidden="true">·</span>
-          <a class="topbar-link" href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
+    <header class="nc-header">
+      <div class="nc-header-shell nc-topbar">
+        <a class="nc-brand" href="../">
+          <img src="../narucode-mark.png" width="30" height="28" alt="" aria-hidden="true">
+          <span class="nc-brand-text"><span class="nc-wordmark">narucode<em>/guide</em></span><span class="nc-brand-sub">Strudel 日本語ハブ · 非公式</span></span>
+        </a>
+        <nav class="nc-nav-primary" aria-label="narucode 内部ナビ">
+          <a href="../">ホーム</a><span aria-current="page">ガイド</span><a href="../ref/">リファレンス</a><a href="../scale/">スケール</a>
+        </nav>
+        <nav class="nc-nav-ext" aria-label="言語と外部リンク">
+          <a href="../en/guide/" hreflang="en" lang="en">English</a><a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
         </nav>
       </div>
+      <div class="nc-header-shell"><div class="nc-dots"></div></div>
     </header>
 
-    <main class="shell">
+    <div class="shell guide-layout">
+    <main>
       <section class="guide-hero" aria-labelledby="guide-title">
         <p class="eyebrow">はじめてガイド / 日本語</p>
         <h1 id="guide-title">Strudelをはじめよう</h1>
@@ -535,6 +595,16 @@ $: note("&lt;c e&gt; g").s("sine")
         <p class="guide-note">このガイドは非公式の日本語まとめです。内容の正確性は公式ドキュメントでご確認ください。</p>
       </section>
     </main>
+    <aside class="guide-toc" aria-label="このページの目次">
+      <p>このページ</p>
+      <ol>
+        <li><a href="#guide-what"><span>01</span>Strudelとは</a></li>
+        <li><a href="#guide-one-minute"><span>02</span>1分で音を鳴らす</a></li>
+        <li><a href="#guide-basics"><span>03</span>基本概念（かいつまみ）</a></li>
+        <li><a href="#guide-next"><span>04</span>次の一歩</a></li>
+      </ol>
+    </aside>
+    </div>
 
     <footer style="border-top:1px solid rgba(255,255,255,0.12);padding:10px 24px;
       display:flex;align-items:center;justify-content:space-between;
@@ -552,5 +622,35 @@ $: note("&lt;c e&gt; g").s("sine")
         color:rgba(255,255,255,0.28);">by sakunova</span>
     </footer>
   </div>
+  <script>
+    // Line numbers and token colours for the guide code blocks (display only; the text itself is unchanged).
+    (function () {
+      var TOKEN = /(\/\/.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d*\.?\d+\b)|([A-Za-z_$][\w$]*(?=\())|([()[\]{}.,+*\/<>=-])/g;
+      function paint(line) {
+        var frag = document.createDocumentFragment(), last = 0, m;
+        TOKEN.lastIndex = 0;
+        while ((m = TOKEN.exec(line))) {
+          if (m.index > last) frag.appendChild(document.createTextNode(line.slice(last, m.index)));
+          var span = document.createElement("span");
+          span.className = m[1] ? "tk-cm" : m[2] ? "tk-str" : m[3] ? "tk-num" : m[4] ? "tk-fn" : "tk-p";
+          span.textContent = m[0];
+          frag.appendChild(span);
+          last = m.index + m[0].length;
+          if (m[0].length === 0) TOKEN.lastIndex += 1;
+        }
+        if (last < line.length) frag.appendChild(document.createTextNode(line.slice(last)));
+        return frag;
+      }
+      document.querySelectorAll(".work-code code").forEach(function (codeEl) {
+        var lines = codeEl.textContent.replace(/\n$/, "").split("\n");
+        codeEl.replaceChildren.apply(codeEl, lines.map(function (line) {
+          var row = document.createElement("span");
+          row.className = "nc2-code-line";
+          if (line) row.appendChild(paint(line)); else row.appendChild(document.createElement("br")); // empty line: <br> keeps the blank line when copying, without adding a space
+          return row;
+        }));
+      });
+    })();
+  </script>
 </body>
 </html>

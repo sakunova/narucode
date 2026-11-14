@@ -1,0 +1,171 @@
+/* narucode "案2 楽器化" 共通部品（2026-11-14）
+   4ページのヘッダーと基礎トークンの正本。外部読み込み・blurなし。 */
+:root {
+  --nc-blue: #0B1CAE;
+  --nc-blue-deep: #0a1580;
+  --nc-panel: #07107a;
+  --nc-panel-line: rgba(255,255,255,0.18);
+  --nc-orange: #ff7a1a;
+  --nc-orange-text: #ff8a33;
+  --nc-white: #ffffff;
+  --nc-text: rgba(255,255,255,0.86);
+  --nc-text-sub: rgba(255,255,255,0.70);
+  --nc-line: rgba(255,255,255,0.30);
+  --nc-jp: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Meiryo", sans-serif;
+  --nc-sans: "Inter", var(--nc-jp);
+  --nc-display: "Space Grotesk", var(--nc-jp);
+  --nc-mono: "JetBrains Mono", ui-monospace, "Menlo", monospace;
+}
+
+.nc-header {
+  position: relative;
+  z-index: 20;
+  flex: 0 0 auto;
+  background: var(--nc-blue);
+  color: var(--nc-text);
+}
+
+.nc-header-shell {
+  width: min(100%, 1200px);
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.nc-header.nc-header-wide .nc-header-shell {
+  width: 100%;
+  max-width: none;
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+.nc-topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-areas: "brand . primary ext";
+  align-items: center;
+  column-gap: 28px;
+  min-height: 68px;
+}
+
+.nc-header .nc-brand {
+  grid-area: brand;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.nc-header .nc-brand img {
+  width: 30px;
+  height: 28px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+
+.nc-header .nc-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nc-header .nc-wordmark {
+  color: var(--nc-white);
+  font: 700 18px/1 var(--nc-mono);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.nc-header .nc-wordmark em {
+  color: var(--nc-orange-text);
+  font-style: normal;
+}
+
+.nc-header .nc-brand-sub {
+  color: var(--nc-text-sub);
+  font: 400 13px/1.2 var(--nc-jp);
+  white-space: nowrap;
+}
+
+.nc-nav-primary,
+.nc-nav-ext {
+  display: flex;
+  align-items: center;
+  font: 500 15px/1.4 var(--nc-jp);
+}
+
+.nc-nav-primary {
+  grid-area: primary;
+  gap: 24px;
+}
+
+.nc-nav-ext {
+  grid-area: ext;
+  gap: 18px;
+  padding-left: 24px;
+  border-left: 2px solid var(--nc-panel-line);
+  font-size: 14px;
+}
+
+.nc-nav-primary a,
+.nc-nav-primary span,
+.nc-nav-ext a {
+  color: var(--nc-text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nc-nav-primary a:hover,
+.nc-nav-primary a:focus-visible,
+.nc-nav-ext a:hover,
+.nc-nav-ext a:focus-visible {
+  color: var(--nc-white);
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+.nc-nav-primary [aria-current="page"] {
+  color: var(--nc-orange-text);
+}
+
+.nc-dots {
+  height: 4px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,0.55) 0 4px, transparent 4px 10px);
+}
+
+@media (max-width: 860px) {
+  .nc-header-shell,
+  .nc-header.nc-header-wide .nc-header-shell {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .nc-topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand ext" "primary primary";
+    row-gap: 12px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .nc-header .nc-wordmark { font-size: 16px; }
+  .nc-header .nc-brand-sub { font-size: 13px; }
+
+  .nc-nav-ext {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    padding-left: 0;
+    border-left: 0;
+    font-size: 13px;
+  }
+
+  .nc-nav-primary {
+    justify-content: space-between;
+    gap: 0;
+    padding-top: 10px;
+    border-top: 2px solid var(--nc-panel-line);
+    font-size: 15px;
+  }
+}

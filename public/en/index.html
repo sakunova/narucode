@@ -17,6 +17,7 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta name="theme-color" content="#0B1CAE">
   <link href="../narucode-fonts.css" rel="stylesheet">
+  <link href="../narucode-instrument.css" rel="stylesheet">
   <style>
     :root {
       --bg: #0B1CAE;
@@ -1102,103 +1103,272 @@
         gap: 10px;
       }
     }
+    /* 2026-11-14 承認案「楽器化」。旧カード/グローの視覚言語を上書きする。 */
+    body { background: var(--nc-blue); color: var(--nc-text); font-family: var(--nc-sans); font-size: 16px; line-height: 1.8; }
+    .page-frame { overflow: visible; }
+    .shell { width: min(100%, 1200px); padding: 0 40px; }
+    .hero { padding: 44px 0 56px; }
+    .nc2-hero-head { display: grid; grid-template-columns: auto minmax(0,1fr); column-gap: 28px; row-gap: 12px; align-items: center; margin-bottom: 32px; }
+    .nc2-dj { width: 90px; height: 84px; image-rendering: pixelated; }
+    .nc2-hero-tag { margin: 0 0 6px; color: var(--nc-orange-text); font: 500 14px/1.4 var(--nc-mono); }
+    .hero h1 { margin: 0; color: var(--nc-white); font: 700 36px/1.25 var(--nc-display); letter-spacing: .01em; white-space: normal; }
+    .hero-copy { grid-column: 2; max-width: 46em; margin: 0; color: var(--nc-text); font: 400 17px/1.85 var(--nc-jp); }
+    .nc2-panel { border: 2px solid var(--nc-white); border-radius: 0; background: var(--nc-panel); box-shadow: 8px 8px 0 var(--nc-blue-deep); }
+    .nc2-panel-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px; padding: 10px 20px; background: var(--nc-white); color: var(--nc-blue); font: 700 13px/1.4 var(--nc-mono); }
+    .nc2-panel-bar > :last-child { margin-left: auto; }
+    .nc2-grow { flex: 1; }
+    .nc2-led { display: inline-block; width: 10px; height: 10px; margin-right: 8px; background: var(--nc-blue); vertical-align: -1px; }
+    .hero-demo.is-playing .nc2-led { background: var(--nc-orange); }
+    .hero-demo { margin: 0; padding: 0; }
+    .hero-demo::before { display: none; }
+    .hero-demo > .nc2-panel-bar + div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+    .nc2-code-pane { display: flex; min-width: 0; flex-direction: column; padding: 24px; border-right: 2px solid var(--nc-panel-line); }
+    .nc2-seq-pane { min-width: 0; padding: 24px; }
+    .nc2-pane-label { margin: 0 0 12px; color: var(--nc-text-sub); font: 500 14px/1.5 var(--nc-jp); }
+    .demo-code-shell { margin: 0; border: 0; border-radius: 0; background: transparent; }
+    .demo-code { min-height: 136px; padding: 0; border: 0; background: transparent; color: rgba(255,255,255,.92); font: 400 16px/1.85 var(--nc-mono); resize: vertical; }
+    .demo-code:focus-visible { outline: 2px solid var(--nc-orange); outline-offset: 4px; }
+    .demo-editor-host { min-height: 136px; }
+    .demo-editor-host strudel-editor + div { min-height: 136px; border: 0; background: transparent; font-size: 16px; }
+    .nc2-play-block { margin-top: auto; padding-top: 24px; }
+    .hero-demo-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 0; }
+    .demo-button { min-height: 52px; padding: 0 28px; border: 0; border-radius: 0; background: var(--nc-orange); color: var(--nc-panel); box-shadow: 4px 4px 0 #000; font: 700 17px/1 var(--nc-jp); }
+    .demo-button:hover { background: var(--nc-orange); color: var(--nc-panel); }
+    .demo-button.is-playing { background: var(--nc-white); color: var(--nc-blue); }
+    .demo-status { color: var(--nc-text); font: 500 14px/1.5 var(--nc-jp); }
+    .demo-note { margin: 10px 0 0; color: var(--nc-text-sub); font: 400 13px/1.5 var(--nc-jp); }
+    .nc2-seq { display: grid; grid-template-columns: repeat(16,minmax(0,1fr)); grid-template-rows: repeat(16,12px); gap: 3px; }
+    .nc2-cell { background: rgba(255,255,255,.07); }
+    .nc2-cell.beat { background: rgba(255,255,255,.12); }
+    .nc2-cell.col-now { background: rgba(255,255,255,.22); }
+    .nc2-cell.on { background: rgba(255,255,255,.80); }
+    .nc2-cell.on.col-now { background: var(--nc-orange); box-shadow: 0 0 0 2px var(--nc-orange); }
+    .nc2-seq.is-fallback .nc2-cell { opacity: .45; }
+    .nc2-steps { display: grid; grid-template-columns: repeat(16,minmax(0,1fr)); gap: 3px; margin-top: 10px; }
+    .nc2-step { height: 20px; border: 2px solid rgba(255,255,255,.45); color: rgba(255,255,255,.7); font: 500 13px/16px var(--nc-mono); text-align: center; }
+    .nc2-step.now { border-color: var(--nc-orange); background: var(--nc-orange); color: var(--nc-white); }
+    .nc2-seq-caption { margin: 12px 0 0; color: var(--nc-text-sub); font: 400 13px/1.6 var(--nc-jp); }
+
+    .cards-section { padding: 24px 0 48px; }
+    .nc2-sec-title { margin: 0 0 16px; color: var(--nc-white); font: 700 24px/1.4 var(--nc-display); }
+    .nc2-rows { border-bottom: 2px solid var(--nc-line); }
+    .nc2-row { display: grid; grid-template-columns: 56px minmax(0,1fr) minmax(0,440px) 40px; gap: 28px; align-items: center; padding: 28px 16px 28px 0; border-top: 2px solid var(--nc-line); color: var(--nc-text); text-decoration: none; }
+    .nc2-row-num { padding-left: 8px; color: var(--nc-orange-text); font: 700 15px/1 var(--nc-mono); }
+    .nc2-row h3 { margin: 0 0 6px; color: var(--nc-white); font: 700 26px/1.3 var(--nc-display); }
+    .nc2-row h3 small { margin-left: 10px; color: var(--nc-text-sub); font: 500 14px/1 var(--nc-mono); }
+    .nc2-row p { margin: 0; font-size: 16px; line-height: 1.75; }
+    .nc2-spec { padding: 14px 16px; border: 2px solid rgba(255,255,255,.35); background: var(--nc-panel); font-size: 14px; line-height: 1.6; }
+    .nc2-spec b { color: var(--nc-white); font: 700 15px/1.4 var(--nc-mono); }
+    .nc2-spec ol { margin: 6px 0; padding-left: 20px; }
+    .nc2-spec code { display: block; margin-top: 8px; padding-top: 8px; border-top: 2px dotted rgba(255,255,255,.3); color: #ffb27a; font: 400 14px/1.6 var(--nc-mono); }
+    .nc2-arrow { color: var(--nc-white); font: 700 26px/1 var(--nc-mono); text-align: right; }
+    .nc2-row:hover { background: var(--nc-white); color: var(--nc-blue); }
+    .nc2-row:hover h3, .nc2-row:hover h3 small, .nc2-row:hover .nc2-row-num, .nc2-row:hover .nc2-arrow { color: var(--nc-blue); }
+    .nc2-row:hover .nc2-spec { border-color: var(--nc-blue); background: #f2f4ff; color: var(--nc-blue); }
+    .nc2-sns { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 32px; margin-top: 24px; color: var(--nc-text-sub); font: 500 15px/1.6 var(--nc-jp); }
+    .nc2-sns a { margin-left: 0; border-bottom: 2px solid rgba(255,255,255,.4); color: var(--nc-white); text-decoration: none; }
+    .nc2-sns small { font-size: 14px; }
+
+    .works-section { margin: 0; padding: 56px 0 64px; border-top: 4px dotted rgba(255,255,255,.55); }
+    .works-head { margin: 0; }
+    .works-title { margin: 0 0 16px; color: var(--nc-white); font: 700 24px/1.4 var(--nc-display); }
+    .works-note { max-width: 46em; margin: 0 0 28px; color: var(--nc-text); font-size: 16px; }
+    .works-sub-head { display: none; }
+    .code-cards-grid { display: grid; grid-auto-flow: row; grid-template-columns: repeat(2,minmax(0,1fr)); grid-auto-columns: auto; gap: 28px; overflow: visible; scroll-snap-type: none; }
+    .code-card { min-width: 0; border: 2px solid var(--nc-white); border-radius: 0; background: var(--nc-panel); box-shadow: none; }
+    .code-card-head { padding: 10px 14px; border: 0; background: var(--nc-white); color: var(--nc-blue); }
+    .code-card-meta { color: var(--nc-blue); font: 700 13px/1.4 var(--nc-mono); }
+    .code-card-copy { padding: 6px 12px; border: 2px solid var(--nc-blue); border-radius: 0; background: transparent; color: var(--nc-blue); font: 700 13px/1 var(--nc-jp); }
+    .code-card-copy:hover, .code-card-copy.is-copied { background: var(--nc-blue); color: var(--nc-white); }
+    .work-code { max-height: calc(14 * 1.85em); margin: 0; padding: 18px; border: 0; border-radius: 0; background: transparent; color: rgba(255,255,255,.92); font: 400 14px/1.85 var(--nc-mono); }
+    .work-code code { counter-reset: nc2-line; }
+    .work-code .nc2-code-line { display: block; position: relative; min-height: 1.85em; padding-left: 40px; }
+    .work-code .nc2-code-line::before { counter-increment: nc2-line; content: counter(nc2-line); position: absolute; left: 0; width: 24px; color: rgba(255,255,255,.40); text-align: right; }
+    .code-card.is-expanded .work-code { max-height: none; }
+    .code-card-fade { background: linear-gradient(to bottom,rgba(7,16,122,0),var(--nc-panel)); }
+    .code-card-toggle { margin: 14px 18px 18px; min-height: 44px; padding: 0 20px; border: 2px solid var(--nc-white); border-radius: 0; background: transparent; color: var(--nc-white); font: 700 15px/1 var(--nc-jp); }
+    .code-card-toggle:hover { background: var(--nc-white); color: var(--nc-blue); }
+    .nc2-watch { margin: 14px 18px 18px 0; color: var(--nc-white); font: 700 15px/1.4 var(--nc-jp); text-decoration: none; border-bottom: 2px solid var(--nc-orange); }
+    .video-link-list { margin-top: 32px; padding: 0; border: 0; background: transparent; }
+    .video-list-note, .video-link-item, .works-link { font-size: 15px; }
+
+    .about-section { margin: 0; padding: 56px 0 80px; border-top: 4px dotted rgba(255,255,255,.55); }
+    .about-inner { display: grid; grid-template-columns: minmax(0,5fr) minmax(0,7fr); gap: 56px; max-width: none; }
+    .about-head { min-width: 0; }
+    .about-name { margin: 0; font: 700 40px/1.1 var(--nc-display); }
+    .about-reading { margin-top: 6px; color: var(--nc-text-sub); font: 500 14px/1 var(--nc-jp); }
+    .about-pull { margin: 28px 0 0; padding: 20px 0 0; border-top: 4px solid var(--nc-orange); color: var(--nc-white); font: 700 24px/1.6 var(--nc-jp); }
+    .about-body { margin: 0; }
+    .about-body p { margin: 0 0 18px; color: var(--nc-text); font: 400 17px/1.9 var(--nc-jp); }
+    .about-body strong { color: var(--nc-white); }
+    .about-more[hidden] { display: none; }
+    .about-toggle { min-height: 44px; padding: 0 20px; border: 2px solid var(--nc-white); border-radius: 0; background: transparent; color: var(--nc-white); font: 700 15px/1 var(--nc-jp); }
+    .about-toggle:hover { background: var(--nc-white); color: var(--nc-blue); }
+    .site-footer { border-top: 2px solid var(--nc-panel-line); background: var(--nc-blue-deep); }
+    .footer-inner { padding-top: 28px; padding-bottom: 36px; }
+    .footer-main, .footer-legal { color: var(--nc-text-sub); font-family: var(--nc-jp); }
+    .footer-social a { width: auto; height: auto; border: 0; border-radius: 0; }
+
+    /* 2026-11-14 QA修正: 旧 .hero / .hero-demo の幅制限を外し、パネルを全幅にする */
+    .hero { max-width: none; }
+    .hero-demo { width: auto; margin: 0; }
+    .demo-code-shell { overflow: visible; }
+    .demo-code { display: block; width: 100%; white-space: pre; overflow-x: auto; overflow-wrap: normal; font-variant-ligatures: none; }
+    /* hidden 属性を .demo-code { display: block } より優先する（Playingに同じコードが重ならないように） */
+    .demo-code[hidden] { display: none !important; }
+    /* Strudel のエディタ（CodeMirror）をパネルに馴染ませる */
+    .demo-editor-host strudel-editor { display: none; }
+    .demo-editor-host { --background: transparent; }
+    .demo-editor-host strudel-editor + div { background: transparent !important; font-family: var(--nc-mono) !important; }
+    .demo-editor-host .cm-editor,
+    .demo-editor-host .cm-editor .cm-scroller,
+    .demo-editor-host .cm-editor .cm-gutters { background: transparent !important; }
+    .demo-editor-host .cm-editor { color: rgba(255,255,255,.92); font: 400 16px/1.85 var(--nc-mono); font-variant-ligatures: none; }
+    .demo-editor-host .cm-editor.cm-focused { outline: 2px solid var(--nc-orange); outline-offset: 4px; }
+    .demo-editor-host .cm-scroller { font: inherit !important; line-height: 1.85 !important; }
+    .demo-editor-host .cm-gutters { border: 0 !important; color: rgba(255,255,255,.40) !important; }
+    .demo-editor-host .cm-activeLine, .demo-editor-host .cm-activeLineGutter { background: rgba(255,255,255,.06) !important; }
+    .demo-editor-host .cm-content { padding: 0; }
+
+    /* 目次: Scale行の鍵盤ミニ図 */
+    .nc2-kbd { display: block; width: 100%; height: auto; margin: 8px 0 6px; }
+    .nc2-kbd .w { fill: #fff; }
+    .nc2-kbd .b { fill: var(--nc-blue-deep); }
+    .nc2-kbd .m { fill: var(--nc-orange); }
+    .nc2-row:hover .nc2-kbd .w { stroke: var(--nc-blue); }
+    .nc2-spec .nc2-kbd-notes { display: block; color: var(--nc-text); font: 400 14px/1.6 var(--nc-mono); }
+    .nc2-row:hover .nc2-spec .nc2-kbd-notes { color: var(--nc-blue); }
+    .nc2-row:hover .nc2-spec b, .nc2-row:hover .nc2-spec code { color: var(--nc-blue); }
+    .nc2-sns-item { white-space: nowrap; }
+    .nc2-watch { display: inline-block; margin-left: 18px; white-space: nowrap; }
+
+    /* 動画リンクは横一行（狭い画面では折り返す） */
+    .video-link-list { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 10px 28px; }
+    .video-list-note { margin: 0; color: var(--nc-text-sub); font-size: 14px; }
+    .video-link-item { color: var(--nc-white); font-family: var(--nc-jp); border-bottom: 2px solid rgba(255,255,255,.4); }
+    .video-link-item:hover { color: var(--nc-white); border-color: var(--nc-orange); }
+    .video-link-list .works-link { margin-top: 0; color: var(--nc-text-sub); }
+
+    /* フッターの文字を下限（補足13px）以上に */
+    .footer-main { font-size: 14px; line-height: 1.7; }
+    .footer-legal { font-size: 13px; line-height: 1.7; }
+    .footer-main a, .footer-legal a { color: var(--nc-text); white-space: nowrap; }
+    .footer-main a:hover, .footer-legal a:hover { color: var(--nc-white); }
+    .footer-credit { color: var(--nc-white); font-size: 14px; }
+    .footer-social a { color: var(--nc-text); }
+
+    @media (max-width: 860px) {
+      .shell { padding: 0 16px; }
+      .hero { padding: 28px 0 40px; }
+      .nc2-hero-head { grid-template-columns: 60px minmax(0,1fr); column-gap: 16px; margin-bottom: 24px; }
+      .nc2-dj { width: 60px; height: 56px; }
+      .hero h1 { font-size: 24px; }
+      .hero-copy { grid-column: 1/-1; font-size: 16px; }
+      .hero-demo > .nc2-panel-bar + div { grid-template-columns: minmax(0,1fr); }
+      .nc2-code-pane { padding: 18px 16px; border-right: 0; border-bottom: 2px solid var(--nc-panel-line); }
+      .demo-code, .demo-editor-host strudel-editor + div, .demo-editor-host .cm-editor { font-size: 13px; }
+      .nc2-seq-pane { padding: 18px 16px; }
+      .nc2-seq { grid-template-rows: repeat(16,9px); gap: 2px; }
+      .nc2-steps { gap: 2px; }
+      .nc2-step { height: 14px; font-size: 0; }
+      .nc2-row { grid-template-columns: minmax(0,1fr) 28px; grid-template-areas: "num num" "text arrow" "spec spec"; gap: 12px; padding: 22px 0; }
+      .nc2-row-num { grid-area: num; padding-left: 0; }
+      .nc2-row > div:first-of-type { grid-area: text; }
+      .nc2-row .nc2-spec { grid-area: spec; }
+      .nc2-arrow { grid-area: arrow; align-self: start; }
+      .nc2-row h3 { font-size: 22px; }
+      .nc2-sns { display: grid; grid-template-columns: minmax(0,1fr); gap: 8px; }
+      .nc2-sns-item { justify-self: start; }
+      .code-cards-grid { grid-template-columns: minmax(0,1fr); }
+      .work-code { font-size: 13px; }
+      .work-code .nc2-code-line { padding-left: 28px; }
+      .work-code .nc2-code-line::before { width: 18px; }
+      .about-inner { grid-template-columns: minmax(0,1fr); gap: 24px; }
+      .about-pull { font-size: 20px; }
+      .about-body p { font-size: 16px; }
+    }
   </style>
 </head>
 <body>
   <div class="page-frame">
-    <div aria-hidden="true" class="bg-glow bg-glow-top"></div>
-    <div aria-hidden="true" class="bg-glow bg-glow-bottom"></div>
-
-    <header class="site-header">
-      <div class="shell topbar">
+    <header class="nc-header">
+      <div class="nc-header-shell nc-topbar">
         <span class="nc-brand">
-          <img class="nc-mark" src="../narucode-mark.png"
-               width="30" height="28" alt="" aria-hidden="true" decoding="async">
-          <span class="nc-brand-hub">
+          <img src="../narucode-mark.png" width="30" height="28" alt="" aria-hidden="true" decoding="async">
+          <span class="nc-brand-text">
             <span class="nc-wordmark">narucode</span>
-            <span class="nc-sub">Strudel reference · unofficial</span>
+            <span class="nc-brand-sub">Strudel reference · unofficial</span>
           </span>
         </span>
-        <nav class="narucode-nav" aria-label="narucode navigation">
-          <span class="topbar-link topbar-current" aria-current="page">Home</span>
-          <a class="topbar-link" href="guide/">Guide</a>
-          <a class="topbar-link" href="ref/">Reference</a>
-          <a class="topbar-link" href="scale/">Scale</a>
-          <span class="nav-separator" aria-hidden="true">·</span>
-          <a class="topbar-link" href="../" hreflang="ja" lang="ja">日本語</a>
-          <span class="nav-separator" aria-hidden="true">·</span>
-          <a class="topbar-link" href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
+        <nav class="nc-nav-primary" aria-label="narucode navigation">
+          <span aria-current="page">Home</span>
+          <a href="guide/">Guide</a>
+          <a href="ref/">Reference</a>
+          <a href="scale/">Scale</a>
+        </nav>
+        <nav class="nc-nav-ext" aria-label="Language and external links">
+          <a href="../" hreflang="ja" lang="ja">日本語</a>
+          <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
         </nav>
       </div>
+      <div class="nc-header-shell"><div class="nc-dots"></div></div>
     </header>
 
     <main class="shell">
     <section class="hero" aria-labelledby="hero-title">
-      <p class="eyebrow">LIVE CODING / ENGLISH</p>
-      <h1 id="hero-title">Write <span>music</span> as code.</h1>
-      <p class="hero-copy">
-        Strudel is a live coding environment that runs in the browser.<br> Write code, and it becomes music.<br> This is an unofficial hub — a reference limited to functions that actually run on their own.
-      </p>
-      <div class="hero-demo" id="hero-demo">
-        <div class="hero-demo-controls">
-          <button class="demo-button" id="hero-demo-button" type="button" aria-pressed="false">
-            <i data-lucide="play" aria-hidden="true"></i>
-            <span>Play it</span>
-          </button>
-          <span class="demo-status" id="hero-demo-status" aria-live="polite">Nothing loads until you click</span>
+      <div class="nc2-hero-head">
+        <img class="nc2-dj" src="../narucode-mark.png" width="90" height="84" alt="" aria-hidden="true">
+        <div>
+          <p class="nc2-hero-tag">LIVE CODING / ENGLISH · UNOFFICIAL</p>
+          <h1 id="hero-title">Write music as code.</h1>
         </div>
-        <p class="demo-note">On a phone: turn off silent mode</p>
-        <div class="demo-code-shell">
-          <textarea class="demo-code" id="hero-demo-code" spellcheck="false" aria-label="Strudel demo code">setcpm(138/4)
-$: n(irand(16)).sound("sqr").scale("c:major")
+        <p class="hero-copy">Strudel is a live coding environment that runs in the browser. Write code, and it becomes music. This is an unofficial hub for learning and using Strudel.</p>
+      </div>
+      <div class="hero-demo nc2-panel" id="hero-demo">
+        <div class="nc2-panel-bar">
+          <span><i class="nc2-led" aria-hidden="true"></i>STRUDEL DEMO</span>
+          <span>138/4</span><span>c:major</span><span>sqr</span><span class="nc2-grow"></span>
+          <span id="hero-demo-cycle">Stopped</span>
+        </div>
+        <div class="nc2-inst-body">
+          <div class="nc2-code-pane">
+            <p class="nc2-pane-label">This code is playing (edit it freely)</p>
+            <div class="demo-code-shell">
+              <textarea class="demo-code" id="hero-demo-code" spellcheck="false" wrap="off" rows="4" aria-label="Strudel demo code">setcpm(138/4)
+$: n(irand(16)).sound("sqr")
+  .scale("c:major")
   .struct("x x x x").fast(4).gain(.2)</textarea>
-          <div class="demo-editor-host" id="hero-demo-editor"></div>
+              <div class="demo-editor-host" id="hero-demo-editor"></div>
+            </div>
+            <div class="nc2-play-block">
+              <div class="hero-demo-controls">
+                <button class="demo-button" id="hero-demo-button" type="button" aria-pressed="false">
+                  <i data-lucide="play" aria-hidden="true"></i><span>Play it</span>
+                </button>
+                <span class="demo-status" id="hero-demo-status" aria-live="polite">Nothing loads until you click</span>
+              </div>
+              <p class="demo-note">On a phone: turn off silent mode</p>
+            </div>
+          </div>
+          <div class="nc2-seq-pane">
+            <p class="nc2-pane-label">Notes playing now (one cycle = 16 steps)</p>
+            <div class="nc2-seq" id="hero-demo-seq" aria-hidden="true"></div>
+            <div class="nc2-steps" id="hero-demo-steps" aria-hidden="true"></div>
+            <p class="nc2-seq-caption" id="hero-demo-seq-caption">Stopped</p>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="cards-section" aria-labelledby="contents-title">
-      <h2 class="section-label" id="contents-title">CONTENTS</h2>
-      <div class="cards-grid">
-        <a class="card card-active card-featured" href="guide/" aria-label="Open the getting-started guide">
-          <i class="card-icon" data-lucide="book-marked" aria-hidden="true"></i>
-          <div>
-            <h3 class="card-title">Getting Started</h3>
-            <p class="card-desc">What Strudel is and how to make your first sound. No install, no account — just a browser.</p>
-          </div>
-          <span class="card-cta">→ Read</span>
-        </a>
-
-        <!-- 2カラムグリッドに row 順で流し込む。左列=ツール、右列=作品導線。
-             並び: 関数Reference / TikTok → Scale Tool / YouTube -->
-        <a class="card card-active" href="ref/" aria-label="Open the function reference">
-          <i class="card-icon" data-lucide="book-open" aria-hidden="true"></i>
-          <h3 class="card-title">Function Reference <span class="card-sub">REF</span></h3>
-          <p class="card-desc">Every Strudel function that runs in the browser on its own. Browse by category or search.</p>
-          <span class="card-cta">→ Open</span>
-        </a>
-
-        <a class="card card-active" href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer" aria-label="Open sakunova's TikTok profile in a new tab">
-          <i class="card-icon" data-lucide="music-2" aria-hidden="true"></i>
-          <h3 class="card-title">TikTok</h3>
-          <p class="card-desc">Short clips of Strudel sets and tracks in progress.</p>
-          <span class="card-cta">→ TikTok ↗</span>
-        </a>
-
-        <a class="card card-active" href="scale/" aria-label="Open the scale tool">
-          <i class="card-icon" data-lucide="music" aria-hidden="true"></i>
-          <h3 class="card-title">Scale Tool</h3>
-          <p class="card-desc">Turn Strudel's scale degrees into note names. 85 scales on a keyboard, with chords.</p>
-          <span class="card-cta">→ Open</span>
-        </a>
-
-        <a class="card card-active" href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer" aria-label="Open sakunova's YouTube channel in a new tab">
-          <i class="card-icon" data-lucide="play-circle" aria-hidden="true"></i>
-          <h3 class="card-title">YouTube</h3>
-          <p class="card-desc">Watch Strudel actually running — blue machine, building a track from nothing, and more.</p>
-          <span class="card-cta">→ YouTube ↗</span>
-        </a>
+      <h2 class="nc2-sec-title" id="contents-title">Contents</h2>
+      <div class="nc2-rows">
+        <a class="nc2-row" href="guide/"><span class="nc2-row-num">01</span><div><h3>Getting Started</h3><p>What Strudel is and how to make your first sound. No install, no account — just a browser.</p></div><div class="nc2-spec"><b>Make a sound in one minute</b><ol><li>Open strudel.cc in a browser</li><li>Enter code in the editor</li><li>Run with Ctrl + Enter</li></ol><code>$: note("c e g").s("sine")</code></div><span class="nc2-arrow">→</span></a>
+        <a class="nc2-row" href="ref/"><span class="nc2-row-num">02</span><div><h3>Function Reference <small>REF</small></h3><p>Every Strudel function that runs in the browser on its own. Browse by category or search.</p></div><div class="nc2-spec"><b>[a b]*2</b><p>Repeat a pattern N times inside one cycle.</p><code>sound("[bd sd]*2")</code></div><span class="nc2-arrow">→</span></a>
+        <a class="nc2-row" href="scale/"><span class="nc2-row-num">03</span><div><h3>Scale Tool</h3><p>Turn Strudel's scale degrees into note names. 85 scales on a keyboard, with chords.</p></div><div class="nc2-spec"><b>c:major</b><svg class="nc2-kbd" viewBox="0 0 280 64" aria-hidden="true" focusable="false"><rect class="w" x="1" y="0" width="38" height="64"/><rect class="m" x="14" y="46" width="12" height="12"/><rect class="w" x="41" y="0" width="38" height="64"/><rect class="m" x="54" y="46" width="12" height="12"/><rect class="w" x="81" y="0" width="38" height="64"/><rect class="m" x="94" y="46" width="12" height="12"/><rect class="w" x="121" y="0" width="38" height="64"/><rect class="m" x="134" y="46" width="12" height="12"/><rect class="w" x="161" y="0" width="38" height="64"/><rect class="m" x="174" y="46" width="12" height="12"/><rect class="w" x="201" y="0" width="38" height="64"/><rect class="m" x="214" y="46" width="12" height="12"/><rect class="w" x="241" y="0" width="38" height="64"/><rect class="m" x="254" y="46" width="12" height="12"/><rect class="b" x="28" y="0" width="24" height="38"/><rect class="b" x="68" y="0" width="24" height="38"/><rect class="b" x="148" y="0" width="24" height="38"/><rect class="b" x="188" y="0" width="24" height="38"/><rect class="b" x="228" y="0" width="24" height="38"/></svg><span class="nc2-kbd-notes">n 0 1 2 3 4 5 6 → C D E F G A B</span></div><span class="nc2-arrow">→</span></a>
       </div>
+      <div class="nc2-sns"><span>Follow</span><span class="nc2-sns-item"><a href="https://www.tiktok.com/@dj_sakunova" target="_blank" rel="noopener noreferrer">TikTok ↗</a> <small>Short clips</small></span><span class="nc2-sns-item"><a href="https://www.youtube.com/@sakuNova_DJ" target="_blank" rel="noopener noreferrer">YouTube ↗</a> <small>Strudel in action</small></span>
+</div>
     </section>
 
     <section class="works-section" aria-labelledby="works-title">
@@ -1258,6 +1428,7 @@ DRUM: stack(
   )._scope()</code></pre>
           <div class="code-card-fade" aria-hidden="true"></div>
           <button class="code-card-toggle" type="button" aria-expanded="false">Show all</button>
+          <a class="nc2-watch" href="https://www.youtube.com/watch?v=TPjAIFaP6bw" target="_blank" rel="noopener noreferrer">Watch this track ↗</a>
         </article>
         <article class="code-card">
           <header class="code-card-head">
@@ -1504,9 +1675,6 @@ $: ar(
 
       <div class="video-link-list" aria-label="Videos">
         <p class="video-list-note">Watch</p>
-        <a class="video-link-item" href="https://www.youtube.com/watch?v=TPjAIFaP6bw" target="_blank" rel="noopener noreferrer">
-          <i data-lucide="play" aria-hidden="true"></i><span>blue machine</span>
-        </a>
         <a class="video-link-item" href="https://www.youtube.com/watch?v=Z2mzLotcyyw" target="_blank" rel="noopener noreferrer">
           <i data-lucide="play" aria-hidden="true"></i><span>Sakanaction "Shin Takarajima" (cover)</span>
         </a>
@@ -1590,6 +1758,147 @@ $: ar(
     let strudelReplPromise = null;
     let activeStrudelSession = null;
 
+    function createPatternGrid() {
+      const grid = document.getElementById("hero-demo-seq");
+      const steps = document.getElementById("hero-demo-steps");
+      const caption = document.getElementById("hero-demo-seq-caption");
+      const cycleLabel = document.getElementById("hero-demo-cycle");
+      if (!grid || !steps || !caption || !cycleLabel) return null;
+
+      const cells = [];
+      for (let row = 0; row < 16; row += 1) {
+        for (let col = 0; col < 16; col += 1) {
+          const cell = document.createElement("span");
+          cell.className = "nc2-cell" + (col % 4 === 0 ? " beat" : "");
+          grid.appendChild(cell);
+          cells.push(cell);
+        }
+      }
+      const stepEls = [];
+      for (let step = 0; step < 16; step += 1) {
+        const el = document.createElement("span");
+        el.className = "nc2-step";
+        el.textContent = step % 4 === 0 ? String(step / 4 + 1) : "";
+        steps.appendChild(el);
+        stepEls.push(el);
+      }
+
+      let frame = 0;
+      let editor = null;
+      let renderedCycle = null;
+      let renderedStep = null;
+
+      const fractionNumber = (value) => {
+        const number = Number(value?.valueOf?.() ?? value);
+        return Number.isFinite(number) ? number : NaN;
+      };
+
+      const noteToMidi = (note) => {
+        if (typeof note === "number" && Number.isFinite(note)) return note;
+        const match = String(note).trim().match(/^([A-Ga-g])([#b]{0,2})(-?\d+)$/);
+        if (!match) return null;
+        const base = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[match[1].toUpperCase()];
+        const accidental = [...match[2]].reduce((sum, char) => sum + (char === "#" ? 1 : -1), 0);
+        return (Number(match[3]) + 1) * 12 + base + accidental;
+      };
+
+      const pitchesFromHap = (hap) => {
+        const raw = hap?.value?.note ?? hap?.value?.n;
+        if (raw == null) return [];
+        if (Array.isArray(raw)) return raw.map(noteToMidi).filter(Number.isFinite);
+        return String(raw).split(/[\s,]+/).map(noteToMidi).filter(Number.isFinite);
+      };
+
+      const clearNotes = () => cells.forEach(cell => cell.classList.remove("on", "col-now"));
+
+      const renderCycle = (cycle) => {
+        clearNotes();
+        grid.classList.remove("is-fallback");
+        const pattern = editor?.repl?.state?.pattern;
+        if (!pattern || typeof pattern.queryArc !== "function") {
+          grid.classList.add("is-fallback");
+          caption.textContent = "Playing";
+          return;
+        }
+        try {
+          const events = pattern.queryArc(cycle, cycle + 1).filter(hap => hap?.hasOnset?.());
+          const plotted = [];
+          for (const hap of events) {
+            const begin = fractionNumber(hap.whole?.begin ?? hap.part?.begin);
+            const relative = begin - cycle;
+            const exactStep = relative * 16;
+            const column = Math.round(exactStep);
+            const pitches = pitchesFromHap(hap);
+            if (column < 0 || column > 15 || Math.abs(exactStep - column) > 0.002 || !pitches.length) {
+              grid.classList.add("is-fallback");
+              caption.textContent = "Playing";
+              return;
+            }
+            pitches.forEach(pitch => plotted.push({ column, pitch }));
+          }
+          const pitchRows = [...new Set(plotted.map(event => event.pitch))].sort((a, b) => a - b);
+          if (!plotted.length || pitchRows.length > 16) {
+            grid.classList.add("is-fallback");
+            caption.textContent = "Playing";
+            return;
+          }
+          plotted.forEach(({ column, pitch }) => {
+            const row = 15 - pitchRows.indexOf(pitch);
+            cells[row * 16 + column]?.classList.add("on");
+          });
+          caption.textContent = "Playing";
+        } catch (error) {
+          grid.classList.add("is-fallback");
+          caption.textContent = "Playing";
+        }
+      };
+
+      const tick = () => {
+        if (!editor?.repl?.scheduler?.started) return;
+        const now = fractionNumber(editor.repl.scheduler.now?.());
+        if (!Number.isFinite(now)) {
+          caption.textContent = "Playing";
+          grid.classList.add("is-fallback");
+          return;
+        }
+        const cycle = Math.floor(now);
+        const step = Math.min(15, Math.max(0, Math.floor((now - cycle) * 16)));
+        if (cycle !== renderedCycle) {
+          renderedCycle = cycle;
+          renderCycle(cycle);
+          cycleLabel.textContent = `cycle ${cycle + 1}`;
+        }
+        if (step !== renderedStep) {
+          renderedStep = step;
+          cells.forEach((cell, index) => cell.classList.toggle("col-now", index % 16 === step));
+          stepEls.forEach((el, index) => el.classList.toggle("now", index === step));
+        }
+        frame = requestAnimationFrame(tick);
+      };
+
+      return {
+        start(nextEditor) {
+          editor = nextEditor;
+          renderedCycle = null;
+          renderedStep = null;
+          cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(tick);
+        },
+        stop() {
+          cancelAnimationFrame(frame);
+          frame = 0;
+          editor = null;
+          renderedCycle = null;
+          renderedStep = null;
+          clearNotes();
+          grid.classList.remove("is-fallback");
+          stepEls.forEach(el => el.classList.remove("now"));
+          cycleLabel.textContent = "Stopped";
+          caption.textContent = "Stopped";
+        }
+      };
+    }
+
     function loadStrudelRepl() {
       if (customElements.get(STRUDEL_EDITOR_TAG)) {
         return Promise.resolve();
@@ -1629,6 +1938,7 @@ $: ar(
       const codeArea = document.getElementById("hero-demo-code");
       const host = document.getElementById("hero-demo-editor");
       let editorEl = null;
+      const patternGrid = createPatternGrid();
 
       return {
         root,
@@ -1646,8 +1956,8 @@ $: ar(
           await loadStrudelRepl();
           await customElements.whenDefined(STRUDEL_EDITOR_TAG);
           editorEl = document.createElement(STRUDEL_EDITOR_TAG);
+          // コードは code 属性だけで渡す。textContent に入れると素の文字として画面に残り、コードが二重に見える。
           editorEl.setAttribute("code", code);
-          editorEl.textContent = code;
           host.appendChild(editorEl);
           codeArea.hidden = true;
           codeArea.setAttribute("aria-hidden", "true");
@@ -1680,6 +1990,8 @@ $: ar(
           activeStrudelSession = this;
           setDemoButtonPlaying(this.button, true);
           this.status.textContent = "Playing";
+          root.classList.add("is-playing");
+          patternGrid?.start(editor);
         },
         async stop() {
           const editor = this.editor || (editorEl ? await this.ready() : null);
@@ -1687,6 +1999,8 @@ $: ar(
           if (activeStrudelSession === this) activeStrudelSession = null;
           setDemoButtonPlaying(this.button, false);
           this.status.textContent = "Stopped";
+          root.classList.remove("is-playing");
+          patternGrid?.stop();
         }
       };
     }
@@ -1771,6 +2085,56 @@ $: ar(
         sync();
       })();
 
+      // 作品コードを見本と同じ行番号表示にする。文字列はDOM内の1箇所だけを正本に保つ。
+      document.querySelectorAll(".work-code code").forEach(function(codeEl) {
+        var lines = codeEl.textContent.split("\n");
+        codeEl.replaceChildren(...lines.map(function(line) {
+          var span = document.createElement("span");
+          span.className = "nc2-code-line";
+          span.textContent = line; // empty line: <br> keeps the blank line when copying, without adding a space
+          if (!line) span.appendChild(document.createElement("br"));
+          return span;
+        }));
+      });
+
+      // 自己紹介は全文を残し、冒頭3段落の後ろだけを開閉する。
+      (function setupAbout() {
+        var inner = document.querySelector(".about-inner");
+        var body = inner?.querySelector(".about-body");
+        var name = inner?.querySelector(".about-name");
+        var reading = inner?.querySelector(".about-reading");
+        if (!inner || !body || !name || !reading) return;
+
+        var head = document.createElement("div");
+        head.className = "about-head";
+        inner.insertBefore(head, body);
+        head.append(name, reading);
+        var pull = document.createElement("p");
+        pull.className = "about-pull";
+        pull.textContent = "The process of music coming together can itself be the performance.";
+        head.appendChild(pull);
+
+        var paragraphs = Array.from(body.querySelectorAll(":scope > p"));
+        var more = document.createElement("div");
+        more.className = "about-more";
+        more.hidden = true;
+        paragraphs.slice(3).forEach(function(paragraph) { more.appendChild(paragraph); });
+        body.appendChild(more);
+
+        var toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "about-toggle";
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.textContent = "Read more";
+        toggle.addEventListener("click", function() {
+          var open = toggle.getAttribute("aria-expanded") !== "true";
+          toggle.setAttribute("aria-expanded", String(open));
+          more.hidden = !open;
+          toggle.textContent = open ? "Close" : "Read more";
+        });
+        body.appendChild(toggle);
+      })();
+
       // 長い作品コードは畳んでおく。閾値を超えたカードにだけ折りたたみUIを出す。
       // 作品が増えても各カードを実測して判定するので、追加時に何もしなくてよい。
       var CODE_COLLAPSED_HEIGHT = 260;
@@ -1797,7 +2161,9 @@ $: ar(
           // 表示しているコードそのものをCopyする。
           // 二重管理（data-code と <pre><code> の食い違い）を避けるため、正本は <pre><code> 側の1つだけ。
           var codeEl = btn.closest(".code-card")?.querySelector(".work-code code");
-          var code = codeEl ? codeEl.textContent : "";
+          var code = codeEl
+            ? Array.from(codeEl.querySelectorAll(".nc2-code-line")).map(function(line) { return line.textContent.trimEnd(); }).join("\n")
+            : "";
           navigator.clipboard.writeText(code).then(function() {
             btn.textContent = "Copied";
             btn.classList.add("is-copied");

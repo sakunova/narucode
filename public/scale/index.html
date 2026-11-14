@@ -16,6 +16,7 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta name="theme-color" content="#0B1CAE">
   <link href="../narucode-fonts.css" rel="stylesheet">
+  <link href="../narucode-instrument.css" rel="stylesheet">
   <style>
     :root {
       --blue: #0B1CAE;
@@ -267,26 +268,122 @@
       .copy-btn { width: 100%; }
       .footer-inner { padding: 16px 0; align-items: flex-start; flex-direction: column; }
     }
+    /* 2026-11-14 承認案「楽器化」。構造と機能は維持し、視覚言語だけを統一する。 */
+    body { background: var(--nc-blue); color: var(--nc-text); font-family: var(--nc-sans); }
+    .shell { width: min(100%,1200px); padding-left: 40px; padding-right: 40px; }
+    main.shell { padding-top: 40px; padding-bottom: 72px; }
+    .intro { padding: 0; }
+    .intro-copy { margin: 0 0 20px; color: var(--nc-white); font: 500 20px/1.7 var(--nc-jp); }
+    .intro-copy code { color: #ffb27a; font: 500 19px/1 var(--nc-mono); }
+    .fact-strip { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); margin: 0 0 32px; border-top: 2px solid var(--nc-panel-line); border-bottom: 2px solid var(--nc-panel-line); }
+    .fact-strip span { padding: 12px 16px; color: var(--nc-text); font: 500 14px/1.5 var(--nc-jp); text-align: center; }
+    .fact-strip span + span { border-left: 2px solid var(--nc-panel-line); }
+    .layout { padding: 0; }
+    .main-stack { gap: 28px; }
+    .panel { padding: 28px 28px 24px; border: 2px solid rgba(255,255,255,.45); border-radius: 0; background: var(--nc-panel); }
+    .panel-primary { border-color: var(--nc-white); background: var(--nc-panel); box-shadow: 8px 8px 0 var(--nc-blue-deep); }
+    .panel-head { gap: 16px; margin-bottom: 20px; }
+    .panel-head > div { display: grid; grid-template-columns: auto minmax(0,1fr); column-gap: 14px; align-items: baseline; }
+    .section-kicker { margin: 0; color: var(--nc-orange-text); font: 700 15px/1 var(--nc-mono); letter-spacing: 0; }
+    h2 { color: var(--nc-white); font: 700 26px/1.35 var(--nc-display); }
+    .panel-head .help { grid-column: 2; }
+    .help { margin-top: 6px; color: var(--nc-text-sub); font: 400 15px/1.7 var(--nc-jp); }
+    .check-label { gap: 10px; color: var(--nc-white); font: 500 15px/1.4 var(--nc-jp); }
+    .check-label input { width: 20px; height: 20px; border-radius: 0; accent-color: var(--nc-orange); }
+    .control-row { grid-template-columns: 140px 180px; gap: 16px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 2px solid var(--nc-panel-line); }
+    .field-label, .step-label { margin-bottom: 6px; color: var(--nc-white); font: 700 14px/1.4 var(--nc-jp); letter-spacing: 0; }
+    input[type="search"], select { min-height: 46px; padding: 0 14px; border: 2px solid rgba(255,255,255,.45); border-radius: 0; background: var(--nc-blue-deep); color: var(--nc-white); font: 500 15px/1 var(--nc-mono); }
+    .scale-builder { grid-template-columns: 300px minmax(0,1fr); gap: 24px; margin: 0 0 20px; padding: 0; border-top: 0; }
+    .type-option { min-height: 46px; padding: 6px 14px; border: 2px solid rgba(255,255,255,.6); border-radius: 0; background: transparent; color: var(--nc-white); font: 700 14px/1.3 var(--nc-jp); }
+    .type-option[aria-pressed="true"] { border-color: var(--nc-white); background: var(--nc-white); color: var(--nc-blue); }
+    .type-option:disabled { border-style: dashed; border-color: rgba(255,255,255,.35); color: rgba(255,255,255,.55); }
+    .scale-current { margin: 0; color: var(--nc-white); font: 700 28px/1.3 var(--nc-mono); }
+    .scale-meta { margin: 4px 0 20px; color: var(--nc-text-sub); font: 400 14px/1.6 var(--nc-mono); }
+    .browse-tools { grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: end; }
+    .small-btn, .copy-btn, .segmented button { min-height: 44px; padding: 0 18px; border: 2px solid var(--nc-white); border-radius: 0; background: transparent; color: var(--nc-white); font: 700 14px/1 var(--nc-jp); }
+    .all-scales-btn { min-height: 46px; }
+    .segmented { gap: 0; }
+    .segmented button + button { margin-left: -2px; }
+    .range-tools { margin-bottom: 18px; }
+    .degree-grid { grid-template-columns: repeat(8,minmax(0,1fr)); gap: 8px; }
+    .degree-cell { min-width: 0; padding: 12px 8px 14px; border: 2px solid rgba(255,255,255,.45); border-radius: 0; background: var(--nc-blue-deep); }
+    .degree-cell[aria-pressed="true"] { border: 2px solid var(--nc-orange); background: var(--nc-blue-deep); box-shadow: inset 0 0 0 2px var(--nc-orange); }
+    .degree-num { color: var(--nc-text-sub); font: 500 13px/1.4 var(--nc-jp); }
+    .degree-note { color: var(--nc-white); font: 700 24px/1.2 var(--nc-mono); }
+    .advanced { margin-top: 20px; padding-top: 16px; border-top: 2px solid var(--nc-panel-line); }
+    summary { color: var(--nc-white); font: 700 15px/1.4 var(--nc-jp); }
+    summary::marker { color: var(--nc-orange-text); }
+    .results, .active-token, .code-output, .copy-fallback textarea { border: 2px solid rgba(255,255,255,.35); border-radius: 0; background: var(--nc-blue-deep); }
+    .piano-key { border-radius: 0; }
+    footer { border-top: 2px solid var(--nc-panel-line); background: var(--nc-blue-deep); }
+    .footer-inner { min-height: auto; padding-top: 28px; padding-bottom: 36px; color: var(--nc-text-sub); font: 400 13px/1.7 var(--nc-jp); }
+    /* 2026-11-14 QA修正: 取り残しの極小文字を下限（補足13px）以上に */
+    label { font-size: 14px; }
+    .type-option:disabled::after { font-size: 13px; font-weight: 400; }
+    .result-heading { color: var(--nc-orange-text); font: 700 13px/1.3 var(--nc-jp); letter-spacing: 0; }
+    .scale-option[aria-selected="true"]::before { color: var(--nc-orange-text); font: 700 13px/1.4 var(--nc-jp); }
+    .scale-option-name { font: 500 14px/1.4 var(--nc-mono); }
+    .scale-option-meta { font-size: 13px; }
+    .no-results { font-size: 14px; }
+    .degree-section-title { color: var(--nc-text); font: 500 14px/1.4 var(--nc-mono); }
+    .degree-num { white-space: nowrap; }
+    .degree-cell[aria-pressed="true"]::after { color: var(--nc-orange-text); font: 700 13px/1 var(--nc-jp); }
+    .code-output { font: 400 15px/1.7 var(--nc-mono); font-variant-ligatures: none; }
+    .copy-fallback textarea { font: 14px/1.5 var(--nc-mono); }
+    .status { color: var(--nc-text); font-size: 14px; }
+    .selection-list { color: var(--nc-text); font: 14px/1.7 var(--nc-mono); }
+    .legend { color: var(--nc-text); font-size: 13px; }
+    /* チェックボックスは見本どおり白枠の四角。チェック時は内側をオレンジで埋める */
+    .check-label input { appearance: none; -webkit-appearance: none; flex: 0 0 20px; margin: 0; border: 2px solid var(--nc-white); background: transparent; cursor: pointer; }
+    .check-label input:checked { background: var(--nc-orange); box-shadow: inset 0 0 0 3px var(--nc-panel); }
+    .check-label input:focus-visible { outline: 2px solid var(--nc-orange); outline-offset: 2px; }
+    /* 鍵盤: パネルの幅いっぱいに広げ、案2の色（白・濃紺・オレンジ）にする */
+    .piano { width: 100%; min-width: max-content; height: 200px; }
+    .piano-key { flex: 1 0 42px; height: 192px; padding: 0 2px 12px; border: 2px solid var(--nc-blue-deep); border-radius: 0; background: var(--nc-white); color: var(--nc-blue); font: 700 13px/1.15 var(--nc-mono); font-variant-ligatures: none; }
+    .piano-key.black { flex: 0 0 32px; height: 120px; margin: 0 -16px; border-color: var(--nc-blue-deep); background: var(--nc-blue-deep); color: var(--nc-white); }
+    .piano-key.in-scale, .piano-key.black.in-scale { box-shadow: inset 0 -8px 0 var(--nc-orange); }
+    .piano-key.is-selected { outline: 4px solid var(--nc-orange); outline-offset: -6px; }
+    .piano-key.is-selected::before { color: var(--nc-orange); font-size: 16px; }
+    .key-state { min-height: 18px; font: 700 13px/1.2 var(--nc-jp); text-align: center; }
+    .piano-key.black .key-state { font-size: 13px; }
+    .legend-mark { width: 18px; height: 14px; border: 2px solid var(--nc-white); background: var(--nc-white); box-shadow: inset 0 -4px 0 var(--nc-orange); }
+    .legend-mark.selected { border: 3px solid var(--nc-orange); background: var(--nc-white); box-shadow: none; }
+    @media (max-width: 860px) {
+      .shell { width: 100%; padding-left: 16px; padding-right: 16px; }
+      main.shell { padding-top: 24px; }
+      .intro-copy { font-size: 17px; }
+      .intro-copy code { font-size: 16px; }
+      .fact-strip { grid-template-columns: minmax(0,1fr); }
+      .fact-strip span { padding: 10px 0; text-align: left; }
+      .fact-strip span + span { border-left: 0; border-top: 2px solid var(--nc-panel-line); }
+      .panel { padding: 20px 16px; }
+      .panel-head { flex-direction: column; }
+      .panel-head h2 { font-size: 22px; }
+      .control-row { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
+      .scale-builder { grid-template-columns: minmax(0,1fr); gap: 18px; }
+      .browse-tools { grid-template-columns: minmax(0,1fr); }
+      .degree-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
+      .degree-cell { padding-left: 4px; padding-right: 4px; }
+      .advanced-controls { grid-template-columns: minmax(0,1fr); }
+      .footer-inner { padding: 24px 16px 32px; }
+    }
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="shell topbar">
-      <a class="brand" href="../">
-        <span class="brand-main">narucode<span>/scale</span></span>
-        <span class="brand-sub">STRUDEL 日本語ハブ · 非公式</span>
+  <header class="nc-header">
+    <div class="nc-header-shell nc-topbar">
+      <a class="nc-brand" href="../">
+        <img src="../narucode-mark.png" width="30" height="28" alt="" aria-hidden="true">
+        <span class="nc-brand-text"><span class="nc-wordmark">narucode<em>/scale</em></span><span class="nc-brand-sub">Strudel 日本語ハブ · 非公式</span></span>
       </a>
-      <nav class="site-nav" aria-label="narucode 内部ナビ">
-        <a href="../">ホーム</a>
-        <a href="../guide/">ガイド</a>
-        <a href="../ref/">リファレンス</a>
-        <span aria-current="page">スケール</span>
-        <span class="nav-sep" aria-hidden="true">·</span>
-        <a href="../en/scale/" hreflang="en" lang="en">English</a>
-        <span class="nav-sep" aria-hidden="true">·</span>
-        <a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
+      <nav class="nc-nav-primary" aria-label="narucode 内部ナビ">
+        <a href="../">ホーム</a><a href="../guide/">ガイド</a><a href="../ref/">リファレンス</a><span aria-current="page">スケール</span>
+      </nav>
+      <nav class="nc-nav-ext" aria-label="narucode 内部ナビ">
+        <a href="../en/scale/" hreflang="en" lang="en">English</a><a href="https://strudel.cc" target="_blank" rel="noopener noreferrer">strudel.cc ↗</a>
       </nav>
     </div>
+    <div class="nc-header-shell"><div class="nc-dots"></div></div>
   </header>
 
   <main class="shell">
@@ -305,23 +402,23 @@
         <section class="panel" aria-labelledby="scale-heading">
           <div class="panel-head">
             <div>
-              <p class="section-kicker">01 / SCALE</p>
+              <p class="section-kicker">01</p>
               <h2 id="scale-heading">スケールを選ぶ</h2>
             </div>
             <label class="check-label"><input id="audio-toggle" type="checkbox"> 音を鳴らす</label>
           </div>
           <div class="control-row">
-            <label><span class="field-label">ROOT</span><select id="root-select" aria-label="ルート音"></select></label>
-            <label><span class="field-label">OCTAVE</span><select id="octave-select" aria-label="ルートのオクターブ"></select></label>
+            <label><span class="field-label">ルート音</span><select id="root-select" aria-label="ルート音"></select></label>
+            <label><span class="field-label">ルートのオクターブ</span><select id="octave-select" aria-label="ルートのオクターブ"></select></label>
           </div>
           <div class="scale-builder">
-            <label><span class="step-label">STEP 1 / ベースを選ぶ</span><select id="base-select" aria-label="スケールのベース"></select></label>
-            <fieldset><legend class="step-label">STEP 2 / 種類を選ぶ</legend><div id="type-options" class="type-options"></div></fieldset>
+            <label><span class="step-label">1 ベースを選ぶ</span><select id="base-select" aria-label="スケールのベース"></select></label>
+            <fieldset><legend class="step-label">2 種類を選ぶ</legend><div id="type-options" class="type-options"></div></fieldset>
           </div>
           <div id="scale-current" class="scale-current"></div>
           <div id="scale-meta" class="scale-meta"></div>
           <div class="browse-tools">
-            <label class="search-field"><span class="field-label">SEARCH</span><input id="scale-search" type="search" placeholder="name / strudel / alias" autocomplete="off" aria-controls="scale-results"></label>
+            <label class="search-field"><span class="field-label">検索</span><input id="scale-search" type="search" placeholder="name / strudel / alias" autocomplete="off" aria-controls="scale-results"></label>
             <button id="show-all-scales" class="small-btn all-scales-btn" type="button" aria-expanded="false" aria-controls="scale-results">すべて表示（85）</button>
           </div>
           <div id="scale-results" class="results" role="listbox" aria-label="スケール候補" hidden></div>
@@ -330,7 +427,7 @@
         <section class="panel panel-primary" aria-labelledby="degrees-heading">
           <div class="panel-head">
             <div>
-              <p class="section-kicker">02 / DEGREE → NOTE</p>
+              <p class="section-kicker">02</p>
               <h2 id="degrees-heading">度数 → 音名</h2>
               <p class="help">クリック順でコードになります。各音名にはオクターブ番号を表示します。</p>
             </div>
@@ -359,7 +456,7 @@
         <section class="panel" aria-labelledby="piano-heading">
           <div class="panel-head">
             <div>
-              <p class="section-kicker">03 / PIANO</p>
+              <p class="section-kicker">03</p>
               <h2 id="piano-heading">ピアノ鍵盤</h2>
               <p class="help">表示範囲に合わせて音域が変わります。横に送って確認できます。</p>
             </div>
@@ -371,7 +468,7 @@
         <section class="panel" aria-labelledby="code-heading">
           <div class="panel-head">
             <div>
-              <p class="section-kicker">04 / STRUDEL CODE</p>
+              <p class="section-kicker">04</p>
               <h2 id="code-heading">コードを生成</h2>
             </div>
             <button id="clear-selection" class="small-btn" type="button">全解除</button>
@@ -607,8 +704,11 @@
       const container = $('piano'); container.replaceChildren();
       const displayed = [...noteRange(0, state.maxDegree), ...(state.showNegative ? noteRange(-8, -1) : [])];
       const selectedPitches = state.selected.map(token => degreeToPitch(token));
-      const minimum = Math.min(...displayed.map(pitch => pitch.absolute), ...selectedPitches.map(pitch => pitch.absolute), degreeToPitch(0).absolute) - 1;
-      const maximum = Math.max(...displayed.map(pitch => pitch.absolute), ...selectedPitches.map(pitch => pitch.absolute), degreeToPitch(state.maxDegree).absolute) + 1;
+      let minimum = Math.min(...displayed.map(pitch => pitch.absolute), ...selectedPitches.map(pitch => pitch.absolute), degreeToPitch(0).absolute) - 1;
+      let maximum = Math.max(...displayed.map(pitch => pitch.absolute), ...selectedPitches.map(pitch => pitch.absolute), degreeToPitch(state.maxDegree).absolute) + 1;
+      // 両端は白鍵で終える（端が黒鍵だと白鍵の外へ半分はみ出すため）
+      if ([1, 3, 6, 8, 10].includes(mod(minimum, 12))) minimum -= 1;
+      if ([1, 3, 6, 8, 10].includes(mod(maximum, 12))) maximum += 1;
       const scaleClasses = new Set(displayed.filter(pitch => pitch.correction === 0).map(pitch => pitch.absolute));
       for (let absolute = minimum; absolute <= maximum; absolute += 1) {
         const pc = mod(absolute, 12); const black = [1, 3, 6, 8, 10].includes(pc); const octave = Math.floor(absolute / 12) - 1;
@@ -620,7 +720,7 @@
         const fallbackName = `${['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][pc]}${octave}`;
         const label = matching?.name || selected[0]?.name || fallbackName;
         button.setAttribute('aria-label', `${label}${scaleClasses.has(absolute) ? '、スケール構成音' : ''}${selected.length ? '、選択中' : ''}`); button.setAttribute('aria-pressed', String(Boolean(selected.length)));
-        const stateLabel = document.createElement('span'); stateLabel.className = 'key-state'; stateLabel.textContent = selected.length ? '✓ 選択' : scaleClasses.has(absolute) ? 'scale' : '';
+        const stateLabel = document.createElement('span'); stateLabel.className = 'key-state'; stateLabel.textContent = selected.length ? '✓ 選択' : ''; // スケール構成音は鍵盤下端のオレンジ帯（凡例あり）と aria-label で示す
         const noteLabel = document.createElement('span'); noteLabel.textContent = label; button.append(stateLabel, noteLabel);
         button.addEventListener('click', () => { if (matching) toggleDegree(matching.degree); else if (state.audioEnabled) playPitch({ absolute, frequency: 440 * 2 ** ((absolute - 69) / 12) }); });
         container.append(button);
