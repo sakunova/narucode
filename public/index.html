@@ -1671,6 +1671,249 @@ $: ar(
           <div class="code-card-fade" aria-hidden="true"></div>
           <button class="code-card-toggle" type="button" aria-expanded="false">すべて表示</button>
         </article>
+        <article class="code-card">
+          <header class="code-card-head">
+            <span class="code-card-meta">サカナクション「ルーキー」 · BPM 140/4 · a:major</span>
+            <button class="code-card-copy" type="button" aria-label="コードをコピー">コピー</button>
+          </header>
+          <pre class="work-code"><code>//サカナクション　ルーキー
+
+const master = slider(0.667, 0, 1)
+all(p =&gt; p.mul(gain(master)))
+
+
+const _rlpfHz = (knob, knobMax=5, maxHz=5000) =&gt;
+  knob.fmap(x =&gt; (x / knobMax) * maxHz)
+
+Pattern.prototype.rlpf = function(knob){
+  return this.lpf(_rlpfHz(knob, 5, 5000))
+}
+
+window.ar = function(...input) {
+
+  if (input.length % 2 !== 0) {
+    throw new Error('Arrange needs a length paramter for each pattern (length, pattern, length, pattern)');
+  }
+  let sects = [];
+  let total = 0;
+  for (let i = 0; i &lt; input.length; i += 2) {
+    let inp = [input.at(i)].flat()
+    let cycles = inp.at(0);
+    let start = inp.at(1) ?? 0
+    total += cycles;
+
+    let pattern = input.at(i + 1);
+    sects.push([cycles, pattern.ribbon(start, cycles).fast(cycles)]);
+  }
+  return stepcat(...sects).slow(total);
+}
+
+
+window.p = stack
+
+window.blockArrange = function (patArr, modifiers = []) {
+  return stack(
+    ...patArr.map(([pat, maskPat]) =&gt; {
+      pat = [pat].flat()
+
+      return maskPat.fmap(m =&gt; {
+        return stack(...pat.map(p =&gt; {
+
+          if (m == 0) {
+            return
+          }
+          const ms = m.toString()
+          let newPat = p
+
+          if (ms.includes('R')) {
+            newPat = newPat.restart(1)
+          }
+          if (ms.includes('B')) {
+            newPat = newPat.rev().speed(-1)
+          }
+          modifiers.forEach(([mod, callback]) =&gt; {
+            if (mod(ms)) {
+              newPat = callback(newPat)
+            }
+          })
+          return newPat
+        }).filter(Boolean))
+      }).innerJoin()
+    }).flat()
+  )
+}
+
+
+setcpm(140 / 4)
+
+const key = "a:major"
+
+// synth -----------------------------------------------------------------
+
+
+const cho1 = {
+  D:"D4,F#4,A4,C#5 ",
+  A:"A2,C#3,E3",
+  Aa:"A2,C#3,E3,G#3",
+}
+let synth1 = "&lt;D!4 A@3 Aa&gt;".pickmodOut(cho1).s("supersaw").fast(2)//.trans(12)
+  .note()
+
+let synth2 = chord("D^7").voicing().s("supersaw").slow(4).trans(-12)
+
+const cho2 = "D^7 E6 C#m F#m D^7 E6 F#m A^7 D^7 E6 C#m F#m D^7 E6 F#m F#m"
+let synth3 = chord(cho2).voicing().s("supersaw").slow(16)
+  // .seg(4)
+
+// drum -----------------------------------------------------------------
+
+const nch = {
+  A:"lt - lt lt - lt lt lt",
+  B:"lt lt lt lt lt lt lt lt",
+}
+
+const nsa = "&lt;A A A B&gt;"
+
+const dr1 = "bd - bd - sd - - - bd - - sd - sd bd -"
+const dr2 = "bd - oh - bd - oh -"
+const drum3 = "bd - hh - hd - hh -"
+const drum3p = "- - bd - - - bd -"
+const ltloop = [
+  "x - x x - x x x", //0
+  "x x x x x x x x", //1
+  "- - - x - x x x", //2
+]
+
+let drum1 = s(dr1)
+let drum2 = s(dr2).fast(2)
+let hat1 = s("oh!8").n(0).velocity("1 .8 .7 .8".fast(4)).gain(.9)
+let percussion1 = s("&lt;0!3 1&gt;".pick(ltloop)).s("snare_modern").fast(2).gain(2.2).speed(2).shape(.4)
+let percussion2 = s("&lt;2&gt;".pick(ltloop)).s("snare_modern").fast(2).gain(2.2).speed(2).shape(.4)
+let kick1 = s("bd!4")
+let kick2 = s("bd!8")
+let hat2 = s("[- hh]!4").n(0)
+let hat3 = s("[- oh]!4").n(0)
+let hat4 = s("hh!16").n(0).velocity("1 .8 .9 .8".fast(4))
+let clap1 = s("cp!4").gain(.8)
+let snare1 = s("[- sd]!2").n(0)
+let crash = s("cr").gain(1.2)
+
+// bass　-----------------------------------------------------------------
+
+let bass1 = note("D!8 E!8 C#!8 F#!8 D!8 E!8 F#!8 A!8").s("gm_electric_bass_finger").slow(8).trans(-24)
+  .gain(1.5)
+
+const ba2 = [
+  "D - D - D - D D", //0
+  "E - E - E - E E", //1
+  "C - C - C - C C", //2
+  "F# - F# - F# - F# F#", //3
+]
+
+let bass2 = note("&lt;0 1 2 3&gt;".pick(ba2)).s("gm_electric_bass_finger").slow(1).trans(-24)
+  .gain(1.5)
+
+// guitar -----------------------------------------------------------------
+
+const gu1 = {
+  E:"E,B",
+  D:"D,A",
+  B:"B2,G",
+}
+let guitar1 = note("- - - - E - - - D - - D - - B - ".inhabit(gu1)).s("saw").trans(12)
+  .clip(.8).release(.2).room(1).gain(.9)
+
+let guitar2 = chord(cho2).voicing().s("gm_distortion_guitar").slow(16)//.trans(-12)
+  .seg(8).gain(1)
+
+// master -----------------------------------------------------------------
+
+let intro = blockArrange(
+    [
+      [[synth1],    "&lt;F&gt;"],
+    ],
+  )
+
+let Amelo = blockArrange(
+    [
+      [[synth1],   "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[drum1],    "&lt;F F F F F F F F F F F F F F F 0 &gt;"],
+      [[drum2],    "&lt;0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 F &gt;"],
+      [[hat1],     "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[crash],    "&lt;F 0 0 0 0 0 0 0 F 0 0 0 0 0 0 0 &gt;"],
+    ],
+  )
+
+
+let Bmelo = blockArrange(
+    [
+      [[synth2],      "&lt;F F F F F F F F &gt;"],
+      [[percussion1], "&lt;F F F F F F F F &gt;"],
+      [[kick1],       "&lt;F F F F F F 0 0 &gt;"],
+      [[kick2],       "&lt;0 0 0 0 0 0 F F &gt;"],
+      [[hat2],        "&lt;F F F F 0 0 0 0 &gt;"],
+      [[hat3],        "&lt;0 0 0 0 F F F F &gt;"],
+    ],
+  )
+
+let preC = blockArrange(
+    [
+      [[synth3],      "&lt;F F F F F F F F F F F F F F F F F F F F F F F F &gt;"],
+      [[bass1],       "&lt;F F F F F F F F 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 &gt;"],
+      [[bass2],       "&lt;0 0 0 0 0 0 0 0 F F F F F F F F F F F F F F F F &gt;"],
+      [[clap1],       "&lt;F F F F F F F F F F F F F F F F F F F F F F F F &gt;"],
+      [[guitar1],     "&lt;F F F F F F F F F F F F F F F F F F F F F F F F &gt;"],
+      [[percussion1], "&lt;0 0 0 0 0 0 0 0 F F F F F F F F F F F F F F F F &gt;"],
+      [[kick1],       "&lt;0 0 0 0 0 0 0 0 F F F F F F F F F F F F F F F F &gt;"],
+      [[hat4],        "&lt;0 0 0 0 0 0 0 0 F F F F F F F F F F F F F F F F &gt;"],
+    ],
+  )
+
+let chorus1 = blockArrange(
+    [
+      [[synth3],       "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[bass1],        "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[guitar2],      "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[kick1],        "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[snare1],       "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[hat3],         "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[percussion2],  "&lt;0 0 0 0 0 0 0 0 0 0 0 0 0 0 F F &gt;"],
+      [[crash],        "&lt;F 0 0 0 0 0 0 0 F 0 0 0 0 0 0 0 &gt;"],
+    ],
+  )
+
+let chorus2 = blockArrange(
+    [
+      [[synth3],       "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[bass1],        "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[guitar1],      "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[guitar2],      "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[kick1],        "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[snare1],       "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[hat3],         "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[percussion2],  "&lt;F F F F F F F F F F F F F F F F &gt;"],
+      [[crash],        "&lt;F 0 0 0 0 0 0 0 F 0 0 0 0 0 0 0 &gt;"],
+    ],
+  )
+
+let outro = blockArrange(
+    [
+      [[synth3],       "&lt;0&gt;"],
+    ],
+  )
+$: ar(
+      16, intro,
+      16, Amelo,
+      8, Bmelo,
+      24, preC,
+      16, chorus1,
+      16, chorus2,
+      4, outro,
+
+     )._punchcard()</code></pre>
+          <div class="code-card-fade" aria-hidden="true"></div>
+          <button class="code-card-toggle" type="button" aria-expanded="false">すべて表示</button>
+        </article>
       </div><!-- /code-cards-grid -->
 
       <div class="video-link-list" aria-label="実在動画">
